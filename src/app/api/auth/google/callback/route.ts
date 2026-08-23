@@ -48,35 +48,21 @@ export async function GET(request: NextRequest) {
         storeHeaders["x-publishable-api-key"] = PUBLISHABLE_KEY;
       }
 
-      // Medusa V2 strictly decouples Auth from Customers. 
-      // We must ensure the Customer record exists for this token.
+      // Check if customer exists via standard /me endpoint
       const customerRes = await fetch(`${MEDUSA_URL}/store/customers/me`, {
         headers: storeHeaders
       });
 
       if (!customerRes.ok) {
-        // Customer doesn't exist yet! Let's create it.
-        let customerEmail = "google-user@laundrymall.in";
-        try {
-          const payload = JSON.parse(Buffer.from(data.token.split('.')[1], 'base64').toString());
-          if (payload.email) customerEmail = payload.email;
-          else if (payload.actor_id) customerEmail = `google-${payload.actor_id}@laundrymall.in`;
-        } catch (e) {
-          console.error("Failed to parse JWT", e);
-        }
-
-        const createRes = await fetch(`${MEDUSA_URL}/store/customers`, {
+        // Customer doesn't exist yet! Let's orchestrate the microservices.
+        // Call our new custom backend endpoint that syncs the Auth Identity with the Customer Module!
+        const syncRes = await fetch(`${MEDUSA_URL}/store/customers/sync`, {
           method: "POST",
           headers: storeHeaders,
-          body: JSON.stringify({ 
-            email: customerEmail,
-            first_name: "Valued",
-            last_name: "Customer"
-          }),
         });
         
-        if (!createRes.ok) {
-           console.error("Failed to create customer profile:", await createRes.text());
+        if (!syncRes.ok) {
+           console.error("Failed to sync Google profile:", await syncRes.text());
         }
       }
 
