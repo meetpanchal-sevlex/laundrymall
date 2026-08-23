@@ -37,10 +37,21 @@ export async function GET(request: NextRequest) {
         secure: process.env.NODE_ENV === "production",
       });
 
+      const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+      
+      const storeHeaders: Record<string, string> = {
+        "Authorization": `Bearer ${data.token}`,
+        "Content-Type": "application/json"
+      };
+      
+      if (PUBLISHABLE_KEY) {
+        storeHeaders["x-publishable-api-key"] = PUBLISHABLE_KEY;
+      }
+
       // Medusa V2 strictly decouples Auth from Customers. 
       // We must ensure the Customer record exists for this token.
       const customerRes = await fetch(`${MEDUSA_URL}/store/customers/me`, {
-        headers: { "Authorization": `Bearer ${data.token}` }
+        headers: storeHeaders
       });
 
       if (!customerRes.ok) {
@@ -48,25 +59,25 @@ export async function GET(request: NextRequest) {
         let customerEmail = "google-user@laundrymall.in";
         try {
           const payload = JSON.parse(Buffer.from(data.token.split('.')[1], 'base64').toString());
-          // Medusa auth identity payload usually has app_metadata or email
           if (payload.email) customerEmail = payload.email;
           else if (payload.actor_id) customerEmail = `google-${payload.actor_id}@laundrymall.in`;
         } catch (e) {
           console.error("Failed to parse JWT", e);
         }
 
-        await fetch(`${MEDUSA_URL}/store/customers`, {
+        const createRes = await fetch(`${MEDUSA_URL}/store/customers`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${data.token}`
-          },
+          headers: storeHeaders,
           body: JSON.stringify({ 
             email: customerEmail,
             first_name: "Valued",
             last_name: "Customer"
           }),
         });
+        
+        if (!createRes.ok) {
+           console.error("Failed to create customer profile:", await createRes.text());
+        }
       }
 
       return NextResponse.redirect(new URL("/account", request.url));
