@@ -27,7 +27,7 @@ export default function Navbar() {
   return (
     <>
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40 shadow-sm transition-all">
+      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-all">
       {/* Top bar */}
       <div className="bg-blue-600 text-white text-sm py-2 px-4 flex justify-between items-center">
         <div className="font-medium tracking-wide">

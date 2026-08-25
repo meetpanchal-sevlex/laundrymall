@@ -34,7 +34,7 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-gray-50 pb-20 md:pb-4">
 
       {/* Mobile Search Bar */}
-      <div className="md:hidden bg-white px-4 py-3 sticky top-0 z-40 shadow-sm border-b border-gray-100">
+      <div className="md:hidden bg-white px-4 py-3 border-b border-gray-100 shadow-sm">
         <form action="/products" method="GET">
           <div className="flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-3">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
