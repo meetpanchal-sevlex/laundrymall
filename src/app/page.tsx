@@ -153,26 +153,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Bottom Nav — mobile only */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-        <Link href="/" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-blue-600">
-          <span className="text-xl">🏠</span>
-          <span className="text-[10px] font-bold">Home</span>
-        </Link>
-        <Link href="/products" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500">
-          <span className="text-xl">🔍</span>
-          <span className="text-[10px] font-medium">Categories</span>
-        </Link>
-        <Link href="/checkout" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500">
-          <span className="text-xl">🛒</span>
-          <span className="text-[10px] font-medium">Cart</span>
-        </Link>
-        <Link href="/account" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500">
-          <span className="text-xl">👤</span>
-          <span className="text-[10px] font-medium">Account</span>
-        </Link>
-      </nav>
-
     </div>
   );
 }
