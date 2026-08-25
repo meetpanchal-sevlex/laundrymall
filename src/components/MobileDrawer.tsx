@@ -83,7 +83,8 @@ export default function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onC
   const pathname = usePathname();
   useEffect(() => {
     onClose();
-  }, [pathname, onClose]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   if (!isOpen) return null;
 
