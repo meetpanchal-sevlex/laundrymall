@@ -1,136 +1,178 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Search, ChevronRight, Flame, Sparkles } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import { ArrowRight } from "lucide-react";
-import { getCachedCollections, getCachedFrontendProducts } from "@/lib/medusa-cache";
+import { getCachedFrontendProducts } from "@/lib/medusa-cache";
+
+const CATEGORIES = [
+  { name: "All", href: "/products", icon: "🏪", color: "bg-blue-50" },
+  { name: "Machinery", href: "/products?category=Machinery", icon: "⚙️", color: "bg-orange-50" },
+  { name: "Chemicals", href: "/products?category=Detergent+Chemicals", icon: "🧪", color: "bg-green-50" },
+  { name: "Packaging", href: "/products?category=Packaging+Materials", icon: "📦", color: "bg-yellow-50" },
+  { name: "Accessories", href: "/products?category=Accessories", icon: "🔧", color: "bg-purple-50" },
+  { name: "Technology", href: "/products?category=Technology", icon: "💻", color: "bg-red-50" },
+];
+
+const BANNERS = [
+  { title: "Wholesale Machinery", subtitle: "Up to 30% off on bulk orders", color: "from-blue-600 to-blue-800", emoji: "⚙️" },
+  { title: "Eco Chemicals", subtitle: "ISO certified, trusted quality", color: "from-green-600 to-green-800", emoji: "🧪" },
+  { title: "Smart Packaging", subtitle: "Branded packaging solutions", color: "from-purple-600 to-purple-800", emoji: "📦" },
+];
+
+const WHY_US = [
+  { icon: "🚚", title: "Pan India Delivery", sub: "Fast shipping to all outlets" },
+  { icon: "✅", title: "ISO Certified", sub: "Guaranteed quality products" },
+  { icon: "💰", title: "Wholesale Pricing", sub: "Best rates for bulk orders" },
+  { icon: "🛡️", title: "Easy Returns", sub: "7-day hassle-free policy" },
+];
 
 export default async function Home() {
   const products = await getCachedFrontendProducts();
-  const collections = await getCachedCollections();
-  
-  const newArrivals = products.slice(0, 4);
-  const specialDeals = products.slice(4, 8);
+  const bestSellers = products.slice(0, 6);
+  const newArrivals = products.slice(6, 12);
 
   return (
-    <div className="flex flex-col gap-16 pb-12">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white">
-        {/* Decorative Background Blobs */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-          <div className="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-blue-50/80 blur-3xl" />
-          <div className="absolute top-[40%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-100/50 blur-3xl" />
-        </div>
+    <div className="flex flex-col min-h-screen bg-gray-50 pb-20 md:pb-4">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pt-28 md:pb-32 flex flex-col md:flex-row items-center gap-16 relative z-10">
-          
-          {/* Left Text Content */}
-          <div className="md:w-1/2 flex flex-col items-start text-left">
-            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 font-bold px-4 py-2 rounded-full text-xs tracking-wider uppercase mb-6 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-              India&apos;s #1 B2B Laundry Store
-            </div>
-            
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-[1.1] mb-6 tracking-tight">
-              Premium <br />
-              <span className="text-blue-600 relative">
-                Laundry Care
-                <svg className="absolute w-full h-4 -bottom-1 left-0 text-blue-200 -z-10" viewBox="0 0 100 20" preserveAspectRatio="none"><path d="M0 15 Q 50 0 100 15 L 100 20 L 0 20 Z" fill="currentColor"></path></svg>
-              </span><br />
-              Equipment.
-            </h1>
-            
-            <p className="text-lg md:text-xl text-gray-600 mb-10 max-w-lg leading-relaxed font-light">
-              Equip your business with enterprise-grade hangers, eco-friendly chemicals, and heavy-duty machinery. Standardized quality for all your outlets.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Link href="/products" className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-[0_8px_30px_rgb(59,130,246,0.3)] hover:shadow-[0_8px_30px_rgb(59,130,246,0.5)] hover:-translate-y-1 text-center flex items-center justify-center gap-2">
-                Explore Catalog <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link href="/contact" className="bg-white text-gray-800 border border-gray-200 px-8 py-4 rounded-xl font-bold hover:border-gray-300 hover:bg-gray-50 transition-all text-center">
-                Contact Sales
-              </Link>
-            </div>
+      {/* Mobile Search Bar */}
+      <div className="md:hidden bg-white px-4 py-3 sticky top-0 z-40 shadow-sm border-b border-gray-100">
+        <form action="/products" method="GET">
+          <div className="flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-3">
+            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <input
+              name="search"
+              type="text"
+              placeholder="Search for Machinery, Chemicals..."
+              className="bg-transparent flex-1 text-sm outline-none text-gray-700 placeholder:text-gray-400"
+            />
           </div>
+        </form>
+      </div>
 
-          {/* Right Image Content */}
-          <div className="md:w-1/2 w-full relative">
-            <div className="relative h-[400px] md:h-[600px] w-full rounded-[2rem] overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent z-10"></div>
-              <Image
-                src="https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1200&auto=format&fit=crop"
-                alt="Premium Dry Cleaning Storefront"
-                fill
-                className="object-cover hover:scale-105 transition-transform duration-1000"
-                priority
-              />
-              <div className="absolute bottom-8 left-8 z-20 text-white">
-                <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-lg border border-white/30 inline-block mb-3">
-                  <span className="font-semibold tracking-wide">✓ Standardized Quality</span>
+      {/* Hero Banners — horizontal scroll */}
+      <section className="bg-white pt-3 pb-4">
+        <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar pb-1">
+          {BANNERS.map((b, i) => (
+            <Link
+              key={i}
+              href="/products"
+              className={`flex-shrink-0 w-72 md:flex-1 rounded-2xl bg-gradient-to-r ${b.color} text-white p-5 flex items-center justify-between`}
+            >
+              <div>
+                <p className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-1">Featured</p>
+                <h3 className="text-lg font-black leading-tight">{b.title}</h3>
+                <p className="text-sm text-white/80 mt-1">{b.subtitle}</p>
+                <div className="mt-3 bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1">
+                  Shop Now <ChevronRight className="w-3 h-3" />
                 </div>
-                <h3 className="text-2xl font-bold">LaundryMall Excellence</h3>
               </div>
-            </div>
-          </div>
+              <span className="text-5xl">{b.emoji}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-8">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Shop by Category</h2>
-            <p className="text-gray-500 mt-2">Explore our premium selection of franchise supplies.</p>
-          </div>
-          <Link href="/products" className="text-blue-600 font-bold hover:text-blue-700 hover:underline flex items-center gap-1 transition-colors">
-            View All Categories <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {collections.slice(0, 8).map((collection) => (
-            <Link 
-              key={collection.id} 
-              href={`/products?category=` + encodeURIComponent(collection.title)}
-              className="bg-white border border-gray-100 rounded-2xl p-8 text-center hover:border-blue-200 hover:shadow-[0_8px_30px_rgb(59,130,246,0.12)] hover:-translate-y-1 transition-all group"
-            >
-              <div className="w-12 h-12 mx-auto bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+      {/* Category Icons — Meesho style */}
+      <section className="bg-white mt-2 py-4 border-t border-gray-100">
+        <div className="flex gap-5 px-4 overflow-x-auto hide-scrollbar">
+          {CATEGORIES.map((cat) => (
+            <Link key={cat.name} href={cat.href} className="flex-shrink-0 flex flex-col items-center gap-2 w-16">
+              <div className={`w-14 h-14 rounded-full ${cat.color} flex items-center justify-center text-2xl shadow-sm border border-white`}>
+                {cat.icon}
               </div>
-              <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{collection.title}</h3>
+              <span className="text-xs font-semibold text-gray-700 text-center leading-tight">{cat.name}</span>
             </Link>
           ))}
         </div>
       </section>
 
       {/* Best Sellers */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-16">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-red-100 text-red-600 p-2 rounded-lg">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+      <section className="mt-2 bg-white">
+        <div className="flex items-center justify-between px-4 pt-5 pb-3">
+          <div className="flex items-center gap-2">
+            <Flame className="w-5 h-5 text-orange-500" />
+            <h2 className="text-base font-black text-gray-900">Best Sellers</h2>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Best Sellers</h2>
+          <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5">
+            See All <ChevronRight className="w-4 h-4" />
+          </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-          {specialDeals.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-t border-gray-100">
+          {bestSellers.length > 0 ? (
+            bestSellers.map((product) => (
+              <ProductCard key={product.id} product={product} compact />
+            ))
+          ) : (
+            <div className="col-span-2 md:col-span-4 py-16 text-center text-gray-400">
+              <p className="text-4xl mb-3">🛒</p>
+              <p className="font-medium">Add products from your Medusa admin!</p>
+              <Link href="/products" className="mt-4 inline-block text-blue-600 font-bold text-sm">
+                Browse Catalog
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
       {/* New Arrivals */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-16 pb-8">
-        <div className="flex justify-between items-end mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">New Arrivals</h2>
-            <p className="text-gray-500 mt-2">The latest equipment added to our catalog.</p>
+      <section className="mt-2 bg-white">
+        <div className="flex items-center justify-between px-4 pt-5 pb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-500" />
+            <h2 className="text-base font-black text-gray-900">New Arrivals</h2>
           </div>
+          <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5">
+            See All <ChevronRight className="w-4 h-4" />
+          </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-          {newArrivals.map((product) => (
-            <ProductCard key={product.id} product={product} />
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-t border-gray-100">
+          {newArrivals.length > 0 ? (
+            newArrivals.map((product) => (
+              <ProductCard key={product.id} product={product} compact />
+            ))
+          ) : (
+            <div className="col-span-2 py-12 text-center text-gray-400">
+              <p className="font-medium text-sm">More products coming soon!</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Why LaundryMall */}
+      <section className="mt-2 bg-white px-4 py-6">
+        <h2 className="text-base font-black text-gray-900 mb-4">Why LaundryMall?</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {WHY_US.map((item) => (
+            <div key={item.title} className="bg-gray-50 rounded-xl p-3 flex gap-3 items-start">
+              <span className="text-2xl">{item.icon}</span>
+              <div>
+                <p className="text-sm font-bold text-gray-800">{item.title}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{item.sub}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>
+
+      {/* Bottom Nav — mobile only */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <Link href="/" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-blue-600">
+          <span className="text-xl">🏠</span>
+          <span className="text-[10px] font-bold">Home</span>
+        </Link>
+        <Link href="/products" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500">
+          <span className="text-xl">🔍</span>
+          <span className="text-[10px] font-medium">Categories</span>
+        </Link>
+        <Link href="/checkout" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500">
+          <span className="text-xl">🛒</span>
+          <span className="text-[10px] font-medium">Cart</span>
+        </Link>
+        <Link href="/account" className="flex-1 flex flex-col items-center py-2 gap-0.5 text-gray-500">
+          <span className="text-xl">👤</span>
+          <span className="text-[10px] font-medium">Account</span>
+        </Link>
+      </nav>
+
     </div>
   );
 }
