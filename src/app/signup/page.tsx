@@ -30,8 +30,6 @@ export default function SignupPage() {
     }
   };
 
-  };
-
   return (
     <div className="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50 py-12">
       <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 w-full max-w-xl">

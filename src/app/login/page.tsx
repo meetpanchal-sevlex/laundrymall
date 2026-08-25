@@ -41,8 +41,6 @@ function LoginForm() {
     }
   };
 
-  };
-
   return (
     <>
       {justRegistered && (
