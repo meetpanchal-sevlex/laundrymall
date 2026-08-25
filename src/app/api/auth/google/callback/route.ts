@@ -62,7 +62,9 @@ export async function GET(request: NextRequest) {
         });
         
         if (!syncRes.ok) {
-           console.error("Failed to sync Google profile:", await syncRes.text());
+           const errText = await syncRes.text();
+           console.error("Failed to sync Google profile:", errText);
+           return NextResponse.redirect(new URL(`/login?error=Profile Sync Failed: ${syncRes.status}`, request.url));
         }
       }
 
