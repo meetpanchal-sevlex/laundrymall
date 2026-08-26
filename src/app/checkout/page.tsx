@@ -64,7 +64,7 @@ export default function CheckoutPage() {
       // 1. Sync Shipping Address to Medusa Cart
       // Fallback email since we might not have user context on the guest checkout page
       const email = address.name.replace(/\s+/g, '').toLowerCase() + "@guest.com";
-      await setShippingAddressAction({
+      const addrResult = await setShippingAddressAction({
         first_name: address.name,
         last_name: ".", // Required by Medusa
         phone: address.phone,
@@ -74,6 +74,10 @@ export default function CheckoutPage() {
         postal_code: address.pincode,
         country_code: "in"
       }, email);
+
+      if (addrResult?.error) {
+        throw new Error(addrResult.error);
+      }
 
       if (paymentMethod === "cod") {
         // Complete the cart using whatever session is available, or just clear frontend

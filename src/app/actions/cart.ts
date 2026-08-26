@@ -122,7 +122,7 @@ export async function clearCartAction() {
   cookieStore.delete("_medusa_cart_id");
 }
 
-export async function setShippingAddressAction(address: any, email: string) {
+export async function setShippingAddressAction(address: any, email: string) { try {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
@@ -136,6 +136,7 @@ export async function setShippingAddressAction(address: any, email: string) {
   });
   const data = await safeJson(res);
   return data.cart;
+} catch(e:any) { return { error: e.message }; }
 }
 
 export async function initiatePaymentSessionsAction() {
@@ -195,4 +196,5 @@ export async function completeCartAction() {
   
   return data;
 }
+
 
