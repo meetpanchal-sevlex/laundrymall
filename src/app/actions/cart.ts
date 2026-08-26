@@ -13,6 +13,16 @@ const getHeaders = (token?: string) => {
   return h;
 };
 
+async function safeJson(res: Response) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("Failed to parse JSON. Response:", text);
+    throw new Error(`Server returned invalid response: ${text.substring(0, 100)}...`);
+  }
+}
+
 export async function getOrCreateCart() {
   const cookieStore = await cookies();
   const cartId = cookieStore.get("_medusa_cart_id")?.value;
@@ -23,7 +33,7 @@ export async function getOrCreateCart() {
       headers: getHeaders(token)
     });
     if (res.ok) {
-      const data = await res.json();
+      const data = await safeJson(res);
       return data.cart;
     }
     cookieStore.delete("_medusa_cart_id");
@@ -31,14 +41,14 @@ export async function getOrCreateCart() {
 
   // Get regions
   const regRes = await fetch(`${MEDUSA_URL}/store/regions`, { headers: getHeaders() });
-  const regData = await regRes.json();
+  const regData = await safeJson(regRes);
   const indiaRegion = regData.regions.find((r: any) => r.currency_code === "inr") || regData.regions[0];
 
   let customerId = undefined;
   if (token) {
     const cRes = await fetch(`${MEDUSA_URL}/store/customers/me`, { headers: getHeaders(token) });
     if (cRes.ok) {
-      const cData = await cRes.json();
+      const cData = await safeJson(cRes);
       customerId = cData.customer.id;
     }
   }
@@ -53,7 +63,7 @@ export async function getOrCreateCart() {
       currency_code: "inr"
     })
   });
-  const createData = await createRes.json();
+  const createData = await safeJson(createRes);
   if (!createRes.ok) {
     throw new Error(createData.message || "Failed to create Medusa Cart");
   }
@@ -124,7 +134,7 @@ export async function setShippingAddressAction(address: any, email: string) {
       email: email
     })
   });
-  const data = await res.json();
+  const data = await safeJson(res);
   return data.cart;
 }
 
@@ -139,7 +149,7 @@ export async function initiatePaymentSessionsAction() {
       headers: getHeaders(token),
       body: JSON.stringify({ cart_id: cart.id })
     });
-    const pcData = await pcRes.json();
+    const pcData = await safeJson(pcRes);
     
     if (!pcRes.ok) {
       return { error: pcData.message || "Failed to create payment collection" };
@@ -155,7 +165,7 @@ export async function initiatePaymentSessionsAction() {
     });
     
     if (!sessRes.ok) {
-       const errorData = await sessRes.json();
+       const errorData = await safeJson(sessRes);
        return { error: errorData.message || "Failed to initialize Razorpay session" };
     }
     
@@ -179,9 +189,10 @@ export async function completeCartAction() {
      throw new Error("Failed to complete cart: " + errorText);
   }
   
-  const data = await res.json();
+  const data = await safeJson(res);
   const cookieStore = await cookies();
   cookieStore.delete("_medusa_cart_id");
   
   return data;
 }
+
