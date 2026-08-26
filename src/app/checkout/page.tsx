@@ -58,7 +58,7 @@ export default function CheckoutPage() {
   const handlePayment = async () => {
     if (paymentMethod === "cod") {
       useCartStore.getState().clearCart();
-      router.push('/checkout/success');
+      window.location.href = '/checkout/success';
       return;
     }
 
@@ -100,7 +100,7 @@ export default function CheckoutPage() {
         order_id: data.orderId,
         handler: function (response: any) {
           useCartStore.getState().clearCart();
-          router.push('/checkout/success');
+          window.location.href = '/checkout/success';
         },
         prefill: {
           name: address.name,
