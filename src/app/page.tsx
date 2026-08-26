@@ -32,127 +32,131 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 pb-20 md:pb-4">
+      <div className="max-w-7xl mx-auto w-full">
+        {/* Mobile Search Bar */}
+        <div className="md:hidden bg-white px-4 py-3 border-b border-gray-100 shadow-sm">
+          <form action="/products" method="GET">
+            <div className="flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-3">
+              <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <input
+                name="search"
+                type="text"
+                placeholder="Search for Machinery, Chemicals..."
+                className="bg-transparent flex-1 text-sm outline-none text-gray-700 placeholder:text-gray-400"
+              />
+            </div>
+          </form>
+        </div>
 
-      {/* Mobile Search Bar */}
-      <div className="md:hidden bg-white px-4 py-3 border-b border-gray-100 shadow-sm">
-        <form action="/products" method="GET">
-          <div className="flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-3">
-            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <input
-              name="search"
-              type="text"
-              placeholder="Search for Machinery, Chemicals..."
-              className="bg-transparent flex-1 text-sm outline-none text-gray-700 placeholder:text-gray-400"
-            />
+        {/* Hero Banners — horizontal scroll */}
+        <section className="bg-white md:bg-transparent pt-3 md:pt-6 pb-4">
+          <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar pb-1 md:grid md:grid-cols-3">
+            {BANNERS.map((b, i) => (
+              <Link
+                key={i}
+                href="/products"
+                className={`flex-shrink-0 w-72 md:w-full rounded-2xl bg-gradient-to-r ${b.color} text-white p-6 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}
+              >
+                <div>
+                  <p className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-1">Featured</p>
+                  <h3 className="text-lg md:text-xl font-black leading-tight">{b.title}</h3>
+                  <p className="text-sm text-white/80 mt-1">{b.subtitle}</p>
+                  <div className="mt-4 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 transition-colors">
+                    Shop Now <ChevronRight className="w-3 h-3" />
+                  </div>
+                </div>
+                <span className="text-6xl drop-shadow-md">{b.emoji}</span>
+              </Link>
+            ))}
           </div>
-        </form>
-      </div>
+        </section>
 
-      {/* Hero Banners — horizontal scroll */}
-      <section className="bg-white pt-3 pb-4">
-        <div className="flex gap-3 px-4 overflow-x-auto hide-scrollbar pb-1">
-          {BANNERS.map((b, i) => (
-            <Link
-              key={i}
-              href="/products"
-              className={`flex-shrink-0 w-72 md:flex-1 rounded-2xl bg-gradient-to-r ${b.color} text-white p-5 flex items-center justify-between`}
-            >
-              <div>
-                <p className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-1">Featured</p>
-                <h3 className="text-lg font-black leading-tight">{b.title}</h3>
-                <p className="text-sm text-white/80 mt-1">{b.subtitle}</p>
-                <div className="mt-3 bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1">
-                  Shop Now <ChevronRight className="w-3 h-3" />
+        {/* Category Icons — Meesho style */}
+        <section className="bg-white md:bg-transparent mt-2 md:mt-6 py-4 md:py-0 border-t border-gray-100 md:border-none">
+          <div className="flex md:justify-center gap-6 px-4 overflow-x-auto hide-scrollbar">
+            {CATEGORIES.map((cat) => (
+              <Link key={cat.name} href={cat.href} className="flex-shrink-0 flex flex-col items-center gap-3 w-16 md:w-24 group">
+                <div className={`w-14 h-14 md:w-20 md:h-20 rounded-full ${cat.color} flex items-center justify-center text-2xl md:text-4xl shadow-sm border border-white group-hover:shadow-md group-hover:scale-105 transition-all`}>
+                  {cat.icon}
+                </div>
+                <span className="text-xs md:text-sm font-semibold text-gray-700 text-center leading-tight group-hover:text-blue-600 transition-colors">{cat.name}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Best Sellers */}
+        <section className="mt-2 md:mt-10 bg-white md:rounded-2xl md:shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <h2 className="text-base md:text-xl font-black text-gray-900">Best Sellers</h2>
+            </div>
+            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700">
+              See All <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-gray-100">
+            {bestSellers.length > 0 ? (
+              bestSellers.map((product) => (
+                <div key={product.id} className="border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors">
+                  <ProductCard product={product} compact />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-16 text-center text-gray-400">
+                <p className="text-4xl mb-3">🛍️</p>
+                <p className="font-medium">Add products from your Medusa admin!</p>
+                <Link href="/products" className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2 rounded-full transition-colors">
+                  Browse Catalog
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* New Arrivals */}
+        <section className="mt-2 md:mt-8 bg-white md:rounded-2xl md:shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-500" />
+              <h2 className="text-base md:text-xl font-black text-gray-900">New Arrivals</h2>
+            </div>
+            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700">
+              See All <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-gray-100">
+            {newArrivals.length > 0 ? (
+              newArrivals.map((product) => (
+                <div key={product.id} className="border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors">
+                  <ProductCard product={product} compact />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-12 text-center text-gray-400">
+                <p className="font-medium text-sm">More products coming soon!</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Why LaundryMall */}
+        <section className="mt-2 md:mt-8 md:mb-12 bg-white md:bg-transparent px-4 py-6 md:py-0">
+          <h2 className="text-base md:text-xl font-black text-gray-900 mb-4 md:mb-6 text-center md:text-left">Why LaundryMall?</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+            {WHY_US.map((item) => (
+              <div key={item.title} className="bg-gray-50 md:bg-white rounded-xl md:rounded-2xl p-4 flex md:flex-col md:items-center md:text-center gap-3 md:gap-4 md:shadow-sm md:hover:shadow-md transition-shadow">
+                <span className="text-2xl md:text-4xl">{item.icon}</span>
+                <div>
+                  <p className="text-sm md:text-base font-bold text-gray-800">{item.title}</p>
+                  <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">{item.sub}</p>
                 </div>
               </div>
-              <span className="text-5xl">{b.emoji}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Category Icons — Meesho style */}
-      <section className="bg-white mt-2 py-4 border-t border-gray-100">
-        <div className="flex gap-5 px-4 overflow-x-auto hide-scrollbar">
-          {CATEGORIES.map((cat) => (
-            <Link key={cat.name} href={cat.href} className="flex-shrink-0 flex flex-col items-center gap-2 w-16">
-              <div className={`w-14 h-14 rounded-full ${cat.color} flex items-center justify-center text-2xl shadow-sm border border-white`}>
-                {cat.icon}
-              </div>
-              <span className="text-xs font-semibold text-gray-700 text-center leading-tight">{cat.name}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Best Sellers */}
-      <section className="mt-2 bg-white">
-        <div className="flex items-center justify-between px-4 pt-5 pb-3">
-          <div className="flex items-center gap-2">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <h2 className="text-base font-black text-gray-900">Best Sellers</h2>
+            ))}
           </div>
-          <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5">
-            See All <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-t border-gray-100">
-          {bestSellers.length > 0 ? (
-            bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} compact />
-            ))
-          ) : (
-            <div className="col-span-2 md:col-span-4 py-16 text-center text-gray-400">
-              <p className="text-4xl mb-3">🛒</p>
-              <p className="font-medium">Add products from your Medusa admin!</p>
-              <Link href="/products" className="mt-4 inline-block text-blue-600 font-bold text-sm">
-                Browse Catalog
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* New Arrivals */}
-      <section className="mt-2 bg-white">
-        <div className="flex items-center justify-between px-4 pt-5 pb-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            <h2 className="text-base font-black text-gray-900">New Arrivals</h2>
-          </div>
-          <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5">
-            See All <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-t border-gray-100">
-          {newArrivals.length > 0 ? (
-            newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} compact />
-            ))
-          ) : (
-            <div className="col-span-2 py-12 text-center text-gray-400">
-              <p className="font-medium text-sm">More products coming soon!</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Why LaundryMall */}
-      <section className="mt-2 bg-white px-4 py-6">
-        <h2 className="text-base font-black text-gray-900 mb-4">Why LaundryMall?</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {WHY_US.map((item) => (
-            <div key={item.title} className="bg-gray-50 rounded-xl p-3 flex gap-3 items-start">
-              <span className="text-2xl">{item.icon}</span>
-              <div>
-                <p className="text-sm font-bold text-gray-800">{item.title}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{item.sub}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
+        </section>
+      </div>
     </div>
   );
 }
