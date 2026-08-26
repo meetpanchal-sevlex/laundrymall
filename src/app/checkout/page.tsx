@@ -95,12 +95,12 @@ export default function CheckoutPage() {
       }
       
       const medusaCart = sessionResult.cart;
-      const razorpaySession = medusaCart?.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === 'razorpay');
-      if (!razorpaySession || !razorpaySession.data?.id) {
+      const razorpaySession = sessionResult.payment_session || medusaCart?.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === 'razorpay' || s.provider_id?.includes('razorpay'));
+      const razorpayOrderId = razorpaySession?.data?.id || razorpaySession?.data?.order_id || razorpaySession?.id;
+      
+      if (!razorpayOrderId) {
         throw new Error("Razorpay session not successfully created by Medusa backend. Make sure the backend has Razorpay keys configured!");
       }
-      
-      const razorpayOrderId = razorpaySession.data.id;
 
       // 3. Load Razorpay SDK
       const loadScript = () => {

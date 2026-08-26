@@ -29,7 +29,7 @@ export async function getOrCreateCart() {
   const token = cookieStore.get("_medusa_jwt")?.value;
 
   if (cartId) {
-    const res = await fetch(`${MEDUSA_URL}/store/carts/${cartId}?fields=*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection`, {
+    const res = await fetch(`${MEDUSA_URL}/store/carts/${cartId}?fields=*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection,*payment_collection.payment_sessions`, {
       headers: getHeaders(token)
     });
     if (res.ok) {
@@ -170,7 +170,9 @@ export async function initiatePaymentSessionsAction() {
        return { error: errorData.message || "Failed to initialize Razorpay session" };
     }
     
-    return { cart: await getOrCreateCart() };
+    const sessData = await safeJson(sessRes);
+    const session = sessData.payment_collection?.payment_sessions?.[0] || sessData.payment_session;
+    return { cart: await getOrCreateCart(), payment_session: session };
   } catch (e: any) {
     return { error: e.message || "Unknown server error" };
   }
