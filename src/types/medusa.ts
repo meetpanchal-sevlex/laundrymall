@@ -17,6 +17,7 @@ export interface MedusaProduct {
   thumbnail: string;
   collection_id?: string;
   variants: MedusaProductVariant[];
+  images?: { url: string }[];
 }
 
 export interface MedusaCollection {
