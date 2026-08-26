@@ -55,8 +55,8 @@ export default function CheckoutPage() {
 
   const handlePayment = async () => {
     if (paymentMethod === "cod") {
-      alert("Order Placed Successfully via Cash on Delivery!");
-      // Redirect to success page or clear cart here
+      useCartStore.getState().clearCart();
+      router.push('/checkout/success');
       return;
     }
 
@@ -97,8 +97,8 @@ export default function CheckoutPage() {
         description: "Wholesale Laundry Supplies",
         order_id: data.orderId,
         handler: function (response: any) {
-          alert(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
-          // Here you would trigger Medusa's "Complete Cart" API to finalize the order
+          useCartStore.getState().clearCart();
+          router.push('/checkout/success');
         },
         prefill: {
           name: address.name,
