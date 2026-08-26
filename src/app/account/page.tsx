@@ -132,6 +132,4 @@ function MenuItem({ icon, label, href }: { icon: React.ReactNode; label: string;
       <ChevronRight className="w-4 h-4 text-gray-400" />
     </Link>
   );
-}/Link>
-  );
 }
