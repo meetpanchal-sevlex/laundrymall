@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.amazonaws.com', // For Medusa S3 storage
       },
+      {
+        protocol: 'https',
+        hostname: 'pub-42387e1a037e49f0920e629b852abe7f.r2.dev', // Cloudflare R2 Bucket
+      },
     ],
   },
 };
