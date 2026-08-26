@@ -23,11 +23,16 @@ export default async function ProductsPage({
   }
   
   if (searchQuery) {
-    const query = searchQuery.toLowerCase();
-    filteredProducts = filteredProducts.filter((p) => 
-      p.name.toLowerCase().includes(query) || 
-      (p.category && p.category.toLowerCase().includes(query))
-    );
+    const Fuse = (await import('fuse.js')).default;
+    const fuse = new Fuse(filteredProducts, {
+      keys: ['name', 'category', 'description'],
+      threshold: 0.4, // 0.0 is exact match, 1.0 is match anything (0.4 is a good balance for typo tolerance)
+      ignoreLocation: true,
+      minMatchCharLength: 2,
+    });
+    
+    const results = fuse.search(searchQuery);
+    filteredProducts = results.map(result => result.item);
   }
 
   return (
