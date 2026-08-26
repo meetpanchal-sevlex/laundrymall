@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import ProductBottomBar from "@/components/ProductBottomBar";
 import { getCachedFrontendProduct } from "@/lib/medusa-cache";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductDetailPage({
   params,
 }: {
