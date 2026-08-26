@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'backend-production-a2f6.up.railway.app',
+        hostname: 'backend-production-95618.up.railway.app',
       },
       {
         protocol: 'https',
