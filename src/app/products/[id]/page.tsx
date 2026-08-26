@@ -4,6 +4,7 @@ import { CheckCircle2, ShieldCheck, Truck, Star, Share2, Heart, ChevronRight, St
 import { notFound } from "next/navigation";
 import ProductBottomBar from "@/components/ProductBottomBar";
 import { getCachedFrontendProduct } from "@/lib/medusa-cache";
+import ImageSlider from "@/components/ImageSlider";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,10 @@ export default async function ProductDetailPage({
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+    
+  const sliderImages = product.images && product.images.length > 0 
+    ? product.images 
+    : [product.image];
 
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-8">
@@ -34,16 +39,7 @@ export default async function ProductDetailPage({
           <div className="md:w-1/2 flex-shrink-0">
             {/* Product Image Section */}
             <div className="bg-white pb-2 relative md:sticky md:top-24 md:pb-0 md:rounded-xl md:border md:border-gray-100 md:overflow-hidden">
-              <div className="w-full aspect-square relative bg-white md:bg-gray-50">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-contain md:p-8"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority
-                />
-              </div>
+              <ImageSlider images={sliderImages} alt={product.name} />
 
               {/* Meesho-style Trust Badges Banner */}
               <div className="flex items-center justify-between px-4 py-2.5 bg-blue-50 border-y border-blue-100 text-[10px] md:text-xs font-bold text-gray-700">

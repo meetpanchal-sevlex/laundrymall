@@ -15,6 +15,7 @@ function adaptProduct(medusaProduct: MedusaProduct, collections: MedusaCollectio
     category: collection?.title || "Uncategorized",
     price: price, 
     image: medusaProduct.thumbnail || medusaProduct.images?.[0]?.url || "https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?q=80&w=600&auto=format&fit=crop",
+    images: medusaProduct.images?.map(img => img.url) || [],
     description: medusaProduct.description || "Laundry Mall Product",
   };
 }
