@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin } from "lucide-react";
 
 export default function CheckoutPage() {
   const { cartTotal } = useCartStore();
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [isFetchingPin, setIsFetchingPin] = useState(false);
   
