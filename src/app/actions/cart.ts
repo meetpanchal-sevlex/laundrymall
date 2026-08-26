@@ -158,16 +158,23 @@ export async function initiatePaymentSessionsAction() {
     
     const paymentCollection = pcData.payment_collection;
     
-    // Init session
-    const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/payment-sessions`, {
-      method: "POST",
-      headers: getHeaders(token),
-      body: JSON.stringify({ provider_id: "razorpay" })
-    });
+    // In Medusa 2.0, provider IDs in the container are named pp_<identifier>_<id> (e.g. pp_razorpay_razorpay)
+    const providerCandidates = ["pp_razorpay_razorpay", "pp_razorpay", "razorpay"];
+    let sessRes: any = null;
+    let lastError: any = null;
+
+    for (const pid of providerCandidates) {
+      sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/payment-sessions`, {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify({ provider_id: pid })
+      });
+      if (sessRes.ok) break;
+      lastError = await safeJson(sessRes);
+    }
     
-    if (!sessRes.ok) {
-       const errorData = await safeJson(sessRes);
-       return { error: errorData.message || "Failed to initialize Razorpay session" };
+    if (!sessRes || !sessRes.ok) {
+       return { error: lastError?.message || "Failed to initialize Razorpay session" };
     }
     
     const sessData = await safeJson(sessRes);
