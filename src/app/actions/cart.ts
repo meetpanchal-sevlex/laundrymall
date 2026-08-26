@@ -19,7 +19,7 @@ export async function getOrCreateCart() {
   const token = cookieStore.get("_medusa_jwt")?.value;
 
   if (cartId) {
-    const res = await fetch("${MEDUSA_URL}/store/carts/${cartId}?fields=*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection", {
+    const res = await fetch(`${MEDUSA_URL}/store/carts/${cartId}?fields=*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection`, {
       headers: getHeaders(token)
     });
     if (res.ok) {
@@ -30,20 +30,21 @@ export async function getOrCreateCart() {
   }
 
   // Get regions
-  const regRes = await fetch("${MEDUSA_URL}/store/regions", { headers: getHeaders() });
+  const regRes = await fetch(`${MEDUSA_URL}/store/regions`, { headers: getHeaders() });
   const regData = await regRes.json();
   const indiaRegion = regData.regions.find((r: any) => r.currency_code === "inr") || regData.regions[0];
 
   let customerId = undefined;
   if (token) {
-    const cRes = await fetch("${MEDUSA_URL}/store/customers/me", { headers: getHeaders(token) });
+    const cRes = await fetch(`${MEDUSA_URL}/store/customers/me`, { headers: getHeaders(token) });
     if (cRes.ok) {
       const cData = await cRes.json();
       customerId = cData.customer.id;
     }
   }
 
-  const createRes = await fetch("${MEDUSA_URL}/store/carts", {
+
+  const createRes = await fetch(`${MEDUSA_URL}/store/carts`, {
     method: "POST",
     headers: getHeaders(token),
     body: JSON.stringify({
@@ -53,6 +54,9 @@ export async function getOrCreateCart() {
     })
   });
   const createData = await createRes.json();
+  if (!createRes.ok) {
+    throw new Error(createData.message || "Failed to create Medusa Cart");
+  }
   const cart = createData.cart;
 
   cookieStore.set("_medusa_cart_id", cart.id, {
@@ -69,7 +73,7 @@ export async function addToCartAction(variantId: string, quantity: number) {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  await fetch("${MEDUSA_URL}/store/carts/${cart.id}/line-items", {
+  await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items`, {
     method: "POST",
     headers: getHeaders(token),
     body: JSON.stringify({ variant_id: variantId, quantity })
@@ -82,7 +86,7 @@ export async function updateCartItemAction(lineId: string, quantity: number) {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  await fetch("${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}", {
+  await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
     method: "POST",
     headers: getHeaders(token),
     body: JSON.stringify({ quantity })
@@ -95,7 +99,7 @@ export async function removeCartItemAction(lineId: string) {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  await fetch("${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}", {
+  await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
     method: "DELETE",
     headers: getHeaders(token)
   });
@@ -112,7 +116,7 @@ export async function setShippingAddressAction(address: any, email: string) {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  const res = await fetch("${MEDUSA_URL}/store/carts/${cart.id}", {
+  const res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}`, {
     method: "POST",
     headers: getHeaders(token),
     body: JSON.stringify({
@@ -165,7 +169,7 @@ export async function completeCartAction() {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  const res = await fetch("${MEDUSA_URL}/store/carts/${cart.id}/complete", {
+  const res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/complete`, {
     method: "POST",
     headers: getHeaders(token)
   });
