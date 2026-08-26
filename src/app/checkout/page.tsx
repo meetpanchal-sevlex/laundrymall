@@ -118,9 +118,9 @@ export default function CheckoutPage() {
       const resLoad = await loadScript();
       if (!resLoad) throw new Error("Razorpay SDK failed to load");
 
-      // 4. Open Razorpay using Medusa's official Order ID
+      // 4. Open Razorpay using Medusa's official Order ID and matching Key ID
       const options = {
-        key: "rzp_test_TUR2Fq27NAhvyo", // Fallback test key
+        key: razorpaySession?.data?.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TUR2Fq27NAhvyo",
         amount: cartTotal() * 100,
         currency: "INR",
         name: "LaundryMall",
