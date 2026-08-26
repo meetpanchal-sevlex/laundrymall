@@ -159,7 +159,7 @@ export async function initiatePaymentSessionsAction() {
     const paymentCollection = pcData.payment_collection;
     
     // Init session
-    const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/sessions`, {
+    const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/payment-sessions`, {
       method: "POST",
       headers: getHeaders(token),
       body: JSON.stringify({ provider_id: "razorpay" })
