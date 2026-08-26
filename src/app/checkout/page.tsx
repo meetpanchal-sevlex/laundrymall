@@ -53,9 +53,72 @@ export default function CheckoutPage() {
     setStep(2);
   };
 
-  const handlePayment = () => {
-    alert("Razorpay integration coming next! For now, pretend payment was successful.");
-    // We will wire this to Medusa + Razorpay once the backend wakes up
+  const handlePayment = async () => {
+    if (paymentMethod === "cod") {
+      alert("Order Placed Successfully via Cash on Delivery!");
+      // Redirect to success page or clear cart here
+      return;
+    }
+
+    try {
+      const amount = cartTotal();
+      
+      // 1. Create order on our Next.js backend
+      const res = await fetch("/api/razorpay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount })
+      });
+      
+      if (!res.ok) throw new Error("Failed to create Razorpay order");
+      const data = await res.json();
+
+      // 2. Load Razorpay SDK
+      const scriptLoaded = await new Promise((resolve) => {
+        if ((window as any).Razorpay) return resolve(true);
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
+
+      if (!scriptLoaded) {
+        alert("Razorpay failed to load. Please check your internet connection.");
+        return;
+      }
+
+      // 3. Initialize Razorpay popup
+      const options = {
+        key: data.keyId, // Public Key returned from our secure backend
+        amount: data.amount,
+        currency: data.currency,
+        name: "LaundryMall",
+        description: "Wholesale Laundry Supplies",
+        order_id: data.orderId,
+        handler: function (response: any) {
+          alert(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
+          // Here you would trigger Medusa's "Complete Cart" API to finalize the order
+        },
+        prefill: {
+          name: address.name,
+          contact: address.phone,
+        },
+        theme: {
+          color: "#f43397", // Meesho Pink
+        },
+      };
+
+      const paymentObject = new (window as any).Razorpay(options);
+      paymentObject.on("payment.failed", function (response: any) {
+        alert("Payment Failed. Reason: " + response.error.description);
+      });
+      paymentObject.open();
+
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong initializing the payment.");
+    }
   };
 
   return (
