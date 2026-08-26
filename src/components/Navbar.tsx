@@ -28,24 +28,6 @@ export default function Navbar() {
     <>
       <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-all">
-      {/* Top bar */}
-      <div className="bg-blue-600 text-white text-sm py-2 px-4 flex justify-between items-center">
-        <div className="font-medium tracking-wide">
-          {mounted && user ? `Welcome back, ${user.first_name || 'Customer'}!` : "Welcome to LaundryMall"}
-        </div>
-        <div className="flex gap-4 font-medium">
-          {mounted && user ? (
-            <button onClick={handleLogout} className="hover:text-blue-100 transition flex items-center gap-1">
-              <LogOut className="w-3 h-3" /> Logout
-            </button>
-          ) : (
-            <>
-              <Link href="/login" className="hover:text-blue-100 transition">Login</Link>
-              <Link href="/signup" className="hover:text-blue-100 transition">Signup</Link>
-            </>
-          )}
-        </div>
-      </div>
       
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
