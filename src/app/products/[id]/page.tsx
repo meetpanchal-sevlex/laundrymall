@@ -136,33 +136,7 @@ export default async function ProductDetailPage({
               </div>
             </div>
 
-            {/* Sold By Section */}
-            <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100">
-              <h2 className="text-gray-900 font-bold text-sm md:text-base mb-4">Sold By</h2>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3 md:gap-4 group cursor-pointer">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-100 group-hover:scale-105 transition-all">
-                    <Store className="w-5 h-5 md:w-7 md:h-7" />
-                  </div>
-                  <h3 className="font-bold text-gray-900 text-[15px] md:text-lg group-hover:text-blue-600 transition-colors">LaundryMall Wholesale</h3>
-                </div>
-                <button className="border-2 border-blue-600 text-blue-600 font-bold text-xs md:text-sm px-4 md:px-6 py-1.5 md:py-2 rounded-lg md:rounded-full hover:bg-blue-50 transition shadow-sm">
-                  View Shop
-                </button>
-              </div>
-              <div className="flex items-center gap-8 pl-14 md:pl-18">
-                <div>
-                  <div className="flex items-center gap-1 text-blue-600 font-bold text-sm md:text-base mb-0.5">
-                    4.2 <Star className="w-3.5 h-3.5 md:w-4 md:h-4 fill-current" />
-                  </div>
-                  <p className="text-xs md:text-sm text-gray-400 font-medium">15,270 Ratings</p>
-                </div>
-                <div>
-                  <p className="text-gray-900 font-bold text-sm md:text-base mb-0.5">409</p>
-                  <p className="text-xs md:text-sm text-gray-400 font-medium">Products</p>
-                </div>
-              </div>
-            </div>
+
 
             {/* Product Highlights Section */}
             <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100">
