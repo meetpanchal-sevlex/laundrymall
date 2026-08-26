@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'backend-production-95618.up.railway.app',
+        hostname: 'api.laundrymall.in',
       },
       {
         protocol: 'https',
