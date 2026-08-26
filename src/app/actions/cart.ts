@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
 
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in";
+const MEDUSA_URL = (process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in").replace(/\/$/, "");
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
 
 const getHeaders = (token?: string) => {
@@ -196,5 +196,6 @@ export async function completeCartAction() {
   
   return data;
 }
+
 
 
