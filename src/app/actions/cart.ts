@@ -19,7 +19,7 @@ async function safeJson(res: Response) {
     return JSON.parse(text);
   } catch (e) {
     console.error("Failed to parse JSON. Response:", text);
-    throw new Error(`Server returned invalid response: ${text.substring(0, 100)}...`);
+    throw new Error(`Failed at ${res.url}: ${text.substring(0, 80)}...`);
   }
 }
 
@@ -196,6 +196,7 @@ export async function completeCartAction() {
   
   return data;
 }
+
 
 
 
