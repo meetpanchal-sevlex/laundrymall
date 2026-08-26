@@ -38,7 +38,7 @@ export const getCachedFrontendProducts = unstable_cache(
       return products.map((p) => adaptProduct(p, collections));
     } catch (error) {
       console.error("Failed to fetch products from Medusa:", error);
-      throw new Error("Failed to load catalog. Please try again later.");
+      return []; // Return empty array instead of crashing Vercel build
     }
   },
   ['medusa-frontend-products-v2'],
