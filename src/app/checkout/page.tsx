@@ -85,9 +85,13 @@ export default function CheckoutPage() {
       }
 
       // 2. Initialize Medusa Payment Sessions (This triggers the Razorpay Backend Plugin!)
-      const medusaCart = await initiatePaymentSessionsAction();
+      const sessionResult = await initiatePaymentSessionsAction();
+      if (sessionResult.error) {
+        throw new Error(sessionResult.error);
+      }
       
-      const razorpaySession = medusaCart.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === 'razorpay');
+      const medusaCart = sessionResult.cart;
+      const razorpaySession = medusaCart?.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === 'razorpay');
       if (!razorpaySession || !razorpaySession.data?.id) {
         throw new Error("Razorpay session not successfully created by Medusa backend. Make sure the backend has Razorpay keys configured!");
       }

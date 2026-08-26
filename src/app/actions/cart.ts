@@ -125,31 +125,40 @@ export async function setShippingAddressAction(address: any, email: string) {
 }
 
 export async function initiatePaymentSessionsAction() {
-  const cart = await getOrCreateCart();
-  const token = (await cookies()).get("_medusa_jwt")?.value;
-  
-  // Create Payment Collection (Medusa 2.0 flow)
-  const pcRes = await fetch("${MEDUSA_URL}/store/payment-collections", {
-    method: "POST",
-    headers: getHeaders(token),
-    body: JSON.stringify({ cart_id: cart.id })
-  });
-  const pcData = await pcRes.json();
-  const paymentCollection = pcData.payment_collection;
-  
-  // Init session
-  const sessRes = await fetch("${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/sessions", {
-    method: "POST",
-    headers: getHeaders(token),
-    body: JSON.stringify({ provider_id: "razorpay" })
-  });
-  
-  if (!sessRes.ok) {
-     const errorText = await sessRes.text();
-     throw new Error("Failed to initialize payment session: " + errorText);
+  try {
+    const cart = await getOrCreateCart();
+    const token = (await cookies()).get("_medusa_jwt")?.value;
+    
+    // Create Payment Collection (Medusa 2.0 flow)
+    const pcRes = await fetch(`${MEDUSA_URL}/store/payment-collections`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ cart_id: cart.id })
+    });
+    const pcData = await pcRes.json();
+    
+    if (!pcRes.ok) {
+      return { error: pcData.message || "Failed to create payment collection" };
+    }
+    
+    const paymentCollection = pcData.payment_collection;
+    
+    // Init session
+    const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/sessions`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ provider_id: "razorpay" })
+    });
+    
+    if (!sessRes.ok) {
+       const errorData = await sessRes.json();
+       return { error: errorData.message || "Failed to initialize Razorpay session" };
+    }
+    
+    return { cart: await getOrCreateCart() };
+  } catch (e: any) {
+    return { error: e.message || "Unknown server error" };
   }
-  
-  return await getOrCreateCart();
 }
 
 export async function completeCartAction() {
