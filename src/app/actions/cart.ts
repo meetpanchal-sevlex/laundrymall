@@ -139,6 +139,67 @@ export async function setShippingAddressAction(address: any, email: string) { tr
 } catch(e:any) { return { error: e.message }; }
 }
 
+export async function prepareCheckoutAction(shippingAddress: any, email: string) {
+  try {
+    const token = (await cookies()).get("_medusa_jwt")?.value;
+    const cart = await getOrCreateCart();
+    
+    // 1. Update shipping address on the cart
+    const addrRes = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({
+        shipping_address: shippingAddress,
+        email: email
+      })
+    });
+    if (!addrRes.ok) {
+      const addrErr = await safeJson(addrRes);
+      return { error: addrErr.message || "Failed to update delivery address" };
+    }
+
+    // 2. Create Payment Collection (Medusa 2.0 flow)
+    const pcRes = await fetch(`${MEDUSA_URL}/store/payment-collections`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ cart_id: cart.id })
+    });
+    const pcData = await safeJson(pcRes);
+    
+    if (!pcRes.ok) {
+      return { error: pcData.message || "Failed to create payment collection" };
+    }
+    
+    const paymentCollection = pcData.payment_collection;
+    
+    // 3. Init Razorpay session directly
+    const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/payment-sessions`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ provider_id: "pp_razorpay_razorpay" })
+    });
+    
+    if (!sessRes.ok) {
+      const errorData = await safeJson(sessRes);
+      return { error: errorData.message || "Failed to initialize Razorpay session" };
+    }
+    
+    const sessData = await safeJson(sessRes);
+    const session = sessData.payment_collection?.payment_sessions?.[0] || sessData.payment_session;
+    const orderId = session?.data?.id || session?.data?.order_id || session?.id;
+    const keyId = session?.data?.key_id || "";
+    
+    return { 
+      success: true, 
+      razorpayOrderId: orderId, 
+      keyId: keyId,
+      amount: cart.total || (session?.data?.amount ? session.data.amount / 100 : 0)
+    };
+  } catch (e: any) {
+    return { error: e.message || "Unknown server error during checkout" };
+  }
+}
+
 export async function initiatePaymentSessionsAction() {
   try {
     const cart = await getOrCreateCart();

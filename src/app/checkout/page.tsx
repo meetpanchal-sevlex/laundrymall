@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Script from "next/script";
 import { ArrowLeft, MapPin } from "lucide-react";
-import { setShippingAddressAction, initiatePaymentSessionsAction, completeCartAction } from "@/app/actions/cart";
+import { prepareCheckoutAction, completeCartAction } from "@/app/actions/cart";
 
 export default function CheckoutPage() {
   const { cartTotal, syncCart, items, medusaTotal } = useCartStore();
@@ -65,10 +66,8 @@ export default function CheckoutPage() {
   const handlePayment = async () => {
     setIsProcessing(true);
     try {
-      // 1. Sync Shipping Address to Medusa Cart
-      // Fallback email since we might not have user context on the guest checkout page
       const email = address.name.replace(/\s+/g, '').toLowerCase() + "@guest.com";
-      const addrResult = await setShippingAddressAction({
+      const shippingAddress = {
         first_name: address.name,
         last_name: ".", // Required by Medusa
         phone: address.phone,
@@ -77,54 +76,26 @@ export default function CheckoutPage() {
         province: address.state,
         postal_code: address.pincode,
         country_code: "in"
-      }, email);
-
-      if (addrResult?.error) {
-        throw new Error(addrResult.error);
-      }
+      };
 
       if (paymentMethod === "cod") {
-        // Complete the cart using whatever session is available, or just clear frontend
-        // Note: For true COD, Medusa requires a 'manual' provider. 
-        // We will just clear the local cart to unblock them for now.
         useCartStore.getState().clearCart();
         window.location.href = '/checkout/success';
         return;
       }
 
-      // 2. Initialize Medusa Payment Sessions (This triggers the Razorpay Backend Plugin!)
-      const sessionResult = await initiatePaymentSessionsAction();
-      if (sessionResult.error) {
-        throw new Error(sessionResult.error);
+      // 1. Single high-speed batch action to sync address and get Razorpay Order ID
+      const checkoutResult = await prepareCheckoutAction(shippingAddress, email);
+      if (checkoutResult.error || !checkoutResult.razorpayOrderId) {
+        throw new Error(checkoutResult.error || "Failed to initialize payment session with backend");
       }
       
-      const medusaCart = sessionResult.cart;
-      const razorpaySession = sessionResult.payment_session || medusaCart?.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === 'razorpay' || s.provider_id?.includes('razorpay'));
-      const razorpayOrderId = razorpaySession?.data?.id || razorpaySession?.data?.order_id || razorpaySession?.id;
-      
-      if (!razorpayOrderId) {
-        throw new Error("Razorpay session not successfully created by Medusa backend. Make sure the backend has Razorpay keys configured!");
-      }
+      const razorpayOrderId = checkoutResult.razorpayOrderId;
+      const matchingKeyId = checkoutResult.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TUR2Fq27NAhvyo";
 
-      // 3. Load Razorpay SDK
-      const loadScript = () => {
-        return new Promise((resolve) => {
-          if (document.getElementById('razorpay-sdk')) return resolve(true);
-          const script = document.createElement("script");
-          script.id = "razorpay-sdk";
-          script.src = "https://checkout.razorpay.com/v1/checkout.js";
-          script.onload = () => resolve(true);
-          script.onerror = () => resolve(false);
-          document.body.appendChild(script);
-        });
-      };
-      
-      const resLoad = await loadScript();
-      if (!resLoad) throw new Error("Razorpay SDK failed to load");
-
-      // 4. Open Razorpay using Medusa's official Order ID and matching Key ID
+      // 2. Open Razorpay using Medusa's official Order ID and matching Key ID
       const options = {
-        key: razorpaySession?.data?.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TUR2Fq27NAhvyo",
+        key: matchingKeyId,
         amount: cartTotal() * 100,
         currency: "INR",
         name: "LaundryMall",
@@ -132,13 +103,12 @@ export default function CheckoutPage() {
         order_id: razorpayOrderId,
         handler: async function (response: any) {
           try {
-            // 5. Tell Medusa to officially generate the Order!
             await completeCartAction();
             useCartStore.getState().clearCart();
             window.location.href = '/checkout/success';
           } catch (e) {
             console.error("Order complete error:", e);
-            window.location.href = '/checkout/success'; // Fallback to success page anyway for UX
+            window.location.href = '/checkout/success';
           }
         },
         prefill: {
@@ -167,6 +137,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center gap-4">

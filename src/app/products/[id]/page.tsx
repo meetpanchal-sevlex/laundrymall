@@ -3,10 +3,19 @@ import Link from "next/link";
 import { CheckCircle2, ShieldCheck, Truck, Star, Share2, Heart, ChevronRight, Store } from "lucide-react";
 import { notFound } from "next/navigation";
 import ProductBottomBar from "@/components/ProductBottomBar";
-import { getCachedFrontendProduct } from "@/lib/medusa-cache";
+import { getCachedFrontendProduct, getCachedFrontendProducts } from "@/lib/medusa-cache";
 import ImageSlider from "@/components/ImageSlider";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60; // Cache for 60 seconds (ISR)
+
+export async function generateStaticParams() {
+  try {
+    const products = await getCachedFrontendProducts();
+    return products.map((p) => ({ id: p.id }));
+  } catch {
+    return [];
+  }
+}
 
 export default async function ProductDetailPage({
   params,

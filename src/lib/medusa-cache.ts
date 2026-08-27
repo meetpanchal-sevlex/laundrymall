@@ -20,11 +20,41 @@ function adaptProduct(medusaProduct: MedusaProduct, collections: MedusaCollectio
   };
 }
 
+// Cache Regions Fetch (Valid for 1 hour)
+export const getCachedRegions = unstable_cache(
+  async (): Promise<MedusaRegion[]> => {
+    try {
+      const { regions } = await medusaClient.store.region.list() as { regions: MedusaRegion[] };
+      return regions || [];
+    } catch (error) {
+      console.error("Failed to fetch regions:", error);
+      return [];
+    }
+  },
+  ['medusa-regions-v2'],
+  { revalidate: 3600 }
+);
+
+// Cache Collections Fetch (Valid for 1 hour)
+export const getCachedCollections = unstable_cache(
+  async (): Promise<MedusaCollection[]> => {
+    try {
+      const { collections } = await medusaClient.store.collection.list() as { collections: MedusaCollection[] };
+      return collections || [];
+    } catch (error) {
+      console.error("Failed to fetch collections:", error);
+      return [];
+    }
+  },
+  ['medusa-collections-v2'],
+  { revalidate: 3600 }
+);
+
 // Fetch and adapt products securely
 export const getCachedFrontendProducts = unstable_cache(
   async (): Promise<Product[]> => {
     try {
-      const { regions } = await medusaClient.store.region.list() as { regions: MedusaRegion[] };
+      const regions = await getCachedRegions();
       const indiaRegion = regions.find((r) => r.currency_code === "inr") || regions[0];
 
       if (!indiaRegion) return [];
@@ -34,12 +64,12 @@ export const getCachedFrontendProducts = unstable_cache(
         region_id: indiaRegion.id 
       }) as { products: MedusaProduct[] };
       
-      const { collections } = await medusaClient.store.collection.list() as { collections: MedusaCollection[] };
+      const collections = await getCachedCollections();
 
       return products.map((p) => adaptProduct(p, collections));
     } catch (error) {
       console.error("Failed to fetch products from Medusa:", error);
-      return []; // Return empty array instead of crashing Vercel build
+      return [];
     }
   },
   ['medusa-frontend-products-v2'],
@@ -49,7 +79,7 @@ export const getCachedFrontendProducts = unstable_cache(
 export const getCachedFrontendProduct = unstable_cache(
   async (id: string): Promise<Product | null> => {
     try {
-      const { regions } = await medusaClient.store.region.list() as { regions: MedusaRegion[] };
+      const regions = await getCachedRegions();
       const indiaRegion = regions.find((r) => r.currency_code === "inr") || regions[0];
 
       if (!indiaRegion) return null;
@@ -58,7 +88,7 @@ export const getCachedFrontendProduct = unstable_cache(
         region_id: indiaRegion.id 
       }) as { product: MedusaProduct };
       
-      const { collections } = await medusaClient.store.collection.list() as { collections: MedusaCollection[] };
+      const collections = await getCachedCollections();
 
       return adaptProduct(response.product, collections);
     } catch (error) {
@@ -68,19 +98,4 @@ export const getCachedFrontendProduct = unstable_cache(
   },
   ['medusa-frontend-product-v2'],
   { revalidate: 60, tags: ['product'] }
-);
-
-// Cache Collections Fetch (Valid for 1 hour)
-export const getCachedCollections = unstable_cache(
-  async (): Promise<MedusaCollection[]> => {
-    try {
-      const { collections } = await medusaClient.store.collection.list() as { collections: MedusaCollection[] };
-      return collections;
-    } catch (error) {
-      console.error("Failed to fetch collections:", error);
-      return [];
-    }
-  },
-  ['medusa-collections-v2'],
-  { revalidate: 3600 }
 );
