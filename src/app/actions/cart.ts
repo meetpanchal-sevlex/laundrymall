@@ -246,6 +246,96 @@ export async function initiatePaymentSessionsAction() {
   }
 }
 
+export async function prepareCODCheckoutAction(shippingAddress: any, email: string) {
+  try {
+    const token = (await cookies()).get("_medusa_jwt")?.value;
+    const cart = await getOrCreateCart();
+    
+    // 1. Update shipping address on the cart
+    const addrRes = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({
+        shipping_address: shippingAddress,
+        email: email
+      })
+    });
+    if (!addrRes.ok) {
+      const addrErr = await safeJson(addrRes);
+      return { error: addrErr.message || "Failed to update delivery address" };
+    }
+
+    // 2. Create Payment Collection
+    const pcRes = await fetch(`${MEDUSA_URL}/store/payment-collections`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ cart_id: cart.id })
+    });
+    const pcData = await safeJson(pcRes);
+    
+    if (!pcRes.ok) {
+      return { error: pcData.message || "Failed to create payment collection" };
+    }
+    
+    const paymentCollection = pcData.payment_collection;
+    
+    // 3. Init Manual session for COD
+    const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/payment-sessions`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ provider_id: "pp_manual_manual" })
+    });
+    
+    if (!sessRes.ok) {
+      const errorData = await safeJson(sessRes);
+      return { error: errorData.message || "Failed to initialize Cash on Delivery session" };
+    }
+    
+    // 4. Complete the cart to create the official Medusa Order
+    const completeRes = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/complete`, {
+      method: "POST",
+      headers: getHeaders(token)
+    });
+    
+    if (!completeRes.ok) {
+      const compErr = await safeJson(completeRes);
+      return { error: compErr.message || "Failed to complete COD order" };
+    }
+
+    const orderData = await safeJson(completeRes);
+    const cookieStore = await cookies();
+    cookieStore.delete("_medusa_cart_id");
+
+    return { 
+      success: true, 
+      order: orderData.order || orderData,
+      type: orderData.type
+    };
+  } catch (e: any) {
+    return { error: e.message || "Unknown server error during COD checkout" };
+  }
+}
+
+export async function getCustomerOrdersAction() {
+  try {
+    const token = (await cookies()).get("_medusa_jwt")?.value;
+    if (!token) {
+      return { orders: [] };
+    }
+    const res = await fetch(`${MEDUSA_URL}/store/orders?fields=*items,*items.variant,*items.variant.product,*shipping_address,*summary,*payment_collections`, {
+      headers: getHeaders(token)
+    });
+    if (!res.ok) {
+      return { orders: [] };
+    }
+    const data = await safeJson(res);
+    return { orders: data.orders || [] };
+  } catch (e) {
+    console.error("Failed to fetch customer orders:", e);
+    return { orders: [] };
+  }
+}
+
 export async function completeCartAction() {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;

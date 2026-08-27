@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
 import { ArrowLeft, MapPin } from "lucide-react";
-import { prepareCheckoutAction, completeCartAction } from "@/app/actions/cart";
+import { prepareCheckoutAction, prepareCODCheckoutAction, completeCartAction } from "@/app/actions/cart";
 
 export default function CheckoutPage() {
   const { cartTotal, syncCart, items, medusaTotal } = useCartStore();
@@ -79,8 +79,12 @@ export default function CheckoutPage() {
       };
 
       if (paymentMethod === "cod") {
-        useCartStore.getState().clearCart();
-        window.location.href = '/checkout/success';
+        const codResult = await prepareCODCheckoutAction(shippingAddress, email);
+        if (codResult.error) {
+          throw new Error(codResult.error);
+        }
+        await useCartStore.getState().clearCart();
+        window.location.href = `/checkout/success?order_id=${codResult.order?.id || ''}&method=cod`;
         return;
       }
 

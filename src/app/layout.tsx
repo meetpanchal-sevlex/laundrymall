@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "LaundryMall | Professional Laundry Supplies",
     description: "The premier B2B supplier for commercial laundry, dry cleaning chemicals, packaging, and machinery.",
-    url: "https://laundrymall.vercel.app",
+    url: "https://laundrymall.in",
     siteName: "LaundryMall",
     images: [
       {
