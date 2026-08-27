@@ -8,10 +8,14 @@ import { ArrowLeft, MapPin } from "lucide-react";
 import { setShippingAddressAction, initiatePaymentSessionsAction, completeCartAction } from "@/app/actions/cart";
 
 export default function CheckoutPage() {
-  const { cartTotal } = useCartStore();
+  const { cartTotal, syncCart, items, medusaTotal } = useCartStore();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isFetchingPin, setIsFetchingPin] = useState(false);
+
+  useEffect(() => {
+    syncCart();
+  }, [syncCart]);
   
   const [address, setAddress] = useState({
     name: "",

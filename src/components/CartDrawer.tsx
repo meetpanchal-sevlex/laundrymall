@@ -7,12 +7,18 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function CartDrawer() {
-  const { isOpen, setIsOpen, items, removeItem, updateQuantity, cartTotal } = useCartStore();
+  const { isOpen, setIsOpen, items, removeItem, updateQuantity, cartTotal, syncCart, isLoading } = useCartStore();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      syncCart();
+    }
+  }, [isOpen, syncCart]);
 
   if (!isMounted) return null;
 
@@ -89,8 +95,9 @@ export default function CartDrawer() {
                       </button>
                       <div className="w-px h-4 bg-gray-200" />
                       <button
+                        disabled={isLoading}
                         onClick={() => removeItem(item.id)}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 flex-1 justify-end"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 flex-1 justify-end disabled:opacity-50"
                       >
                         <X className="w-3.5 h-3.5" /> Remove
                       </button>
@@ -138,8 +145,9 @@ export default function CartDrawer() {
                         {/* Qty selector */}
                         <div className="flex items-center gap-2 mt-2">
                           <button
+                            disabled={isLoading}
                             onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold"
+                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold disabled:opacity-50"
                           >
                             −
                           </button>
@@ -147,8 +155,9 @@ export default function CartDrawer() {
                             {item.quantity}
                           </span>
                           <button
+                            disabled={isLoading}
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold"
+                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold disabled:opacity-50"
                           >
                             +
                           </button>
