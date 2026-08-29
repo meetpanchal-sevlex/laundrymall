@@ -13,16 +13,16 @@ const CATEGORIES = [
 ];
 
 const BANNERS = [
-  { title: "Wholesale Machinery", subtitle: "Industrial-grade finishing & washing tech.", color: "from-blue-600 to-indigo-800", emoji: "⚙️" },
-  { title: "Premium Chemicals", subtitle: "ISO certified, deep-cleaning formulations.", color: "from-emerald-600 to-teal-800", emoji: "🧪" },
-  { title: "Smart Packaging", subtitle: "Heavy-duty poly rolls & hangers.", color: "from-purple-600 to-fuchsia-800", emoji: "📦" },
+  { title: "Wholesale Machinery", subtitle: "Up to 30% off on bulk orders", color: "from-blue-600 to-blue-800", emoji: "⚙️" },
+  { title: "Eco Chemicals", subtitle: "ISO certified, trusted quality", color: "from-green-600 to-green-800", emoji: "🧪" },
+  { title: "Smart Packaging", subtitle: "Branded packaging solutions", color: "from-purple-600 to-purple-800", emoji: "📦" },
 ];
 
 const WHY_US = [
-  { icon: "🚚", title: "Pan India Delivery", sub: "Fast logistics to all your commercial outlets" },
-  { icon: "✅", title: "ISO Certified", sub: "Tested & verified industrial products" },
-  { icon: "💰", title: "Wholesale Pricing", sub: "Direct from manufacturer to your factory" },
-  { icon: "📄", title: "GST Invoicing", sub: "Instant B2B tax-compliant billing" },
+  { icon: "🚚", title: "Pan India Delivery", sub: "Fast shipping to all outlets" },
+  { icon: "✅", title: "ISO Certified", sub: "Guaranteed quality products" },
+  { icon: "💰", title: "Wholesale Pricing", sub: "Best rates for bulk orders" },
+  { icon: "🛡️", title: "Easy Returns", sub: "7-day hassle-free policy" },
 ];
 
 export default async function Home() {
@@ -31,106 +31,81 @@ export default async function Home() {
   const newArrivals = products.slice(6, 12);
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 pb-20 md:pb-8">
-      
-      {/* Sleek Hero Banner Section */}
-      <div className="bg-white border-b border-slate-200/60 pb-8 pt-8">
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-10 mt-4">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold tracking-widest uppercase mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-              </span>
-              India's Premier B2B Platform
-            </div>
-            <h1 className="text-4xl md:text-6xl font-black tracking-[-0.04em] text-slate-900 mb-6 leading-[1.1]">
-              Commercial Laundry Supplies, <br className="hidden md:block"/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Direct at Wholesale.</span>
-            </h1>
-            <p className="text-slate-500 text-base md:text-lg font-medium max-w-2xl mx-auto leading-relaxed">
-              Premium detergents, industrial packaging, and machinery. Pan-India dispatch with verified manufacturer pricing for commercial dry-cleaners.
-            </p>
-          </div>
-
-          {/* Hero Banners */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {BANNERS.map((b, i) => (
-              <Link
-                key={i}
-                href="/products"
-                className={`group rounded-2xl bg-gradient-to-br ${b.color} p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:shadow-${b.color.split('-')[1]}-900/20 transition-all duration-300 min-h-[160px] overflow-hidden relative`}
-              >
-                <div className="absolute -right-4 -bottom-4 text-[100px] opacity-10 group-hover:scale-110 group-hover:opacity-20 transition-all duration-500 rotate-[-10deg]">
-                  {b.emoji}
-                </div>
-                <div className="relative z-10">
-                  <h3 className="text-xl md:text-2xl font-black text-white leading-tight mb-2 tracking-tight">{b.title}</h3>
-                  <p className="text-sm text-white/80 font-medium">{b.subtitle}</p>
-                </div>
-                <div className="relative z-10 mt-6 inline-flex items-center gap-1.5 text-white text-xs font-bold uppercase tracking-widest bg-white/10 w-fit px-4 py-1.5 rounded-full backdrop-blur-sm group-hover:bg-white/20 transition-colors">
-                  Shop Category <ChevronRight className="w-3.5 h-3.5" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-        
+    <div className="flex flex-col min-h-screen bg-gray-50 pb-20 md:pb-4">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Mobile Search Bar */}
-        <div className="md:hidden pt-4 pb-2">
+        <div className="md:hidden bg-white px-4 py-3 border-b border-gray-100 shadow-sm">
           <form action="/products" method="GET">
-            <div className="flex items-center bg-white border border-slate-200 rounded-full px-4 py-2.5 gap-3 shadow-sm">
-              <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
+            <div className="flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-3">
+              <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <input
                 name="search"
                 type="text"
-                placeholder="Search supplies, machinery..."
-                className="bg-transparent flex-1 text-sm outline-none text-slate-700 placeholder:text-slate-400"
+                placeholder="Search for Machinery, Chemicals..."
+                className="bg-transparent flex-1 text-sm outline-none text-gray-700 placeholder:text-gray-400"
               />
             </div>
           </form>
         </div>
 
-        {/* Category Icons */}
-        <section className="mt-6 md:mt-10 mb-8">
-          <div className="flex justify-start md:justify-center gap-4 overflow-x-auto hide-scrollbar pb-4 md:pb-0">
+        {/* Hero Banners — horizontal scroll */}
+        <section className="bg-white md:bg-transparent pt-3 md:pt-6 pb-4">
+          <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar pb-1 md:grid md:grid-cols-3">
+            {BANNERS.map((b, i) => (
+              <Link
+                key={i}
+                href="/products"
+                className={`flex-shrink-0 w-72 md:w-full rounded-2xl bg-gradient-to-r ${b.color} text-white p-6 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}
+              >
+                <div>
+                  <p className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-1">Featured</p>
+                  <h3 className="text-lg md:text-xl font-black leading-tight">{b.title}</h3>
+                  <p className="text-sm text-white/80 mt-1">{b.subtitle}</p>
+                  <div className="mt-4 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 transition-colors">
+                    Shop Now <ChevronRight className="w-3 h-3" />
+                  </div>
+                </div>
+                <span className="text-6xl drop-shadow-md">{b.emoji}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Category Icons — Meesho style */}
+        <section className="bg-white md:bg-transparent mt-2 md:mt-6 py-4 md:py-0 border-t border-gray-100 md:border-none">
+          <div className="flex md:justify-center gap-6 px-4 overflow-x-auto hide-scrollbar">
             {CATEGORIES.map((cat) => (
-              <Link key={cat.name} href={cat.href} className="flex-shrink-0 flex flex-col items-center gap-3 w-[72px] md:w-28 group">
-                <div className={`w-14 h-14 md:w-[72px] md:h-[72px] rounded-2xl ${cat.color} flex items-center justify-center text-2xl md:text-3xl shadow-sm border border-slate-100 group-hover:shadow-md group-hover:-translate-y-1 group-hover:border-blue-100 transition-all duration-300`}>
+              <Link key={cat.name} href={cat.href} className="flex-shrink-0 flex flex-col items-center gap-3 w-16 md:w-24 group">
+                <div className={`w-14 h-14 md:w-20 md:h-20 rounded-full ${cat.color} flex items-center justify-center text-2xl md:text-4xl shadow-sm border border-white group-hover:shadow-md group-hover:scale-105 transition-all`}>
                   {cat.icon}
                 </div>
-                <span className="text-[11px] md:text-xs font-bold text-slate-600 text-center uppercase tracking-wider group-hover:text-blue-600 transition-colors">{cat.name}</span>
+                <span className="text-xs md:text-sm font-semibold text-gray-700 text-center leading-tight group-hover:text-blue-600 transition-colors">{cat.name}</span>
               </Link>
             ))}
           </div>
         </section>
 
         {/* Best Sellers */}
-        <section className="mb-8 bg-white md:rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 md:px-6 py-5 border-b border-slate-100 bg-slate-50/50">
-            <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-orange-100 text-orange-600 rounded-lg">
-                <Flame className="w-5 h-5" />
-              </div>
-              <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">Best Sellers</h2>
+        <section className="mt-2 md:mt-10 bg-white md:rounded-2xl md:shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500" />
+              <h2 className="text-base md:text-xl font-black text-gray-900">Best Sellers</h2>
             </div>
-            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full transition-colors">
-              View Catalog <ChevronRight className="w-4 h-4" />
+            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700">
+              See All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-slate-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-gray-100">
             {bestSellers.length > 0 ? (
               bestSellers.map((product) => (
-                <div key={product.id} className="border-r border-b border-slate-100 last:border-r-0 hover:bg-slate-50 transition-colors">
+                <div key={product.id} className="border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors">
                   <ProductCard product={product} compact />
                 </div>
               ))
             ) : (
-              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-16 text-center text-slate-400">
-                <p className="text-4xl mb-3 opacity-50">🛍️</p>
+              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-16 text-center text-gray-400">
+                <p className="text-4xl mb-3">🛍️</p>
                 <p className="font-medium">Add products from your Medusa admin!</p>
                 <Link href="/products" className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2 rounded-full transition-colors">
                   Browse Catalog
@@ -141,47 +116,42 @@ export default async function Home() {
         </section>
 
         {/* New Arrivals */}
-        <section className="mb-12 bg-white md:rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 md:px-6 py-5 border-b border-slate-100 bg-slate-50/50">
-            <div className="flex items-center gap-2.5">
-              <div className="p-1.5 bg-purple-100 text-purple-600 rounded-lg">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <h2 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">New Arrivals</h2>
+        <section className="mt-2 md:mt-8 bg-white md:rounded-2xl md:shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-500" />
+              <h2 className="text-base md:text-xl font-black text-gray-900">New Arrivals</h2>
             </div>
-            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full transition-colors">
-              Explore All <ChevronRight className="w-4 h-4" />
+            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700">
+              See All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-slate-100">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-gray-100">
             {newArrivals.length > 0 ? (
               newArrivals.map((product) => (
-                <div key={product.id} className="border-r border-b border-slate-100 last:border-r-0 hover:bg-slate-50 transition-colors">
+                <div key={product.id} className="border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors">
                   <ProductCard product={product} compact />
                 </div>
               ))
             ) : (
-              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-12 text-center text-slate-400">
+              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-12 text-center text-gray-400">
                 <p className="font-medium text-sm">More products coming soon!</p>
               </div>
             )}
           </div>
         </section>
 
-        {/* Why LaundryMall - Bento Grid */}
-        <section className="mb-12">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-3">Enterprise Grade Infrastructure</h2>
-            <p className="text-slate-500 font-medium max-w-xl mx-auto">Why 500+ commercial laundries trust us for their daily supplies.</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Why LaundryMall */}
+        <section className="mt-2 md:mt-8 md:mb-12 bg-white md:bg-transparent px-4 py-6 md:py-0">
+          <h2 className="text-base md:text-xl font-black text-gray-900 mb-4 md:mb-6 text-center md:text-left">Why LaundryMall?</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
             {WHY_US.map((item) => (
-              <div key={item.title} className="bg-white rounded-2xl p-6 border border-slate-200/60 shadow-sm hover:shadow-md hover:border-slate-300 transition-all group">
-                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 group-hover:bg-blue-50 transition-all">
-                  {item.icon}
+              <div key={item.title} className="bg-gray-50 md:bg-white rounded-xl md:rounded-2xl p-4 flex md:flex-col md:items-center md:text-center gap-3 md:gap-4 md:shadow-sm md:hover:shadow-md transition-shadow">
+                <span className="text-2xl md:text-4xl">{item.icon}</span>
+                <div>
+                  <p className="text-sm md:text-base font-bold text-gray-800">{item.title}</p>
+                  <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">{item.sub}</p>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 mb-1.5 tracking-tight">{item.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{item.sub}</p>
               </div>
             ))}
           </div>
