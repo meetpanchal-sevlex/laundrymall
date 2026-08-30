@@ -7,7 +7,7 @@ import { useCartStore } from "@/store/cartStore";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const { itemCount } = useCartStore();
+  const { itemCount, isOpen: isCartOpen, setIsOpen: setCartOpen } = useCartStore();
 
   // Hide the bottom nav on specific pages like product details and checkout
   // where we have dedicated bottom action bars.
@@ -18,7 +18,10 @@ export default function MobileBottomNav() {
     return null;
   }
 
+  const isCartActive = isCartOpen || pathname.startsWith("/checkout");
+
   const isActive = (path: string) => {
+    if (isCartOpen) return false; // If cart drawer is open, nothing else is active
     if (path === "/" && pathname !== "/") return false;
     return pathname.startsWith(path);
   };
@@ -35,16 +38,16 @@ export default function MobileBottomNav() {
         <span className={`text-[10px] ${isActive("/products") ? "font-bold" : "font-medium"}`}>Categories</span>
       </Link>
       
-      <button onClick={() => useCartStore.getState().setIsOpen(true)} className={`flex-1 flex flex-col items-center py-2.5 gap-1 text-gray-500`}>
+      <button onClick={() => setCartOpen(!isCartOpen)} className={`flex-1 flex flex-col items-center py-2.5 gap-1 ${isCartActive ? "text-blue-600" : "text-gray-500"}`}>
         <div className="relative">
-          <ShoppingCart className="w-5 h-5" />
+          <ShoppingCart className={`w-5 h-5 ${isCartActive ? "fill-current" : ""}`} />
           {itemCount() > 0 && (
             <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
               {itemCount()}
             </span>
           )}
         </div>
-        <span className="text-[10px] font-medium">Cart</span>
+        <span className={`text-[10px] ${isCartActive ? "font-bold" : "font-medium"}`}>Cart</span>
       </button>
       
       <Link href="/account" className={`flex-1 flex flex-col items-center py-2.5 gap-1 ${isActive("/account") ? "text-blue-600" : "text-gray-500"}`}>
