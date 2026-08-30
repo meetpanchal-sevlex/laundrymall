@@ -150,6 +150,31 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
       return { error: addrErr.message || "Failed to update delivery address" };
     }
 
+    // 1.2 Save this address to the customer's profile so it shows up next time
+    if (token) {
+      try {
+        await fetch(`${MEDUSA_URL}/store/customers/me/addresses`, {
+          method: "POST",
+          headers: getHeaders(token),
+          body: JSON.stringify({
+            address_name: "Home",
+            first_name: shippingAddress.first_name,
+            last_name: shippingAddress.last_name,
+            address_1: shippingAddress.address_1,
+            address_2: shippingAddress.address_2,
+            city: shippingAddress.city,
+            province: shippingAddress.province,
+            postal_code: shippingAddress.postal_code,
+            country_code: shippingAddress.country_code,
+            phone: shippingAddress.phone
+          })
+        });
+      } catch (e) {
+        // Ignore failure to save address, proceed with checkout
+        console.warn("Failed to save address to customer profile", e);
+      }
+    }
+
     // 1.5 Fetch and add shipping method (Required by Medusa v2 before payment)
     const optionsRes = await fetch(`${MEDUSA_URL}/store/shipping-options?cart_id=${cart.id}`, { headers: getHeaders(token) });
     if (optionsRes.ok) {
@@ -273,6 +298,31 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
     if (!addrRes.ok) {
       const addrErr = await safeJson(addrRes);
       return { error: addrErr.message || "Failed to update delivery address" };
+    }
+
+    // 1.2 Save this address to the customer's profile so it shows up next time
+    if (token) {
+      try {
+        await fetch(`${MEDUSA_URL}/store/customers/me/addresses`, {
+          method: "POST",
+          headers: getHeaders(token),
+          body: JSON.stringify({
+            address_name: "Home",
+            first_name: shippingAddress.first_name,
+            last_name: shippingAddress.last_name,
+            address_1: shippingAddress.address_1,
+            address_2: shippingAddress.address_2,
+            city: shippingAddress.city,
+            province: shippingAddress.province,
+            postal_code: shippingAddress.postal_code,
+            country_code: shippingAddress.country_code,
+            phone: shippingAddress.phone
+          })
+        });
+      } catch (e) {
+        // Ignore failure to save address, proceed with checkout
+        console.warn("Failed to save address to customer profile", e);
+      }
     }
 
     // 1.5 Fetch and add shipping method (Required by Medusa v2 before payment)

@@ -152,7 +152,7 @@ export async function getCustomer() {
   if (!token) return null;
 
   try {
-    const res = await fetch(MEDUSA_URL + "/store/customers/me", {
+    const res = await fetch(MEDUSA_URL + "/store/customers/me?fields=*addresses", {
       method: "GET",
       headers: getHeaders(token),
       next: { revalidate: 0 }
