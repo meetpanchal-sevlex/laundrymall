@@ -35,17 +35,17 @@ export default function MobileBottomNav() {
         <span className={`text-[10px] ${isActive("/products") ? "font-bold" : "font-medium"}`}>Categories</span>
       </Link>
       
-      <Link href="/checkout" className={`flex-1 flex flex-col items-center py-2.5 gap-1 relative ${isActive("/checkout") ? "text-blue-600" : "text-gray-500"}`}>
+      <button onClick={() => useCartStore.getState().setIsOpen(true)} className={`flex-1 flex flex-col items-center py-2.5 gap-1 text-gray-500`}>
         <div className="relative">
-          <ShoppingCart className={`w-5 h-5 ${isActive("/checkout") ? "fill-current" : ""}`} />
+          <ShoppingCart className="w-5 h-5" />
           {itemCount() > 0 && (
             <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
               {itemCount()}
             </span>
           )}
         </div>
-        <span className={`text-[10px] ${isActive("/checkout") ? "font-bold" : "font-medium"}`}>Cart</span>
-      </Link>
+        <span className="text-[10px] font-medium">Cart</span>
+      </button>
       
       <Link href="/account" className={`flex-1 flex flex-col items-center py-2.5 gap-1 ${isActive("/account") ? "text-blue-600" : "text-gray-500"}`}>
         <User className={`w-5 h-5 ${isActive("/account") ? "fill-current" : ""}`} />
