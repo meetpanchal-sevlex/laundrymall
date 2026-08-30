@@ -56,6 +56,7 @@ export function mapMedusaToUICart(cart: any): UICart {
 }
 
 let syncQueue = Promise.resolve<any>(null);
+let activeMutations = 0;
 
 export function useCart() {
   const queryClient = useQueryClient();
@@ -70,6 +71,22 @@ export function useCart() {
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
+
+  // Helper to handle queue completion
+  const onMutationSettled = () => {
+    activeMutations--;
+    if (activeMutations === 0) {
+      // Only refetch from server when all rapid clicks have finished processing
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    }
+  };
+
+  // Helper to force resync on error
+  const onMutationError = (err: any) => {
+    console.error("Cart mutation failed:", err);
+    // If something fails, force a hard resync from the server immediately
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
+  };
 
   // 2. Add To Cart Mutation
   const addToCartMutation = useMutation({
@@ -87,11 +104,8 @@ export function useCart() {
       });
     },
     onMutate: async ({ product, quantity }) => {
-      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      activeMutations++;
       await queryClient.cancelQueries({ queryKey: ["cart"] });
-      // Snapshot previous state
-      const previousCart = queryClient.getQueryData(["cart"]);
-      // Optimistically update
       queryClient.setQueryData(["cart"], (old: any) => {
         const newItems = old?.items ? [...old.items] : [];
         const existing = newItems.find((i: any) => i.id === product.id || (product.variantId && i.variantId === product.variantId));
@@ -106,21 +120,10 @@ export function useCart() {
           medusaTotal: newItems.reduce((t: number, i: any) => t + i.price * i.quantity, 0)
         };
       });
-      // Open drawer for better UX
       setIsOpen(true);
-      return { previousCart };
     },
-    onError: (err, variables, context) => {
-      // Rollback on failure
-      if (context?.previousCart) {
-        queryClient.setQueryData(["cart"], context.previousCart);
-      }
-      console.error("Failed to add to cart:", err);
-    },
-    onSettled: () => {
-      // Refetch securely in background
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
+    onError: onMutationError,
+    onSettled: onMutationSettled,
   });
 
   // 3. Update Quantity Mutation
@@ -139,21 +142,16 @@ export function useCart() {
       });
     },
     onMutate: async ({ lineItemId, quantity }) => {
+      activeMutations++;
       await queryClient.cancelQueries({ queryKey: ["cart"] });
-      const previousCart = queryClient.getQueryData(["cart"]);
       queryClient.setQueryData(["cart"], (old: any) => {
         if (!old?.items) return old;
         const newItems = old.items.map((i: any) => i.lineItemId === lineItemId ? { ...i, quantity } : i);
         return { ...old, items: newItems, medusaTotal: newItems.reduce((t: number, i: any) => t + i.price * i.quantity, 0) };
       });
-      return { previousCart };
     },
-    onError: (err, variables, context) => {
-      if (context?.previousCart) queryClient.setQueryData(["cart"], context.previousCart);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
+    onError: onMutationError,
+    onSettled: onMutationSettled,
   });
 
   // 4. Remove Item Mutation
@@ -172,21 +170,16 @@ export function useCart() {
       });
     },
     onMutate: async (lineItemId) => {
+      activeMutations++;
       await queryClient.cancelQueries({ queryKey: ["cart"] });
-      const previousCart = queryClient.getQueryData(["cart"]);
       queryClient.setQueryData(["cart"], (old: any) => {
         if (!old?.items) return old;
         const newItems = old.items.filter((i: any) => i.lineItemId !== lineItemId);
         return { ...old, items: newItems, medusaTotal: newItems.reduce((t: number, i: any) => t + i.price * i.quantity, 0) };
       });
-      return { previousCart };
     },
-    onError: (err, variables, context) => {
-      if (context?.previousCart) queryClient.setQueryData(["cart"], context.previousCart);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
+    onError: onMutationError,
+    onSettled: onMutationSettled,
   });
 
   return {
