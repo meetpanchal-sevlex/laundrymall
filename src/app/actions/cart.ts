@@ -4,8 +4,11 @@ import { cookies } from "next/headers";
 import { unstable_noStore as noStore } from "next/cache";
 import { medusaClient } from "@/lib/medusa";
 
+const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+
 const getHeaders = (token?: string) => {
-  const headers: any = {};
+  const headers: any = { "Content-Type": "application/json" };
+  if (PK) headers["x-publishable-api-key"] = PK;
   if (token) headers["Authorization"] = "Bearer " + token;
   return headers;
 };
