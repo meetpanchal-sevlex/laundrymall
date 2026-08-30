@@ -4,10 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, ShoppingCart, User } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
+import { useUIStore } from "@/store/uiStore";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { itemCount, isOpen: isCartOpen, setIsOpen: setCartOpen } = useCartStore();
+  const { isMobileDrawerOpen, setMobileDrawerOpen } = useUIStore();
 
   // Hide the bottom nav on specific pages like product details and checkout
   // where we have dedicated bottom action bars.
@@ -21,7 +23,7 @@ export default function MobileBottomNav() {
   const isCartActive = isCartOpen || pathname.startsWith("/checkout");
 
   const isActive = (path: string) => {
-    if (isCartOpen) return false; // If cart drawer is open, nothing else is active
+    if (isCartOpen || isMobileDrawerOpen) return false; // If a drawer is open, nothing else is active
     if (path === "/" && pathname !== "/") return false;
     return pathname.startsWith(path);
   };
@@ -33,10 +35,10 @@ export default function MobileBottomNav() {
         <span className={`text-[10px] ${isActive("/") ? "font-bold" : "font-medium"}`}>Home</span>
       </Link>
       
-      <Link href="/products" className={`flex-1 flex flex-col items-center py-2.5 gap-1 ${isActive("/products") ? "text-blue-600" : "text-gray-500"}`}>
-        <Search className={`w-5 h-5 ${isActive("/products") ? "text-blue-600" : ""}`} />
-        <span className={`text-[10px] ${isActive("/products") ? "font-bold" : "font-medium"}`}>Categories</span>
-      </Link>
+      <button onClick={() => setMobileDrawerOpen(true)} className={`flex-1 flex flex-col items-center py-2.5 gap-1 ${isMobileDrawerOpen ? "text-blue-600" : "text-gray-500"}`}>
+        <Search className={`w-5 h-5 ${isMobileDrawerOpen ? "text-blue-600" : ""}`} />
+        <span className={`text-[10px] ${isMobileDrawerOpen ? "font-bold" : "font-medium"}`}>Categories</span>
+      </button>
       
       <button onClick={() => setCartOpen(!isCartOpen)} className={`flex-1 flex flex-col items-center py-2.5 gap-1 ${isCartActive ? "text-blue-600" : "text-gray-500"}`}>
         <div className="relative">

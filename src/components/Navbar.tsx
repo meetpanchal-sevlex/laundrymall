@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShoppingCart, Search, User, Menu, LogOut } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
+import { useUIStore } from "@/store/uiStore";
 import { useEffect, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import MobileDrawer from "@/components/MobileDrawer";
@@ -11,8 +12,8 @@ import MobileDrawer from "@/components/MobileDrawer";
 export default function Navbar() {
   const { setIsOpen, itemCount } = useCartStore();
   const { user, logout } = useAuthStore();
+  const { isMobileDrawerOpen, setMobileDrawerOpen } = useUIStore();
   const [mounted, setMounted] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -26,7 +27,7 @@ export default function Navbar() {
 
   return (
     <>
-      <MobileDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobileDrawer isOpen={isMobileDrawerOpen} onClose={() => setMobileDrawerOpen(false)} />
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm transition-all">
       
       {/* Main Navbar */}
@@ -35,7 +36,7 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             <button
               className="sm:hidden text-gray-500 hover:text-blue-600 transition"
-              onClick={() => setDrawerOpen(true)}
+              onClick={() => setMobileDrawerOpen(true)}
               aria-label="Open menu"
             >
               <Menu className="w-6 h-6" />
