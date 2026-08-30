@@ -116,7 +116,8 @@ export default function CartDrawer() {
                           </p>
                           <button 
                             onClick={() => removeItem(item.id)}
-                            className="p-1.5 -mr-1.5 -mt-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                            disabled={isLoading}
+                            className="p-1.5 -mr-1.5 -mt-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Remove item"
                           >
                             <X className="w-4 h-4" />
@@ -152,7 +153,8 @@ export default function CartDrawer() {
                           <div className="flex items-center gap-3">
                             <button
                               onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                              className="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 text-sm font-bold active:bg-slate-100 hover:border-slate-400 transition-all shadow-sm"
+                              disabled={isLoading}
+                              className="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 text-sm font-bold active:bg-slate-100 hover:border-slate-400 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               -
                             </button>
@@ -161,7 +163,8 @@ export default function CartDrawer() {
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 text-sm font-bold active:bg-slate-100 hover:border-slate-400 transition-all shadow-sm"
+                              disabled={isLoading}
+                              className="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 text-sm font-bold active:bg-slate-100 hover:border-slate-400 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               +
                             </button>

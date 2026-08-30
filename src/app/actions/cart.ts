@@ -92,11 +92,17 @@ export async function updateCartItemAction(lineId: string, quantity: number) {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
+  const res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
     method: "POST",
     headers: getHeaders(token),
     body: JSON.stringify({ quantity })
   });
+  
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(`Failed to update line item ${lineId}:`, res.status, errText);
+    throw new Error(`Update failed: ${res.status} ${errText}`);
+  }
   
   return await getOrCreateCart();
 }
@@ -105,10 +111,16 @@ export async function removeCartItemAction(lineId: string) {
   const cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
+  const res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
     method: "DELETE",
     headers: getHeaders(token)
   });
+  
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(`Failed to delete line item ${lineId}:`, res.status, errText);
+    throw new Error(`Delete failed: ${res.status} ${errText}`);
+  }
   
   return await getOrCreateCart();
 }

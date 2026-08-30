@@ -165,8 +165,10 @@ export const useCartStore = create<CartStore>()(
           } else {
             set({ isLoading: false });
           }
-        } catch (e) {
+        } catch (e: any) {
           console.error("Failed to remove item from Medusa cart:", e);
+          alert("Could not remove item. " + (e.message || "Please refresh the page."));
+          get().syncCart(); // Rollback UI
           set({ isLoading: false });
         }
       },
@@ -216,8 +218,10 @@ export const useCartStore = create<CartStore>()(
                 medusaSubtotal: mapped.medusaSubtotal,
                 isLoading: false,
               });
-            } catch (e) {
+            } catch (e: any) {
               console.error("Failed to update item quantity in Medusa cart:", e);
+              alert("Could not update quantity. " + (e.message || "Please refresh the page."));
+              get().syncCart(); // Rollback UI
               set({ isLoading: false });
             }
           }, 400);
