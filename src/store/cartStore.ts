@@ -21,6 +21,9 @@ interface CartStore {
   medusaSubtotal: number;
   isLoading: boolean;
   isOpen: boolean;
+  syncQueue: Promise<void>;
+  
+  // Actions
   setIsOpen: (isOpen: boolean) => void;
   setCartId: (id: string) => void;
   syncCart: () => Promise<void>;
@@ -85,19 +88,25 @@ export const useCartStore = create<CartStore>()(
       setIsOpen: (isOpen) => set({ isOpen }),
       setCartId: (id) => set({ cartId: id }),
 
+      syncQueue: Promise.resolve(),
+      
       syncCart: async () => {
-        try {
-          const cart = await getOrCreateCart();
-          const mapped = mapMedusaCart(cart, get().items);
-          set({
-            cartId: mapped.cartId,
-            items: mapped.items,
-            medusaTotal: mapped.medusaTotal,
-            medusaSubtotal: mapped.medusaSubtotal,
-          });
-        } catch (error) {
-          console.error("Failed to sync cart with Medusa backend:", error);
-        }
+        set((state) => ({
+          syncQueue: state.syncQueue.then(async () => {
+            try {
+              const cart = await getOrCreateCart();
+              const mapped = mapMedusaCart(cart, get().items);
+              set({
+                cartId: mapped.cartId,
+                items: mapped.items,
+                medusaTotal: mapped.medusaTotal,
+                medusaSubtotal: mapped.medusaSubtotal,
+              });
+            } catch (error) {
+              console.error("Failed to sync cart with Medusa backend:", error);
+            }
+          })
+        }));
       },
 
       addItem: async (product, quantity = 1) => {
@@ -118,25 +127,29 @@ export const useCartStore = create<CartStore>()(
           return { items: nextItems, medusaTotal: calcTotal, isOpen: true, isLoading: true };
         });
 
-        // Authoritative sync with Medusa Backend
-        try {
-          if (product.variantId) {
-            const cart = await addToCartAction(product.variantId, quantity);
-            const mapped = mapMedusaCart(cart, get().items);
-            set({
-              cartId: mapped.cartId,
-              items: mapped.items,
-              medusaTotal: mapped.medusaTotal,
-              medusaSubtotal: mapped.medusaSubtotal,
-              isLoading: false,
-            });
-          } else {
-            set({ isLoading: false });
-          }
-        } catch (e) {
-          console.error("Failed to add item to Medusa cart:", e);
-          set({ isLoading: false });
-        }
+        // Authoritative sync with Medusa Backend via Queue to prevent race conditions
+        set((state) => ({
+          syncQueue: state.syncQueue.then(async () => {
+            try {
+              if (product.variantId) {
+                const cart = await addToCartAction(product.variantId, quantity);
+                const mapped = mapMedusaCart(cart, get().items);
+                set({
+                  cartId: mapped.cartId,
+                  items: mapped.items,
+                  medusaTotal: mapped.medusaTotal,
+                  medusaSubtotal: mapped.medusaSubtotal,
+                  isLoading: false,
+                });
+              } else {
+                set({ isLoading: false });
+              }
+            } catch (e) {
+              console.error("Failed to add item to Medusa cart:", e);
+              set({ isLoading: false });
+            }
+          })
+        }));
       },
 
       removeItem: async (productId) => {
