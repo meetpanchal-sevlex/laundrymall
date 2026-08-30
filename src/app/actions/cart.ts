@@ -116,7 +116,7 @@ export async function removeCartItemAction(lineId: string) {
     headers: getHeaders(token)
   });
   
-  if (!res.ok) {
+  if (!res.ok && res.status !== 404) {
     const errText = await res.text();
     console.error(`Failed to delete line item ${lineId}:`, res.status, errText);
     throw new Error(`Delete failed: ${res.status} ${errText}`);
