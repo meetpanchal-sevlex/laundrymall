@@ -134,9 +134,9 @@ export default function CheckoutPage() {
             await completeCartAction();
             useCartStore.getState().clearCart();
             router.push('/checkout/success');
-          } catch (e) {
+          } catch (e: any) {
             console.error("Order complete error:", e);
-            router.push('/checkout/success');
+            alert("Payment was captured, but order creation failed: " + e.message);
           }
         },
         prefill: {
