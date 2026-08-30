@@ -180,7 +180,7 @@ export const useCartStore = create<CartStore>()(
         const currentItems = get().items;
         const itemToUpdate = currentItems.find((i) => i.id === productId || i.lineItemId === productId);
 
-        // Optimistic update
+        // Optimistic update (INSTANT feedback)
         set((state) => {
           const nextItems = state.items.map((item) =>
             item.id === productId || item.lineItemId === productId
@@ -188,26 +188,40 @@ export const useCartStore = create<CartStore>()(
               : item
           );
           const calcTotal = nextItems.reduce((t, i) => t + i.price * i.quantity, 0);
+          // Set isLoading so we can show a small spinner, but don't lock the UI
           return { items: nextItems, medusaTotal: calcTotal, isLoading: true };
         });
 
-        // Authoritative sync with Medusa Backend
-        try {
-          if (itemToUpdate?.lineItemId) {
-            const cart = await updateCartItemAction(itemToUpdate.lineItemId, quantity);
-            const mapped = mapMedusaCart(cart, get().items);
-            set({
-              cartId: mapped.cartId,
-              items: mapped.items,
-              medusaTotal: mapped.medusaTotal,
-              medusaSubtotal: mapped.medusaSubtotal,
-              isLoading: false,
-            });
-          } else {
-            set({ isLoading: false });
+        if (itemToUpdate?.lineItemId) {
+          const lineId = itemToUpdate.lineItemId;
+          
+          // Clear any pending network request for this exact line item
+          if ((window as any)._cartDebounceTimers && (window as any)._cartDebounceTimers[lineId]) {
+            clearTimeout((window as any)._cartDebounceTimers[lineId]);
           }
-        } catch (e) {
-          console.error("Failed to update item quantity in Medusa cart:", e);
+          
+          if (!(window as any)._cartDebounceTimers) {
+            (window as any)._cartDebounceTimers = {};
+          }
+
+          // Debounce the network call by 400ms to allow rapid clicking
+          (window as any)._cartDebounceTimers[lineId] = setTimeout(async () => {
+            try {
+              const cart = await updateCartItemAction(lineId, quantity);
+              const mapped = mapMedusaCart(cart, get().items);
+              set({
+                cartId: mapped.cartId,
+                items: mapped.items,
+                medusaTotal: mapped.medusaTotal,
+                medusaSubtotal: mapped.medusaSubtotal,
+                isLoading: false,
+              });
+            } catch (e) {
+              console.error("Failed to update item quantity in Medusa cart:", e);
+              set({ isLoading: false });
+            }
+          }, 400);
+        } else {
           set({ isLoading: false });
         }
       },

@@ -145,19 +145,17 @@ export default function CartDrawer() {
                         {/* Qty selector */}
                         <div className="flex items-center gap-2 mt-2">
                           <button
-                            disabled={isLoading}
                             onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold disabled:opacity-50"
+                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold active:bg-gray-100 transition-colors"
                           >
-                            −
+                            -
                           </button>
-                          <span className="text-sm font-bold text-gray-900 min-w-[20px] text-center">
+                          <span className="text-sm font-black w-6 text-center tabular-nums">
                             {item.quantity}
                           </span>
                           <button
-                            disabled={isLoading}
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold disabled:opacity-50"
+                            className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 text-sm font-bold active:bg-gray-100 transition-colors"
                           >
                             +
                           </button>
