@@ -30,7 +30,8 @@ export async function getOrCreateCart() {
 
   if (cartId) {
     const res = await fetch(`${MEDUSA_URL}/store/carts/${cartId}?fields=*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection,*payment_collection.payment_sessions`, {
-      headers: getHeaders(token)
+      headers: getHeaders(token),
+      cache: "no-store"
     });
     if (res.ok) {
       const data = await safeJson(res);
@@ -40,7 +41,10 @@ export async function getOrCreateCart() {
   }
 
   // Get regions
-  const regRes = await fetch(`${MEDUSA_URL}/store/regions`, { headers: getHeaders() });
+  const regRes = await fetch(`${MEDUSA_URL}/store/regions`, { 
+    headers: getHeaders(),
+    cache: "no-store"
+  });
   const regData = await safeJson(regRes);
   const indiaRegion = regData.regions.find((r: any) => r.currency_code === "inr") || regData.regions[0];
 
@@ -176,7 +180,10 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
     }
 
     // 1.5 Fetch and add shipping method (Required by Medusa v2 before payment)
-    const optionsRes = await fetch(`${MEDUSA_URL}/store/shipping-options?cart_id=${cart.id}`, { headers: getHeaders(token) });
+    const optionsRes = await fetch(`${MEDUSA_URL}/store/shipping-options?cart_id=${cart.id}`, { 
+      headers: getHeaders(token),
+      cache: "no-store"
+    });
     if (optionsRes.ok) {
       const optionsData = await safeJson(optionsRes);
       const options = optionsData.shipping_options || [];
@@ -326,7 +333,10 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
     }
 
     // 1.5 Fetch and add shipping method (Required by Medusa v2 before payment)
-    const optionsRes = await fetch(`${MEDUSA_URL}/store/shipping-options?cart_id=${cart.id}`, { headers: getHeaders(token) });
+    const optionsRes = await fetch(`${MEDUSA_URL}/store/shipping-options?cart_id=${cart.id}`, { 
+      headers: getHeaders(token),
+      cache: "no-store"
+    });
     if (optionsRes.ok) {
       const optionsData = await safeJson(optionsRes);
       const options = optionsData.shipping_options || [];
