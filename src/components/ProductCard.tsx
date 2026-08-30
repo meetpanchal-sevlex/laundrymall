@@ -4,10 +4,10 @@ import { Product } from "@/data/products";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
-import { useCartStore } from "@/store/cartStore";
+import { useCart } from "@/hooks/useCart";
 
 export default function ProductCard({ product, compact }: { product: Product; compact?: boolean }) {
-  const { addItem } = useCartStore();
+  const { addItem } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();

@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import QueryProvider from "@/providers/QueryProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,13 +43,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-screen flex flex-col bg-gray-50 text-gray-900 font-sans">
-        <Navbar />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-        <CartDrawer />
-        <MobileBottomNav />
-        <Analytics />
-        <SpeedInsights />
+        <QueryProvider>
+          <Navbar />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+          <CartDrawer />
+          <MobileBottomNav />
+          <Analytics />
+          <SpeedInsights />
+        </QueryProvider>
       </body>
     </html>
   );

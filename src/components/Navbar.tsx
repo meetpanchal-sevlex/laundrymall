@@ -5,12 +5,14 @@ import { ShoppingCart, Search, User, Menu, LogOut } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
+import { useCart } from "@/hooks/useCart";
 import { useEffect, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import MobileDrawer from "@/components/MobileDrawer";
 
 export default function Navbar() {
-  const { setIsOpen, itemCount } = useCartStore();
+  const { cart } = useCart();
+  const setIsOpen = useCartStore((state) => state.setIsOpen);
   const { user, logout } = useAuthStore();
   const { isMobileDrawerOpen, setMobileDrawerOpen } = useUIStore();
   const [mounted, setMounted] = useState(false);
@@ -86,9 +88,9 @@ export default function Navbar() {
             >
               <ShoppingCart className="w-6 h-6 group-hover:scale-110 transition-transform" />
               <span className="text-xs font-medium hidden sm:block">Cart</span>
-              {mounted && itemCount() > 0 && (
+              {mounted && cart.items.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-white">
-                  {itemCount()}
+                  {cart.items.reduce((t: number, i: any) => t + i.quantity, 0)}
                 </span>
               )}
             </button>

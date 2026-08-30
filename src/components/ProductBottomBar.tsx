@@ -2,11 +2,13 @@
 
 import { Product } from "@/data/products";
 import { useCartStore } from "@/store/cartStore";
+import { useCart } from "@/hooks/useCart";
 import { ShoppingCart, ChevronsRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ProductBottomBar({ product }: { product: Product }) {
-  const { addItem, setIsOpen } = useCartStore();
+  const setIsOpen = useCartStore((state) => state.setIsOpen);
+  const { addItem } = useCart();
   const router = useRouter();
 
   const handleAddToCart = () => {

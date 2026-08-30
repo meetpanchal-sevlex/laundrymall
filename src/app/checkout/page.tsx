@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
+import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
@@ -10,7 +11,9 @@ import { prepareCheckoutAction, prepareCODCheckoutAction, completeCartAction } f
 import { getCustomer } from "@/app/actions/auth";
 
 export default function CheckoutPage() {
-  const { cartTotal, syncCart, items, medusaTotal } = useCartStore();
+  const { cart, clearCart } = useCart();
+  const medusaTotal = cart.medusaTotal;
+  const items = cart.items;
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isFetchingPin, setIsFetchingPin] = useState(false);
@@ -62,7 +65,7 @@ export default function CheckoutPage() {
     };
     
     fetchSavedAddress();
-  }, [syncCart]);
+  }, []);
 
   const [paymentMethod, setPaymentMethod] = useState("upi");
 
@@ -136,7 +139,7 @@ export default function CheckoutPage() {
         if (codResult.error) {
           throw new Error(codResult.error);
         }
-        await useCartStore.getState().clearCart();
+        clearCart();
         router.push(`/checkout/success`);
         return;
       }
@@ -153,7 +156,7 @@ export default function CheckoutPage() {
       // 2. Open Razorpay using Medusa's official Order ID and matching Key ID
       const options = {
         key: matchingKeyId,
-        amount: cartTotal() * 100,
+        amount: cart.medusaTotal * 100,
         currency: "INR",
         name: "LaundryMall",
         description: "Payment for your order",
@@ -161,7 +164,7 @@ export default function CheckoutPage() {
         handler: async function (response: any) {
           try {
             await completeCartAction();
-            useCartStore.getState().clearCart();
+            clearCart();
             router.push('/checkout/success');
           } catch (e: any) {
             console.error("Order complete error:", e);
@@ -459,7 +462,7 @@ export default function CheckoutPage() {
               <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
                 <div>
                   <div className="text-xs text-gray-500 font-medium">Total Amount</div>
-                  <div className="font-bold text-xl text-gray-900">₹{cartTotal()}</div>
+                  <div className="font-bold text-xl text-gray-900">₹{cart.medusaTotal}</div>
                 </div>
                 <button
                   onClick={handlePayment}

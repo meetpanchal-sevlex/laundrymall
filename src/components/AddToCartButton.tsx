@@ -1,13 +1,13 @@
 "use client";
 
 import { Product } from "@/data/products";
-import { useCartStore } from "@/store/cartStore";
+import { useCart } from "@/hooks/useCart";
 import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
-  const { addItem } = useCartStore();
+  const { addItem } = useCart();
 
   const handleAddToCart = () => {
     addItem(product, quantity);

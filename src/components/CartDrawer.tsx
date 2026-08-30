@@ -1,24 +1,21 @@
 "use client";
 
 import { useCartStore } from "@/store/cartStore";
+import { useCart } from "@/hooks/useCart";
 import { ArrowLeft, Heart, X, ShoppingBag, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function CartDrawer() {
-  const { isOpen, setIsOpen, items, removeItem, updateQuantity, cartTotal, syncCart, isLoading } = useCartStore();
+  const { isOpen, setIsOpen } = useCartStore();
+  const { cart, removeItem, updateQuantity, isLoading, isSyncing } = useCart();
+  const items = cart.items;
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      syncCart();
-    }
-  }, [isOpen, syncCart]);
 
   if (!isMounted) return null;
 
@@ -189,9 +186,9 @@ export default function CartDrawer() {
                       <span className="text-green-600 font-bold">− ₹{totalSavings.toFixed(0)}</span>
                     </div>
                   )}
-                  <div className="border-t border-dashed border-gray-200 pt-2.5 flex justify-between">
-                    <span className="font-black text-gray-900">Order Total</span>
-                    <span className="font-black text-gray-900">₹{cartTotal().toFixed(0)}</span>
+                  <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-100">
+                    <span className="font-bold text-gray-900">Total Amount</span>
+                    <span className="font-black text-gray-900">₹{cart.medusaTotal.toFixed(0)}</span>
                   </div>
                 </div>
 
@@ -213,7 +210,7 @@ export default function CartDrawer() {
           <div className="bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-4">
             <div>
               <p className="text-xs text-gray-500">Order Total</p>
-              <p className="text-lg font-black text-gray-900">₹{cartTotal().toFixed(0)}</p>
+              <p className="text-lg font-black text-gray-900">₹{cart.medusaTotal.toFixed(0)}</p>
               {totalSavings > 0 && (
                 <p className="text-xs text-green-600 font-bold">You save ₹{totalSavings.toFixed(0)}</p>
               )}
