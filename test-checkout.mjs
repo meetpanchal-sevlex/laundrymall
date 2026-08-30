@@ -8,7 +8,7 @@ const m = new Medusa({
 async function run() {
   try {
     const { regions } = await m.store.region.list();
-    const regionId = regions[0].id;
+    const regionId = regions.find(r => r.currency_code === "inr")?.id || regions[0].id;
     const { cart } = await m.store.cart.create({ region_id: regionId, currency_code: "inr" });
     console.log("Cart created:", cart.id);
     
@@ -45,7 +45,19 @@ async function run() {
         headers: { "Content-Type": "application/json", "x-publishable-api-key": "pk_bc3432542b3168216839bbb59a558c5b4077cc11fda3ba1c285fd73c4a797c54" },
         body: JSON.stringify({ cart_id: cart.id })
     });
-    console.log("Payment Collection Create:", pcRes.status, await pcRes.text());
+    const pcData = await pcRes.json();
+    console.log("Payment Collection Create:", pcRes.status, pcData);
+
+    const pcId = pcData.payment_collection?.id;
+    if (pcId) {
+      console.log("Initializing razorpay session...");
+      const sessionRes = await fetch("https://api.laundrymall.in/store/payment-collections/" + pcId + "/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-publishable-api-key": "pk_bc3432542b3168216839bbb59a558c5b4077cc11fda3ba1c285fd73c4a797c54" },
+          body: JSON.stringify({ provider_id: "pp_razorpay_razorpay" })
+      });
+      console.log("Session init:", sessionRes.status, await sessionRes.text());
+    }
 
     console.log("Fetching final cart...");
     const finalCart = await m.store.cart.retrieve(cart.id, { fields: "*payment_collection,*payment_collection.payment_sessions" });

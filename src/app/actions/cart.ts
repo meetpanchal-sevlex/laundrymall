@@ -167,10 +167,11 @@ export async function clearCartAction() {
 }
 
 export async function prepareCheckoutAction(shippingAddress: any, email: string) {
+  noStore();
   try {
     const token = (await cookies()).get("_medusa_jwt")?.value;
     const headers = getHeaders(token);
-    const cart = await getOrCreateCart();
+    let cart = await getOrCreateCart();
     
     // 1. Update shipping address on the cart
     await medusaClient.store.cart.update(cart.id, {
@@ -179,44 +180,20 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
     }, {}, headers);
 
     // 2. Refresh cart to get shipping options
-    const optionsRes = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/shipping-options?cart_id=${cart.id}`, { headers });
-    const optionsData = await optionsRes.json();
+    const optionsData = await medusaClient.client.fetch(`/store/shipping-options?cart_id=${cart.id}`, { headers }) as any;
     
     const method = optionsData.shipping_options?.[0];
     if (method) {
-      // In SDK v2 this endpoint might be slightly different so we keep the fetch for the custom checkout flow where needed, 
-      // but let's try the SDK first. The SDK doesn't natively expose `addShippingMethod` in v2 exactly like this on cart.
-      await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/carts/${cart.id}/shipping-methods`, {
-        method: "POST",
-        headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ option_id: method.id })
-      });
+      await medusaClient.store.cart.addShippingMethod(cart.id, { option_id: method.id }, {}, headers);
     }
 
-    // 3. Initiate payment collection
-    const pcRes = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/payment-collections`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ cart_id: cart.id })
-    });
-    let collectionId = null;
-    if (pcRes.ok) {
-      const pcData = await pcRes.json();
-      collectionId = pcData.payment_collection?.id;
-    } else {
-      // If it fails (e.g. already exists), try to fetch the existing one from the cart
-      const existingCart = await getOrCreateCart();
-      collectionId = existingCart.payment_collection?.id;
-    }
+    // Refresh cart object before passing to payment session method
+    cart = await getOrCreateCart();
 
-    // 4. Initialize Razorpay session
-    if (collectionId) {
-      await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/payment-collections/${collectionId}/sessions`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ provider_id: "pp_razorpay_razorpay" })
-      });
-    }
+    // 3. Initiate payment session using the official SDK wrapper
+    await medusaClient.store.payment.initiatePaymentSession(cart, {
+      provider_id: "pp_razorpay_razorpay"
+    }, {}, headers);
 
     const finalCart = await getOrCreateCart();
     const session = finalCart.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === "razorpay" || s.provider_id === "pp_razorpay_razorpay");
@@ -236,28 +213,33 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
 }
 
 export async function prepareCODCheckoutAction(shippingAddress: any, email: string) {
+  noStore();
   try {
     const token = (await cookies()).get("_medusa_jwt")?.value;
     const headers = getHeaders(token);
-    const cart = await getOrCreateCart();
+    let cart = await getOrCreateCart();
     
-    // 1. Update shipping address on the cart
     await medusaClient.store.cart.update(cart.id, {
       shipping_address: shippingAddress,
       email: email
     }, {}, headers);
 
-    // 2. Initiate payment session for COD
-    await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/payment-collections`, {
-      method: "POST",
-      headers: { ...headers, "Content-Type": "application/json" },
-      body: JSON.stringify({ cart_id: cart.id })
-    });
+    const optionsData = await medusaClient.client.fetch(`/store/shipping-options?cart_id=${cart.id}`, { headers }) as any;
+    
+    const method = optionsData.shipping_options?.[0];
+    if (method) {
+      await medusaClient.store.cart.addShippingMethod(cart.id, { option_id: method.id }, {}, headers);
+    }
 
-    const finalCart = await getOrCreateCart();
-    return { success: true, paymentCollection: finalCart.payment_collection };
+    cart = await getOrCreateCart();
+
+    await medusaClient.store.payment.initiatePaymentSession(cart, {
+      provider_id: "manual"
+    }, {}, headers);
+
+    return { success: true };
   } catch (error: any) {
-    console.error("Prepare COD error:", error);
+    console.error("Prepare COD checkout error:", error);
     return { error: error.message || "An unexpected error occurred" };
   }
 }
