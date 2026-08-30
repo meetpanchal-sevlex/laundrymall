@@ -7,6 +7,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { prepareCheckoutAction, prepareCODCheckoutAction, completeCartAction } from "@/app/actions/cart";
+import { getCustomer } from "@/app/actions/auth";
 
 export default function CheckoutPage() {
   const { cartTotal, syncCart, items, medusaTotal } = useCartStore();
@@ -14,10 +15,6 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [isFetchingPin, setIsFetchingPin] = useState(false);
 
-  useEffect(() => {
-    syncCart();
-  }, [syncCart]);
-  
   const [address, setAddress] = useState({
     name: "",
     phone: "",
@@ -27,6 +24,33 @@ export default function CheckoutPage() {
     house: "",
     area: "",
   });
+
+  useEffect(() => {
+    syncCart();
+    
+    // Attempt to auto-fill saved address for logged-in users
+    const fetchSavedAddress = async () => {
+      try {
+        const customer = await getCustomer();
+        if (customer && customer.addresses && customer.addresses.length > 0) {
+          const saved = customer.addresses[0]; // Use first saved address
+          setAddress({
+            name: `${saved.first_name || ''} ${saved.last_name && saved.last_name !== '.' ? saved.last_name : ''}`.trim(),
+            phone: saved.phone || "",
+            pincode: saved.postal_code || "",
+            city: saved.city || "",
+            state: saved.province || "",
+            house: saved.address_1 || "",
+            area: saved.address_2 || "",
+          });
+        }
+      } catch (err) {
+        console.warn("Failed to fetch saved address", err);
+      }
+    };
+    
+    fetchSavedAddress();
+  }, [syncCart]);
 
   const [paymentMethod, setPaymentMethod] = useState("upi");
 
