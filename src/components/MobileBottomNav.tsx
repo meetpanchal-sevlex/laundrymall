@@ -4,11 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, ShoppingCart, User } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
+import { useCart } from "@/hooks/useCart";
+import { useAuthStore } from "@/store/authStore";
 import { useUIStore } from "@/store/uiStore";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const { itemCount, isOpen: isCartOpen, setIsOpen: setCartOpen } = useCartStore();
+  const { isOpen: isCartOpen, setIsOpen: setCartOpen } = useCartStore();
+  const { cart } = useCart();
+  const itemCount = cart.items.reduce((t: number, i: any) => t + i.quantity, 0);
+  const { user } = useAuthStore();
   const { isMobileDrawerOpen, setMobileDrawerOpen } = useUIStore();
 
   // Hide the bottom nav on specific pages like product details and checkout

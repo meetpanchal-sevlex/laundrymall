@@ -5,11 +5,31 @@ import { getOrCreateCart, addToCartAction, updateCartItemAction, removeCartItemA
 import { useCartStore } from "@/store/cartStore";
 import { PRODUCTS, Product } from "@/data/products";
 
+export interface UICartItem {
+  id: string;
+  variantId?: string;
+  lineItemId: string;
+  name: string;
+  category: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  description: string;
+  quantity: number;
+}
+
+export interface UICart {
+  cartId: string | null;
+  items: UICartItem[];
+  medusaTotal: number;
+  medusaSubtotal: number;
+}
+
 // Helper to map Medusa's Cart object to our UI CartItem structure
-export function mapMedusaToUICart(cart: any) {
+export function mapMedusaToUICart(cart: any): UICart {
   if (!cart) return { cartId: null, items: [], medusaTotal: 0, medusaSubtotal: 0 };
 
-  const items = (cart.items || []).map((lineItem: any) => {
+  const items: UICartItem[] = (cart.items || []).map((lineItem: any) => {
     // Find matching local static product for rich metadata (images, categories)
     const localProduct = PRODUCTS.find(p => p.variantId === lineItem.variant_id || p.id === lineItem.product_id);
     

@@ -19,14 +19,14 @@ export default function CartDrawer() {
 
   if (!isMounted) return null;
 
-  const totalSavings = items.reduce((acc, item) => {
+  const totalSavings = items.reduce((acc: number, item: any) => {
     if (item.originalPrice) {
       return acc + (item.originalPrice - item.price) * item.quantity;
     }
     return acc;
   }, 0);
 
-  const productTotal = items.reduce((acc, item) => acc + (item.originalPrice || item.price) * item.quantity, 0);
+  const productTotal = items.reduce((acc: number, item: any) => acc + (item.originalPrice || item.price) * item.quantity, 0);
 
   return (
     <>

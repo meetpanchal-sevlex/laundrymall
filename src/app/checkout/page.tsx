@@ -34,7 +34,6 @@ export default function CheckoutPage() {
   const [isLoadingAddress, setIsLoadingAddress] = useState(true);
 
   useEffect(() => {
-    syncCart();
     
     // Attempt to auto-fill saved address for logged-in users
     const fetchSavedAddress = async () => {
