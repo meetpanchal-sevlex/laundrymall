@@ -26,8 +26,9 @@ export default function CheckoutPage() {
   });
 
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
-  const [isAddingNew, setIsAddingNew] = useState(true);
+  const [isAddingNew, setIsAddingNew] = useState(false);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState<number>(0);
+  const [isLoadingAddress, setIsLoadingAddress] = useState(true);
 
   useEffect(() => {
     syncCart();
@@ -49,9 +50,14 @@ export default function CheckoutPage() {
             house: saved.address_1 || "",
             area: saved.address_2 || "",
           });
+        } else {
+          setIsAddingNew(true);
         }
       } catch (err) {
         console.warn("Failed to fetch saved address", err);
+        setIsAddingNew(true);
+      } finally {
+        setIsLoadingAddress(false);
       }
     };
     
@@ -225,10 +231,18 @@ export default function CheckoutPage() {
         {/* STEP 1: ADDRESS */}
         {step === 1 && (
           <div className="space-y-4">
-            {!isAddingNew && savedAddresses.length > 0 && (
-              <div className="space-y-3">
-                <h2 className="font-bold text-gray-900 text-lg mb-3">Saved Addresses</h2>
-                {savedAddresses.map((addr, idx) => (
+            {isLoadingAddress ? (
+              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-4 animate-pulse">
+                <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-20 bg-gray-100 rounded-lg"></div>
+                <div className="h-20 bg-gray-100 rounded-lg"></div>
+              </div>
+            ) : (
+              <>
+                {!isAddingNew && savedAddresses.length > 0 && (
+                  <div className="space-y-3">
+                    <h2 className="font-bold text-gray-900 text-lg mb-3">Saved Addresses</h2>
+                    {savedAddresses.map((addr, idx) => (
                   <label key={addr.id} className="flex items-start gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-blue-300">
                     <input 
                       type="radio" 
@@ -364,6 +378,8 @@ export default function CheckoutPage() {
                   Save Address and Continue
                 </button>
               </form>
+            )}
+            </>
             )}
           </div>
         )}
