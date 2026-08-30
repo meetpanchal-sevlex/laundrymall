@@ -48,9 +48,9 @@ export default function MobileBottomNav() {
       <button onClick={() => setCartOpen(!isCartOpen)} className={`flex-1 flex flex-col items-center py-2.5 gap-1 ${isCartActive ? "text-blue-600" : "text-gray-500"}`}>
         <div className="relative">
           <ShoppingCart className={`w-5 h-5 ${isCartActive ? "fill-current" : ""}`} />
-          {itemCount() > 0 && (
-            <span className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-              {itemCount()}
+          {itemCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border-2 border-white">
+              {itemCount}
             </span>
           )}
         </div>
