@@ -105,14 +105,16 @@ export default function CheckoutPage() {
         name: "LaundryMall",
         description: "Payment for your order",
         order_id: razorpayOrderId,
+        callback_url: `${window.location.origin}/api/checkout/callback`,
+        redirect: true,
         handler: async function (response: any) {
           try {
             await completeCartAction();
             useCartStore.getState().clearCart();
-            window.location.href = '/checkout/success';
+            window.location.assign('/checkout/success');
           } catch (e) {
             console.error("Order complete error:", e);
-            window.location.href = '/checkout/success';
+            window.location.assign('/checkout/success');
           }
         },
         prefill: {

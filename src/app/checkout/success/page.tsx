@@ -1,7 +1,17 @@
+"use client";
+
 import Link from 'next/link';
 import { CheckCircle2, Truck, Package, ArrowRight, Home } from 'lucide-react';
+import { useEffect } from 'react';
+import { useCartStore } from '@/store/cartStore';
 
 export default function CheckoutSuccessPage() {
+  useEffect(() => {
+    // If the user arrived here via Razorpay callback, the local cart store
+    // might not have been cleared yet.
+    useCartStore.getState().clearCart();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center px-4 py-16">
       <div className="max-w-lg w-full">
