@@ -400,10 +400,22 @@ export async function getCustomerOrdersAction() {
     if (!token) {
       return { orders: [] };
     }
-    const res = await fetch(`${MEDUSA_URL}/store/orders?fields=*items,*items.variant,*items.variant.product,*shipping_address,*summary,*payment_collections`, {
-      headers: getHeaders(token)
+    const res = await fetch(`${MEDUSA_URL}/store/orders?fields=*items,*items.variant,*shipping_address,*summary,*payment_collections`, {
+      headers: getHeaders(token),
+      cache: "no-store"
     });
     if (!res.ok) {
+      const errText = await res.text();
+      console.error("Orders fetch failed:", res.status, errText);
+      // Try fetching without fields as fallback
+      const fallbackRes = await fetch(`${MEDUSA_URL}/store/orders`, {
+        headers: getHeaders(token),
+        cache: "no-store"
+      });
+      if (fallbackRes.ok) {
+        const fallbackData = await safeJson(fallbackRes);
+        return { orders: fallbackData.orders || [] };
+      }
       return { orders: [] };
     }
     const data = await safeJson(res);
