@@ -25,6 +25,10 @@ export default function CheckoutPage() {
     area: "",
   });
 
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [isAddingNew, setIsAddingNew] = useState(true);
+  const [selectedAddressIndex, setSelectedAddressIndex] = useState<number>(0);
+
   useEffect(() => {
     syncCart();
     
@@ -33,6 +37,8 @@ export default function CheckoutPage() {
       try {
         const customer = await getCustomer();
         if (customer && customer.addresses && customer.addresses.length > 0) {
+          setSavedAddresses(customer.addresses);
+          setIsAddingNew(false);
           const saved = customer.addresses[0]; // Use first saved address
           setAddress({
             name: `${saved.first_name || ''} ${saved.last_name && saved.last_name !== '.' ? saved.last_name : ''}`.trim(),
@@ -85,21 +91,38 @@ export default function CheckoutPage() {
     setStep(2);
   };
 
+  const handleSelectSavedAddress = (index: number) => {
+    setSelectedAddressIndex(index);
+    const saved = savedAddresses[index];
+    setAddress({
+      name: `${saved.first_name || ''} ${saved.last_name && saved.last_name !== '.' ? saved.last_name : ''}`.trim(),
+      phone: saved.phone || "",
+      pincode: saved.postal_code || "",
+      city: saved.city || "",
+      state: saved.province || "",
+      house: saved.address_1 || "",
+      area: saved.address_2 || "",
+    });
+  };
+
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handlePayment = async () => {
+    if (isProcessing) return;
     setIsProcessing(true);
+
     try {
-      const email = address.name.replace(/\s+/g, '').toLowerCase() + "@guest.com";
+      const email = address.name.split(' ').join('').toLowerCase() + "@example.com";
       const shippingAddress = {
         first_name: address.name,
-        last_name: ".", // Required by Medusa
-        phone: address.phone,
-        address_1: address.house + " " + address.area,
+        last_name: ".",
+        address_1: address.house,
+        address_2: address.area,
         city: address.city,
         province: address.state,
         postal_code: address.pincode,
-        country_code: "in"
+        country_code: "in",
+        phone: address.phone
       };
 
       if (paymentMethod === "cod") {
@@ -108,7 +131,7 @@ export default function CheckoutPage() {
           throw new Error(codResult.error);
         }
         await useCartStore.getState().clearCart();
-        window.location.href = `/checkout/success?order_id=${codResult.order?.id || ''}&method=cod`;
+        router.push(`/checkout/success`);
         return;
       }
 
@@ -173,7 +196,7 @@ export default function CheckoutPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-bold text-lg text-gray-900">
-            {step === 1 ? "Add Delivery Address" : "Select Payment Method"}
+            {step === 1 ? "Delivery Address" : "Payment Method"}
           </h1>
         </div>
       </header>
@@ -201,93 +224,148 @@ export default function CheckoutPage() {
 
         {/* STEP 1: ADDRESS */}
         {step === 1 && (
-          <form onSubmit={handleAddressSubmit} className="space-y-4">
-            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-              <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-blue-600" />
-                Contact Details
-              </h2>
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  required
-                  placeholder="Name"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
-                  value={address.name}
-                  onChange={(e) => setAddress({...address, name: e.target.value})}
-                />
-                <input
-                  type="tel"
-                  required
-                  placeholder="Phone Number"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
-                  value={address.phone}
-                  onChange={(e) => setAddress({...address, phone: e.target.value})}
-                />
-              </div>
-            </div>
+          <div className="space-y-4">
+            {!isAddingNew && savedAddresses.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="font-bold text-gray-900 text-lg mb-3">Saved Addresses</h2>
+                {savedAddresses.map((addr, idx) => (
+                  <label key={addr.id} className="flex items-start gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-blue-300">
+                    <input 
+                      type="radio" 
+                      name="saved_address" 
+                      className="mt-1 w-4 h-4 text-blue-600"
+                      checked={selectedAddressIndex === idx}
+                      onChange={() => handleSelectSavedAddress(idx)}
+                    />
+                    <div>
+                      <h3 className="font-bold text-gray-900">{addr.first_name} {addr.last_name !== "." ? addr.last_name : ""}</h3>
+                      <p className="text-gray-600 text-sm mt-1 leading-relaxed">
+                        {addr.address_1}, {addr.address_2}<br/>
+                        {addr.city}, {addr.province} - {addr.postal_code}
+                      </p>
+                      {addr.phone && <p className="text-gray-900 font-medium text-sm mt-1">{addr.phone}</p>}
+                    </div>
+                  </label>
+                ))}
 
-            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-              <h2 className="font-bold text-gray-900 mb-4">Address Details</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="relative">
+                <button
+                  onClick={() => setStep(2)}
+                  className="w-full bg-[#f43397] hover:bg-[#e02d8b] text-white font-bold text-lg py-4 rounded-lg shadow-sm transition-colors mt-6"
+                >
+                  Deliver Here
+                </button>
+
+                <div className="pt-4 border-t border-gray-200 mt-6">
+                  <button 
+                    onClick={() => setIsAddingNew(true)}
+                    className="w-full py-3 bg-blue-50 text-blue-600 font-bold rounded-lg border border-blue-100"
+                  >
+                    + Add New Address
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {isAddingNew && (
+              <form onSubmit={handleAddressSubmit} className="space-y-4">
+                {savedAddresses.length > 0 && (
+                  <button 
+                    type="button"
+                    onClick={() => setIsAddingNew(false)}
+                    className="text-blue-600 font-semibold text-sm mb-2 flex items-center gap-1"
+                  >
+                    <ArrowLeft className="w-4 h-4" /> Back to saved addresses
+                  </button>
+                )}
+                
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                  <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-blue-600" />
+                    Contact Details
+                  </h2>
+                  <div className="space-y-4">
                     <input
                       type="text"
                       required
-                      maxLength={6}
-                      placeholder="Pincode"
+                      placeholder="Name"
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
-                      value={address.pincode}
-                      onChange={(e) => setAddress({...address, pincode: e.target.value.replace(/\D/g, '')})}
+                      value={address.name}
+                      onChange={(e) => setAddress({...address, name: e.target.value})}
                     />
-                    {isFetchingPin && (
-                      <div className="absolute right-3 top-3 w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-                    )}
+                    <input
+                      type="tel"
+                      required
+                      placeholder="Phone Number"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                      value={address.phone}
+                      onChange={(e) => setAddress({...address, phone: e.target.value})}
+                    />
                   </div>
-                  <input
-                    type="text"
-                    required
-                    placeholder="City"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 outline-none"
-                    value={address.city}
-                    readOnly
-                  />
                 </div>
-                <input
-                  type="text"
-                  required
-                  placeholder="State"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 outline-none"
-                  value={address.state}
-                  readOnly
-                />
-                <input
-                  type="text"
-                  required
-                  placeholder="House no. / Building Name"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
-                  value={address.house}
-                  onChange={(e) => setAddress({...address, house: e.target.value})}
-                />
-                <input
-                  type="text"
-                  required
-                  placeholder="Road name, Area, Colony"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
-                  value={address.area}
-                  onChange={(e) => setAddress({...address, area: e.target.value})}
-                />
-              </div>
-            </div>
 
-            <button
-              type="submit"
-              className="w-full bg-[#f43397] hover:bg-[#e02d8b] text-white font-bold text-lg py-4 rounded-lg shadow-sm transition-colors mt-6"
-            >
-              Save Address and Continue
-            </button>
-          </form>
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                  <h2 className="font-bold text-gray-900 mb-4">Address Details</h2>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          placeholder="Pincode"
+                          className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                          value={address.pincode}
+                          onChange={(e) => setAddress({...address, pincode: e.target.value.replace(/\D/g, '')})}
+                        />
+                        {isFetchingPin && (
+                          <div className="absolute right-3 top-3 w-5 h-5 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        placeholder="City"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 outline-none"
+                        value={address.city}
+                        readOnly
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      placeholder="State"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 outline-none"
+                      value={address.state}
+                      readOnly
+                    />
+                    <input
+                      type="text"
+                      required
+                      placeholder="House no. / Building Name"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                      value={address.house}
+                      onChange={(e) => setAddress({...address, house: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Road name, Area, Colony"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                      value={address.area}
+                      onChange={(e) => setAddress({...address, area: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-[#f43397] hover:bg-[#e02d8b] text-white font-bold text-lg py-4 rounded-lg shadow-sm transition-colors mt-6"
+                >
+                  Save Address and Continue
+                </button>
+              </form>
+            )}
+          </div>
         )}
 
         {/* STEP 2: PAYMENT */}
