@@ -150,6 +150,21 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
       return { error: addrErr.message || "Failed to update delivery address" };
     }
 
+    // 1.5 Fetch and add shipping method (Required by Medusa v2 before payment)
+    const optionsRes = await fetch(`${MEDUSA_URL}/store/shipping-options?cart_id=${cart.id}`, { headers: getHeaders(token) });
+    if (optionsRes.ok) {
+      const optionsData = await safeJson(optionsRes);
+      const options = optionsData.shipping_options || [];
+      if (options.length > 0) {
+        // Just pick the first available shipping option
+        await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/shipping-methods`, {
+          method: "POST",
+          headers: getHeaders(token),
+          body: JSON.stringify({ option_id: options[0].id })
+        });
+      }
+    }
+
     // 2. Create or reuse Payment Collection
     let paymentCollection = cart.payment_collection;
     
@@ -258,6 +273,21 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
     if (!addrRes.ok) {
       const addrErr = await safeJson(addrRes);
       return { error: addrErr.message || "Failed to update delivery address" };
+    }
+
+    // 1.5 Fetch and add shipping method (Required by Medusa v2 before payment)
+    const optionsRes = await fetch(`${MEDUSA_URL}/store/shipping-options?cart_id=${cart.id}`, { headers: getHeaders(token) });
+    if (optionsRes.ok) {
+      const optionsData = await safeJson(optionsRes);
+      const options = optionsData.shipping_options || [];
+      if (options.length > 0) {
+        // Just pick the first available shipping option
+        await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/shipping-methods`, {
+          method: "POST",
+          headers: getHeaders(token),
+          body: JSON.stringify({ option_id: options[0].id })
+        });
+      }
     }
 
     // 2. Create or reuse Payment Collection
