@@ -158,19 +158,22 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
       return { error: addrErr.message || "Failed to update delivery address" };
     }
 
-    // 2. Create Payment Collection (Medusa 2.0 flow)
-    const pcRes = await fetch(`${MEDUSA_URL}/store/payment-collections`, {
-      method: "POST",
-      headers: getHeaders(token),
-      body: JSON.stringify({ cart_id: cart.id })
-    });
-    const pcData = await safeJson(pcRes);
+    // 2. Create or reuse Payment Collection
+    let paymentCollection = cart.payment_collection;
     
-    if (!pcRes.ok) {
-      return { error: pcData.message || "Failed to create payment collection" };
+    if (!paymentCollection) {
+      const pcRes = await fetch(`${MEDUSA_URL}/store/payment-collections`, {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify({ cart_id: cart.id })
+      });
+      const pcData = await safeJson(pcRes);
+      
+      if (!pcRes.ok) {
+        return { error: pcData.message || "Failed to create payment collection" };
+      }
+      paymentCollection = pcData.payment_collection;
     }
-    
-    const paymentCollection = pcData.payment_collection;
     
     // 3. Init Razorpay session directly
     const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/payment-sessions`, {
@@ -265,19 +268,22 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
       return { error: addrErr.message || "Failed to update delivery address" };
     }
 
-    // 2. Create Payment Collection
-    const pcRes = await fetch(`${MEDUSA_URL}/store/payment-collections`, {
-      method: "POST",
-      headers: getHeaders(token),
-      body: JSON.stringify({ cart_id: cart.id })
-    });
-    const pcData = await safeJson(pcRes);
+    // 2. Create or reuse Payment Collection
+    let paymentCollection = cart.payment_collection;
     
-    if (!pcRes.ok) {
-      return { error: pcData.message || "Failed to create payment collection" };
+    if (!paymentCollection) {
+      const pcRes = await fetch(`${MEDUSA_URL}/store/payment-collections`, {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify({ cart_id: cart.id })
+      });
+      const pcData = await safeJson(pcRes);
+      
+      if (!pcRes.ok) {
+        return { error: pcData.message || "Failed to create payment collection" };
+      }
+      paymentCollection = pcData.payment_collection;
     }
-    
-    const paymentCollection = pcData.payment_collection;
     
     // 3. Init Manual session for COD
     const sessRes = await fetch(`${MEDUSA_URL}/store/payment-collections/${paymentCollection.id}/payment-sessions`, {
