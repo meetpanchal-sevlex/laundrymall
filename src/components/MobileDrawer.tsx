@@ -142,7 +142,7 @@ export default function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onC
       />
 
       {/* Drawer */}
-      <div className="fixed top-0 left-0 h-[100dvh] z-[100] w-[90vw] max-w-sm bg-white flex flex-col md:hidden animate-in slide-in-from-left duration-200 shadow-2xl">
+      <div className="fixed top-0 left-0 h-[100dvh] z-[100] w-full bg-white flex flex-col md:hidden animate-in slide-in-from-left duration-200 shadow-2xl">
 
         {/* Header - Meesho Style (X then Logo) */}
         <div className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 bg-white shadow-sm z-10">
