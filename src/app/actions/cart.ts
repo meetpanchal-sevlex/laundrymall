@@ -44,14 +44,7 @@ export async function getOrCreateCart() {
   const regData = await safeJson(regRes);
   const indiaRegion = regData.regions.find((r: any) => r.currency_code === "inr") || regData.regions[0];
 
-  let customerId = undefined;
-  if (token) {
-    const cRes = await fetch(`${MEDUSA_URL}/store/customers/me`, { headers: getHeaders(token) });
-    if (cRes.ok) {
-      const cData = await safeJson(cRes);
-      customerId = cData.customer.id;
-    }
-  }
+
 
 
   const createRes = await fetch(`${MEDUSA_URL}/store/carts`, {
@@ -59,7 +52,6 @@ export async function getOrCreateCart() {
     headers: getHeaders(token),
     body: JSON.stringify({
       region_id: indiaRegion.id,
-      customer_id: customerId,
       currency_code: "inr"
     })
   });
