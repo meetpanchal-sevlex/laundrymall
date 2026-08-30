@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { unstable_noStore as noStore } from "next/cache";
 import { medusaClient } from "@/lib/medusa";
 
 const getHeaders = (token?: string) => {
@@ -10,6 +11,7 @@ const getHeaders = (token?: string) => {
 };
 
 export async function getOrCreateCart() {
+  noStore();
   const cookieStore = await cookies();
   const cartId = cookieStore.get("_medusa_cart_id")?.value;
   const token = cookieStore.get("_medusa_jwt")?.value;
@@ -146,6 +148,7 @@ export async function removeCartItemAction(lineId: string) {
   try {
     await medusaClient.store.cart.deleteLineItem(cart.id, lineId, {}, headers);
   } catch (e: any) {
+    console.error("SDK Delete Line Item Error:", e.response?.status, e.message);
     if (e.response?.status === 400) {
       return await duplicateCart(cart.id, token, lineId);
     }
@@ -254,6 +257,7 @@ export async function completeCartAction() {
 
 
 export async function getCustomerOrdersAction() {
+  noStore();
   try {
     const token = (await cookies()).get("_medusa_jwt")?.value;
     if (!token) return { orders: [] };
