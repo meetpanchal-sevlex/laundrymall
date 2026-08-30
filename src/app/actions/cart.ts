@@ -195,7 +195,16 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
     });
     
     const finalCart = await getOrCreateCart();
-    return { success: true, paymentCollection: finalCart.payment_collection };
+    const session = finalCart.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === "razorpay" || s.provider_id === "pp_razorpay_razorpay");
+    const orderId = session?.data?.id || session?.data?.order_id || session?.id;
+    const keyId = session?.data?.key_id || "";
+
+    return { 
+      success: true, 
+      paymentCollection: finalCart.payment_collection,
+      razorpayOrderId: orderId,
+      keyId: keyId 
+    };
   } catch (error: any) {
     console.error("Prepare checkout error:", error);
     return { error: error.message || "An unexpected error occurred" };
@@ -249,7 +258,7 @@ export async function getCustomerOrdersAction() {
     const token = (await cookies()).get("_medusa_jwt")?.value;
     if (!token) return { orders: [] };
     const headers = getHeaders(token);
-    const res = await medusaClient.client.fetch(`/store/orders`, {
+    const res: any = await medusaClient.client.fetch(`/store/orders`, {
       method: "GET",
       query: { fields: "*items,*items.variant,*shipping_address,*summary,*payment_collections" },
       headers
