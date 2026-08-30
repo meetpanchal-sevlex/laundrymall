@@ -193,13 +193,31 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
       });
     }
 
-    // 3. Initiate payment session
-    await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/payment-collections`, {
+    // 3. Initiate payment collection
+    const pcRes = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/payment-collections`, {
       method: "POST",
-      headers: { ...headers, "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ cart_id: cart.id })
     });
-    
+    let collectionId = null;
+    if (pcRes.ok) {
+      const pcData = await pcRes.json();
+      collectionId = pcData.payment_collection?.id;
+    } else {
+      // If it fails (e.g. already exists), try to fetch the existing one from the cart
+      const existingCart = await getOrCreateCart();
+      collectionId = existingCart.payment_collection?.id;
+    }
+
+    // 4. Initialize Razorpay session
+    if (collectionId) {
+      await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in"}/store/payment-collections/${collectionId}/sessions`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ provider_id: "pp_razorpay_razorpay" })
+      });
+    }
+
     const finalCart = await getOrCreateCart();
     const session = finalCart.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === "razorpay" || s.provider_id === "pp_razorpay_razorpay");
     const orderId = session?.data?.id || session?.data?.order_id || session?.id;
