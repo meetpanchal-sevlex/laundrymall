@@ -55,6 +55,8 @@ export function mapMedusaToUICart(cart: any): UICart {
   };
 }
 
+let syncQueue = Promise.resolve<any>(null);
+
 export function useCart() {
   const queryClient = useQueryClient();
   const setIsOpen = useCartStore((state) => state.setIsOpen);
@@ -71,10 +73,18 @@ export function useCart() {
 
   // 2. Add To Cart Mutation
   const addToCartMutation = useMutation({
-    mutationFn: async ({ product, quantity }: { product: Product; quantity: number }) => {
-      if (!product.variantId) return getOrCreateCart(); // Fallback for dummy items without variants
-      const cart = await addToCartAction(product.variantId, quantity);
-      return mapMedusaToUICart(cart);
+    mutationFn: ({ product, quantity }: { product: Product; quantity: number }) => {
+      if (!product.variantId) return getOrCreateCart();
+      return new Promise<UICart>((resolve, reject) => {
+        syncQueue = syncQueue.then(async () => {
+          try {
+            const cart = await addToCartAction(product.variantId!, quantity);
+            resolve(mapMedusaToUICart(cart));
+          } catch (e) {
+            reject(e);
+          }
+        }).catch(() => {});
+      });
     },
     onMutate: async ({ product, quantity }) => {
       // Cancel any outgoing refetches so they don't overwrite our optimistic update
@@ -115,10 +125,18 @@ export function useCart() {
 
   // 3. Update Quantity Mutation
   const updateQuantityMutation = useMutation({
-    mutationFn: async ({ lineItemId, quantity }: { lineItemId: string; quantity: number }) => {
+    mutationFn: ({ lineItemId, quantity }: { lineItemId: string; quantity: number }) => {
       if (lineItemId.startsWith("temp-")) throw new Error("Cannot update optimistic item");
-      const cart = await updateCartItemAction(lineItemId, quantity);
-      return mapMedusaToUICart(cart);
+      return new Promise<UICart>((resolve, reject) => {
+        syncQueue = syncQueue.then(async () => {
+          try {
+            const cart = await updateCartItemAction(lineItemId, quantity);
+            resolve(mapMedusaToUICart(cart));
+          } catch (e) {
+            reject(e);
+          }
+        }).catch(() => {});
+      });
     },
     onMutate: async ({ lineItemId, quantity }) => {
       await queryClient.cancelQueries({ queryKey: ["cart"] });
@@ -140,10 +158,18 @@ export function useCart() {
 
   // 4. Remove Item Mutation
   const removeItemMutation = useMutation({
-    mutationFn: async (lineItemId: string) => {
-      if (lineItemId.startsWith("temp-")) return;
-      const cart = await removeCartItemAction(lineItemId);
-      return mapMedusaToUICart(cart);
+    mutationFn: (lineItemId: string) => {
+      if (lineItemId.startsWith("temp-")) return Promise.resolve(null);
+      return new Promise<UICart | null>((resolve, reject) => {
+        syncQueue = syncQueue.then(async () => {
+          try {
+            const cart = await removeCartItemAction(lineItemId);
+            resolve(mapMedusaToUICart(cart));
+          } catch (e) {
+            reject(e);
+          }
+        }).catch(() => {});
+      });
     },
     onMutate: async (lineItemId) => {
       await queryClient.cancelQueries({ queryKey: ["cart"] });

@@ -188,10 +188,8 @@ export async function removeCartItemAction(lineId: string) {
     return await duplicateCart(cart.id, token, lineId);
   }
 
-  if (!res.ok && res.status !== 404) {
-    const errText = await res.text();
-    console.error(`Failed to delete line item ${lineId}:`, res.status, errText);
-    throw new Error(`Delete failed: ${res.status} ${errText}`);
+  if (!res.ok) {
+    throw new Error(`Failed to remove item: ${res.status}`);
   }
   
   return await getOrCreateCart();
