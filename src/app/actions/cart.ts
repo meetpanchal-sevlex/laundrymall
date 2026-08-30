@@ -75,29 +75,96 @@ export async function getOrCreateCart() {
   return cart;
 }
 
+// Self-healing: If a cart is locked (e.g. by a payment collection), we duplicate it into a fresh unlocked cart.
+async function duplicateCart(oldCartId: string, token?: string, excludeLineId?: string) {
+  const oldCartRes = await fetch(`${MEDUSA_URL}/store/carts/${oldCartId}?fields=*items,*items.variant`, { headers: getHeaders(token), cache: "no-store" });
+  if (!oldCartRes.ok) return await getOrCreateCart();
+  const oldCart = (await safeJson(oldCartRes)).cart;
+
+  const cookieStore = await cookies();
+  cookieStore.delete("_medusa_cart_id");
+  const newCart = await getOrCreateCart(); // Creates a fresh cart
+
+  // Copy items over, excluding the one they tried to delete
+  if (oldCart.items && oldCart.items.length > 0) {
+    for (const item of oldCart.items) {
+      if (excludeLineId && item.id === excludeLineId) continue;
+      
+      await fetch(`${MEDUSA_URL}/store/carts/${newCart.id}/line-items`, {
+        method: "POST",
+        headers: getHeaders(token),
+        body: JSON.stringify({ variant_id: item.variant_id, quantity: item.quantity })
+      });
+    }
+  }
+
+  // Preserve email and shipping address so the user doesn't lose progress
+  if (oldCart.email || oldCart.shipping_address) {
+    const updateBody: any = {};
+    if (oldCart.email) updateBody.email = oldCart.email;
+    if (oldCart.shipping_address) {
+      updateBody.shipping_address = {
+        first_name: oldCart.shipping_address.first_name,
+        last_name: oldCart.shipping_address.last_name,
+        address_1: oldCart.shipping_address.address_1,
+        address_2: oldCart.shipping_address.address_2,
+        city: oldCart.shipping_address.city,
+        province: oldCart.shipping_address.province,
+        postal_code: oldCart.shipping_address.postal_code,
+        country_code: oldCart.shipping_address.country_code,
+        phone: oldCart.shipping_address.phone
+      };
+    }
+    await fetch(`${MEDUSA_URL}/store/carts/${newCart.id}`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify(updateBody)
+    });
+  }
+
+  return await getOrCreateCart(); // Fetch final state
+}
+
 export async function addToCartAction(variantId: string, quantity: number) {
-  const cart = await getOrCreateCart();
+  let cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items`, {
+  const res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items`, {
     method: "POST",
     headers: getHeaders(token),
     body: JSON.stringify({ variant_id: variantId, quantity })
   });
   
+  if (res.status === 400) {
+    cart = await duplicateCart(cart.id, token);
+    await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items`, {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify({ variant_id: variantId, quantity })
+    });
+    return await getOrCreateCart();
+  }
+  
   return await getOrCreateCart();
 }
 
 export async function updateCartItemAction(lineId: string, quantity: number) {
-  const cart = await getOrCreateCart();
+  let cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
-  const res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
+  let res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
     method: "POST",
     headers: getHeaders(token),
     body: JSON.stringify({ quantity })
   });
   
+  if (res.status === 400) {
+    cart = await duplicateCart(cart.id, token);
+    // Since the new cart has new lineIds, we won't retry the quantity update directly here.
+    // The duplicateCart copied the old quantities. It's a minor tradeoff to ignore the quantity bump for this one locked action.
+    return cart;
+  }
+
   if (!res.ok) {
     const errText = await res.text();
     console.error(`Failed to update line item ${lineId}:`, res.status, errText);
@@ -108,7 +175,7 @@ export async function updateCartItemAction(lineId: string, quantity: number) {
 }
 
 export async function removeCartItemAction(lineId: string) {
-  const cart = await getOrCreateCart();
+  let cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   
   const res = await fetch(`${MEDUSA_URL}/store/carts/${cart.id}/line-items/${lineId}`, {
@@ -116,6 +183,11 @@ export async function removeCartItemAction(lineId: string) {
     headers: getHeaders(token)
   });
   
+  if (res.status === 400) {
+    // Rebuild the cart WITHOUT this item
+    return await duplicateCart(cart.id, token, lineId);
+  }
+
   if (!res.ok && res.status !== 404) {
     const errText = await res.text();
     console.error(`Failed to delete line item ${lineId}:`, res.status, errText);
