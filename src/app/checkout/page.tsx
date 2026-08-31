@@ -206,7 +206,7 @@ export default function CheckoutPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center gap-4">
-          <button onClick={() => router.back()} className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-full">
+          <button onClick={() => step === 2 ? setStep(1) : router.back()} className="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-full">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="font-bold text-lg text-gray-900">
