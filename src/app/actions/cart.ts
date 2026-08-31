@@ -112,7 +112,7 @@ export async function addToCartAction(variantId: string, quantity: number) {
       quantity
     }, {}, headers);
   } catch (e: any) {
-    if (e.response?.status === 400) {
+    if (e.response?.status === 400 || e.response?.status === 409) {
       cart = await duplicateCart(cart.id, token);
       await medusaClient.store.cart.createLineItem(cart.id, {
         variant_id: variantId,
@@ -134,7 +134,7 @@ export async function updateCartItemAction(lineId: string, quantity: number) {
   try {
     await medusaClient.store.cart.updateLineItem(cart.id, lineId, { quantity }, {}, headers);
   } catch (e: any) {
-    if (e.response?.status === 400) {
+    if (e.response?.status === 400 || e.response?.status === 409) {
       // Find the variantId for this lineId so we can update it during duplication
       const itemToUpdate = cart.items?.find((i: any) => i.id === lineId);
       if (!itemToUpdate) throw e;
@@ -165,7 +165,7 @@ export async function removeCartItemAction(lineId: string) {
     await medusaClient.store.cart.deleteLineItem(cart.id, lineId, {}, headers);
   } catch (e: any) {
     console.error("SDK Delete Line Item Error:", e.response?.status, e.message);
-    if (e.response?.status === 400) {
+    if (e.response?.status === 400 || e.response?.status === 409) {
       return await duplicateCart(cart.id, token, lineId);
     }
     throw e;
