@@ -135,7 +135,20 @@ export async function updateCartItemAction(lineId: string, quantity: number) {
     await medusaClient.store.cart.updateLineItem(cart.id, lineId, { quantity }, {}, headers);
   } catch (e: any) {
     if (e.response?.status === 400) {
-      return await duplicateCart(cart.id, token);
+      // Find the variantId for this lineId so we can update it during duplication
+      const itemToUpdate = cart.items?.find((i: any) => i.id === lineId);
+      if (!itemToUpdate) throw e;
+      
+      // Duplicate cart, EXCLUDING the old item to avoid copying the old quantity
+      const newCart = await duplicateCart(cart.id, token, lineId);
+      
+      // Re-add the item to the new cart with the NEW quantity
+      await medusaClient.store.cart.createLineItem(newCart.id, {
+        variant_id: itemToUpdate.variant_id,
+        quantity: quantity
+      }, {}, headers);
+      
+      return await getOrCreateCart();
     }
     throw e;
   }
