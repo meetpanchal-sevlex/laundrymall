@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
 import { ArrowLeft, MapPin } from "lucide-react";
-import { prepareCheckoutAction, prepareCODCheckoutAction, completeCartAction } from "@/app/actions/cart";
+import { prepareCheckoutAction, prepareCODCheckoutAction, completeCartAction, forceNewCartAction } from "@/app/actions/cart";
 import { getCustomer } from "@/app/actions/auth";
 
 export default function CheckoutPage() {
@@ -411,8 +411,40 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <h2 className="font-bold text-gray-900 text-lg mt-6 mb-3 px-1">Payment Method</h2>
-            
+            {/* Order Summary — shows exactly what Medusa says is in the cart */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                <h2 className="font-bold text-gray-900">Order Summary ({items.length} items)</h2>
+                <span className="font-black text-gray-900">₹{cart.medusaTotal}</span>
+              </div>
+              <div className="divide-y divide-gray-50">
+                {items.map((item) => (
+                  <div key={item.lineItemId} className="flex justify-between items-center px-4 py-2.5 text-sm">
+                    <span className="text-gray-700 flex-1">{item.name} <span className="text-gray-400">× {item.quantity}</span></span>
+                    <span className="font-semibold text-gray-900 ml-4">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+
+            {/* Wrong items? Nuclear reset option */}
+            <div className="text-center">
+              <button
+                onClick={async () => {
+                  if (confirm("This will clear your cart and start fresh. Are you sure?")) {
+                    await forceNewCartAction();
+                    clearCart();
+                    router.push("/");
+                  }
+                }}
+                className="text-xs text-gray-400 underline hover:text-red-500"
+              >
+                Wrong items? Reset cart
+              </button>
+            </div>
+
+            <h2 className="font-bold text-gray-900 text-lg px-1">Payment Method</h2>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               {/* UPI Option */}
               <label className="flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-50 border-b border-gray-100">

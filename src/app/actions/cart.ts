@@ -166,6 +166,14 @@ export async function clearCartAction() {
   cookieStore.delete("_medusa_cart_id");
 }
 
+// Nuclear reset: clears cookie AND forces a brand new cart on next load
+export async function forceNewCartAction() {
+  const cookieStore = await cookies();
+  cookieStore.delete("_medusa_cart_id");
+  // Immediately create a fresh cart so the next getOrCreateCart() call doesn't reuse old one
+  return await getOrCreateCart();
+}
+
 export async function prepareCheckoutAction(shippingAddress: any, email: string) {
   noStore();
   try {
