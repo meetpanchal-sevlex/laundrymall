@@ -149,7 +149,10 @@ export default function CartDrawer() {
                           {/* Qty selector */}
                           <div className="flex items-center gap-3">
                             <button
-                              onClick={() => updateQuantity(item.lineItemId, Math.max(1, item.quantity - 1))}
+                              onClick={() => item.quantity === 1 
+                                ? removeItem(item.lineItemId) 
+                                : updateQuantity(item.lineItemId, item.quantity - 1)
+                              }
                               className="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center text-slate-600 text-sm font-bold active:bg-slate-100 hover:border-slate-400 transition-all shadow-sm"
                             >
                               -
