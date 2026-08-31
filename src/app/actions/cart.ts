@@ -190,10 +190,12 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
     // Refresh cart object before passing to payment session method
     cart = await getOrCreateCart();
 
-    // 3. Initiate payment session using the official SDK wrapper
+    // 3. Initiate payment session using the official SDK wrapper.
+    // NOTE: Do NOT pass custom headers here — the SDK already has the publishableKey
+    // baked in at initialization. Passing headers causes them to be treated as body fields.
     await medusaClient.store.payment.initiatePaymentSession(cart, {
       provider_id: "pp_razorpay_razorpay"
-    }, {}, headers);
+    }, {}, {});
 
     const finalCart = await getOrCreateCart();
     const session = finalCart.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === "razorpay" || s.provider_id === "pp_razorpay_razorpay");
@@ -235,7 +237,7 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
 
     await medusaClient.store.payment.initiatePaymentSession(cart, {
       provider_id: "manual"
-    }, {}, headers);
+    }, {}, {});
 
     return { success: true };
   } catch (error: any) {
