@@ -4,13 +4,13 @@ import { cookies } from "next/headers";
 import { unstable_noStore as noStore } from "next/cache";
 import { medusaClient } from "@/lib/medusa";
 
-const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
-
+// IMPORTANT: Only return Authorization token here.
+// The Medusa SDK automatically handles Content-Type and x-publishable-api-key
+// via its initialization config. Passing them here causes the SDK to inject
+// them into the request BODY instead of headers, which Medusa rejects.
 const getHeaders = (token?: string) => {
-  const headers: any = { "Content-Type": "application/json" };
-  if (PK) headers["x-publishable-api-key"] = PK;
-  if (token) headers["Authorization"] = "Bearer " + token;
-  return headers;
+  if (token) return { Authorization: "Bearer " + token };
+  return {};
 };
 
 export async function getOrCreateCart() {
