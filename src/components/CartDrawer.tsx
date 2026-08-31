@@ -113,7 +113,7 @@ export default function CartDrawer() {
                           </p>
                           <button 
                             onClick={() => removeItem(item.lineItemId)}
-                            disabled={isLoading}
+                            disabled={isSyncing}
                             className="p-1.5 -mr-1.5 -mt-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             aria-label="Remove item"
                           >

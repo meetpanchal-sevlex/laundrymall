@@ -138,6 +138,9 @@ export default function CheckoutPage() {
         if (codResult.error) {
           throw new Error(codResult.error);
         }
+        // CRITICAL: Must call completeCartAction to register the order in Medusa.
+        // Without this, the cart stays as "not_paid" and no order is created.
+        await completeCartAction();
         clearCart();
         router.push(`/checkout/success`);
         return;

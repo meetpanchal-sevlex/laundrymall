@@ -179,26 +179,37 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
       email: email
     }, {}, headers);
 
-    // 2. Refresh cart to get shipping options
+    // 2. Add shipping method if one exists
     const optionsData = await medusaClient.client.fetch(`/store/shipping-options?cart_id=${cart.id}`, { headers }) as any;
-    
     const method = optionsData.shipping_options?.[0];
     if (method) {
       await medusaClient.store.cart.addShippingMethod(cart.id, { option_id: method.id }, {}, headers);
     }
 
-    // Refresh cart object before passing to payment session method
+    // 3. Refresh cart — check if it already has a locked payment collection
     cart = await getOrCreateCart();
+    const existingSession = cart.payment_collection?.payment_sessions?.find(
+      (s: any) => s.provider_id === "razorpay" || s.provider_id === "pp_razorpay_razorpay"
+    );
 
-    // 3. Initiate payment session using the official SDK wrapper.
-    // NOTE: Do NOT pass custom headers here — the SDK already has the publishableKey
-    // baked in at initialization. Passing headers causes them to be treated as body fields.
-    await medusaClient.store.payment.initiatePaymentSession(cart, {
-      provider_id: "pp_razorpay_razorpay"
-    }, {}, {});
+    // Only create a new session if one doesn't already exist
+    if (!existingSession) {
+      // NOTE: Do NOT pass custom headers — SDK handles auth via publishableKey at init
+      await medusaClient.store.payment.initiatePaymentSession(cart, {
+        provider_id: "pp_razorpay_razorpay"
+      }, {}, {});
+    }
 
     const finalCart = await getOrCreateCart();
-    const session = finalCart.payment_collection?.payment_sessions?.find((s: any) => s.provider_id === "razorpay" || s.provider_id === "pp_razorpay_razorpay");
+    const session = finalCart.payment_collection?.payment_sessions?.find(
+      (s: any) => s.provider_id === "razorpay" || s.provider_id === "pp_razorpay_razorpay"
+    );
+
+    if (!session) {
+      console.error("Payment session missing. Full payment_collection:", JSON.stringify(finalCart.payment_collection));
+      throw new Error("Razorpay payment session was not created. Please check the Medusa payment provider configuration.");
+    }
+
     const orderId = session?.data?.id || session?.data?.order_id || session?.id;
     const keyId = session?.data?.key_id || "";
 
