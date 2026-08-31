@@ -69,7 +69,8 @@ export function useCart() {
       const cart = await getOrCreateCart();
       return mapMedusaToUICart(cart);
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 0, // Always treat cart data as stale — never serve a cached version after a mutation
+    gcTime: 1000 * 60 * 5, // Keep in memory for 5 minutes but always re-fetch
   });
 
   // Helper to handle queue completion

@@ -152,10 +152,13 @@ export default function CheckoutPage() {
       const razorpayOrderId = checkoutResult.razorpayOrderId;
       const matchingKeyId = checkoutResult.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TUR2Fq27NAhvyo";
 
-      // 2. Open Razorpay using Medusa's official Order ID and matching Key ID
+      // 2. Open Razorpay using Medusa's official Order ID and amount.
+      // IMPORTANT: We use the amount from the Medusa payment collection (the source of truth),
+      // NOT cart.medusaTotal (which is the client-side optimistic value and can differ).
+      const verifiedAmount = checkoutResult.paymentCollection?.amount ?? cart.medusaTotal;
       const options = {
         key: matchingKeyId,
-        amount: cart.medusaTotal * 100,
+        amount: verifiedAmount * 100,
         currency: "INR",
         name: "LaundryMall",
         description: "Payment for your order",
