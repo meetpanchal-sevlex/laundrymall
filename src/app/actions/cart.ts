@@ -8,9 +8,9 @@ import { medusaClient } from "@/lib/medusa";
 // The Medusa SDK automatically handles Content-Type and x-publishable-api-key
 // via its initialization config. Passing them here causes the SDK to inject
 // them into the request BODY instead of headers, which Medusa rejects.
-const getHeaders = (token?: string) => {
+const getHeaders = (token?: string): Record<string, string> | undefined => {
   if (token) return { Authorization: "Bearer " + token };
-  return {};
+  return undefined;
 };
 
 export async function getOrCreateCart() {
