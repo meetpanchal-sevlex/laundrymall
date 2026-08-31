@@ -11,7 +11,7 @@ import { prepareCheckoutAction, prepareCODCheckoutAction, completeCartAction, fo
 import { getCustomer } from "@/app/actions/auth";
 
 export default function CheckoutPage() {
-  const { cart, clearCart } = useCart();
+  const { cart, clearCart, removeItem, isSyncing } = useCart();
   const medusaTotal = cart.medusaTotal;
   const items = cart.items;
   const router = useRouter();
@@ -421,7 +421,17 @@ export default function CheckoutPage() {
                 {items.map((item) => (
                   <div key={item.lineItemId} className="flex justify-between items-center px-4 py-2.5 text-sm">
                     <span className="text-gray-700 flex-1">{item.name} <span className="text-gray-400">× {item.quantity}</span></span>
-                    <span className="font-semibold text-gray-900 ml-4">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold text-gray-900">₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                      <button 
+                        onClick={() => removeItem(item.lineItemId)}
+                        disabled={isSyncing}
+                        className="text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full p-1 transition-colors disabled:opacity-50"
+                        title="Remove item"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
