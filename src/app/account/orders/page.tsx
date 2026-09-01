@@ -12,22 +12,13 @@ function getOrderStatus(order: any): {
   bgColor: string;
   borderColor: string;
   icon: React.ReactNode;
-  step: number; // 1-4 for the progress bar
+  step: number; // 1-3 for the progress bar
 } {
-  // Medusa v2 uses arrays for fulfillments and payment collections
   const isCanceled = order.status === "canceled";
   const fulfillments = order.fulfillments || [];
   const hasFulfillment = fulfillments.length > 0;
-  
-  // Check if any fulfillment is marked as delivered or shipped
   const isDelivered = fulfillments.some((f: any) => !!f.delivered_at);
-  const isShipped = fulfillments.some((f: any) => !!f.shipped_at);
   
-  const paymentCollections = order.payment_collections || [];
-  const isCaptured = 
-    order.payment_status === "captured" || 
-    paymentCollections.some((pc: any) => pc.status === "captured" || pc.status === "partially_captured");
-
   // Canceled
   if (isCanceled) {
     return {
@@ -40,7 +31,7 @@ function getOrderStatus(order: any): {
     };
   }
 
-  // Delivered
+  // Delivered (Admin clicked Mark as Delivered)
   if (isDelivered) {
     return {
       label: "Delivered",
@@ -48,58 +39,34 @@ function getOrderStatus(order: any): {
       bgColor: "bg-green-50",
       borderColor: "border-green-200",
       icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-      step: 4,
+      step: 3,
     };
   }
 
-  // Shipped / Awaiting delivery
-  if (isShipped) {
+  // Shipped (Admin clicked Create Fulfillment)
+  if (hasFulfillment) {
     return {
       label: "Shipped",
       color: "text-purple-700",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
       icon: <Truck className="w-3.5 h-3.5" />,
-      step: 3,
-    };
-  }
-
-  // Fulfilled (Admin clicked "Create Fulfillment") but not shipped/delivered yet
-  if (hasFulfillment) {
-    return {
-      label: "Processing Order",
-      color: "text-blue-700",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      icon: <ShoppingBag className="w-3.5 h-3.5" />,
       step: 2,
     };
   }
 
-  // Payment captured but not yet fulfilled
-  if (isCaptured) {
-    return {
-      label: "Processing Order",
-      color: "text-blue-700",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
-      icon: <ShoppingBag className="w-3.5 h-3.5" />,
-      step: 2,
-    };
-  }
-
-  // Payment authorized / pending — default state right after checkout
+  // Processing Order (Default state for all new orders, regardless of payment capture)
   return {
-    label: "Payment Processing",
-    color: "text-yellow-700",
-    bgColor: "bg-yellow-50",
-    borderColor: "border-yellow-200",
-    icon: <Clock className="w-3.5 h-3.5" />,
+    label: "Processing Order",
+    color: "text-blue-700",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+    icon: <ShoppingBag className="w-3.5 h-3.5" />,
     step: 1,
   };
 }
 
-const STEPS = ["Payment Processing", "Processing Order", "Shipped", "Delivered"];
+const STEPS = ["Processing Order", "Shipped", "Delivered"];
 
 export default async function OrdersPage() {
   const { orders = [] } = await getCustomerOrdersAction();
