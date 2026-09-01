@@ -14,11 +14,20 @@ function getOrderStatus(order: any): {
   icon: React.ReactNode;
   step: number; // 1-4 for the progress bar
 } {
-  const fulfillment = order.fulfillment_status || "not_fulfilled";
-  const payment = order.payment_status || "not_paid";
+  // Medusa v2 uses arrays for fulfillments and payment collections
+  const isCanceled = order.status === "canceled";
+  const fulfillments = order.fulfillments || [];
+  const hasFulfillment = fulfillments.length > 0;
+  
+  // Check if any fulfillment is marked as delivered or shipped
+  const isDelivered = fulfillments.some((f: any) => !!f.delivered_at);
+  const isShipped = fulfillments.some((f: any) => !!f.shipped_at);
+  
+  const paymentCollections = order.payment_collections || [];
+  const isCaptured = paymentCollections.some((pc: any) => pc.status === "captured" || pc.status === "partially_captured");
 
   // Canceled
-  if (order.status === "canceled") {
+  if (isCanceled) {
     return {
       label: "Canceled",
       color: "text-red-700",
@@ -30,7 +39,7 @@ function getOrderStatus(order: any): {
   }
 
   // Delivered
-  if (fulfillment === "delivered") {
+  if (isDelivered) {
     return {
       label: "Delivered",
       color: "text-green-700",
@@ -42,7 +51,7 @@ function getOrderStatus(order: any): {
   }
 
   // Shipped / Awaiting delivery
-  if (fulfillment === "shipped" || fulfillment === "partially_shipped") {
+  if (isShipped) {
     return {
       label: "Shipped",
       color: "text-purple-700",
@@ -53,8 +62,8 @@ function getOrderStatus(order: any): {
     };
   }
 
-  // Fulfilled (Admin clicked "Create Fulfillment") but not shipped yet
-  if (fulfillment === "fulfilled" || fulfillment === "partially_fulfilled") {
+  // Fulfilled (Admin clicked "Create Fulfillment") but not shipped/delivered yet
+  if (hasFulfillment) {
     return {
       label: "Processing Order",
       color: "text-blue-700",
@@ -66,7 +75,7 @@ function getOrderStatus(order: any): {
   }
 
   // Payment captured but not yet fulfilled
-  if (payment === "captured") {
+  if (isCaptured) {
     return {
       label: "Processing Order",
       color: "text-blue-700",
