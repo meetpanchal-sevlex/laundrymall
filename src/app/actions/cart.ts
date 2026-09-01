@@ -192,13 +192,17 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
 }
 
 export async function completeCartAction() {
-  const token = (await cookies()).get("_medusa_jwt")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
   const cart = await getOrCreateCart();
 
   try {
     const res = await medusaClient.store.cart.complete(cart.id, {}, headers);
-    // Only return plain serializable data to avoid React Error #441 during Server Action serialization
+    // Explicitly delete the completed cart cookie so the next shopping session starts fresh
+    cookieStore.delete("_medusa_cart_id");
+    
+    // Only return plain serializable data to avoid React Error #441
     return { success: true, type: res.type };
   } catch (e: any) {
     console.error("Complete cart error:", e.response?.data || e.message);
