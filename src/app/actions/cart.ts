@@ -58,12 +58,14 @@ export async function getOrCreateCart() {
     }
   }
 
-  const { cart } = await medusaClient.store.cart.create({
+  const payload: any = {
     region_id: indiaRegion.id,
-    currency_code: "inr",
-    customer_id: customerId,
-    email: customerEmail
-  }, {}, headers);
+    currency_code: "inr"
+  };
+  if (customerId) payload.customer_id = customerId;
+  if (customerEmail) payload.email = customerEmail;
+
+  const { cart } = await medusaClient.store.cart.create(payload, {}, headers);
 
   cookieStore.set("_medusa_cart_id", cart.id, {
     maxAge: 60 * 60 * 24 * 7,
