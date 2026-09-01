@@ -39,13 +39,30 @@ export async function getOrCreateCart() {
     }
   }
 
-  // Use cached regions — this never changes so no need to hit Medusa on every cart creation
+  // Use cached regions
   const regions = await getCachedRegions();
   const indiaRegion = regions.find((r: any) => r.currency_code === "inr") || regions[0];
 
+  // If user is logged in, grab their customer ID so the order links to their account
+  let customerId = undefined;
+  let customerEmail = undefined;
+  if (token) {
+    try {
+      const custRes: any = await medusaClient.client.fetch("/store/customers/me", { method: "GET", headers });
+      if (custRes.customer) {
+        customerId = custRes.customer.id;
+        customerEmail = custRes.customer.email;
+      }
+    } catch (e) {
+      console.error("Failed to link customer to new cart:", e);
+    }
+  }
+
   const { cart } = await medusaClient.store.cart.create({
     region_id: indiaRegion.id,
-    currency_code: "inr"
+    currency_code: "inr",
+    customer_id: customerId,
+    email: customerEmail
   }, {}, headers);
 
   cookieStore.set("_medusa_cart_id", cart.id, {
@@ -53,7 +70,7 @@ export async function getOrCreateCart() {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
-    path: "/", // CRITICAL FIX: Ensure cookie is set at the root level so it can be deleted from anywhere
+    path: "/", 
   });
 
   return cart;
