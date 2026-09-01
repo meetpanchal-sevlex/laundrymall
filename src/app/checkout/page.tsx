@@ -96,10 +96,33 @@ export default function CheckoutPage() {
     fetchPincodeDetails();
   }, [address.pincode]);
 
+  const isValidEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regex.test(email)) return false;
+
+    const lowerEmail = email.toLowerCase();
+    const invalidEndings = [
+      "@gmail.co",
+      "@gmai.com",
+      "@gamil.com",
+      "@gmail.con",
+      "@yahoo.co",
+      "@yahoo.con",
+      "@hotmail.co"
+    ];
+    
+    for (const ending of invalidEndings) {
+      if (lowerEmail.endsWith(ending)) return false;
+    }
+    
+    if (lowerEmail.endsWith(".")) return false;
+    return true;
+  };
+
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!address.email || !address.email.includes('@')) {
-      alert("Please provide a valid email address");
+    if (!address.email || !isValidEmail(address.email)) {
+      alert("Please provide a valid email address (e.g., name@gmail.com)");
       return;
     }
     setStep(2);
@@ -127,6 +150,12 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
+      if (!isValidEmail(address.email)) {
+        alert("Please provide a valid and complete email address");
+        setIsProcessing(false);
+        return;
+      }
+      
       const email = address.email.toLowerCase().trim();
       const shippingAddress = {
         first_name: address.name,
