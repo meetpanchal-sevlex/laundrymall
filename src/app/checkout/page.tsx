@@ -19,6 +19,7 @@ export default function CheckoutPage() {
   const [isFetchingPin, setIsFetchingPin] = useState(false);
 
   const [address, setAddress] = useState({
+    email: "",
     name: "",
     phone: "",
     pincode: "",
@@ -44,6 +45,7 @@ export default function CheckoutPage() {
           setIsAddingNew(false);
           const saved = customer.addresses[0]; // Use first saved address
           setAddress({
+            email: customer.email || "",
             name: `${saved.first_name || ''} ${saved.last_name && saved.last_name !== '.' ? saved.last_name : ''}`.trim(),
             phone: saved.phone || "",
             pincode: saved.postal_code || "",
@@ -96,13 +98,18 @@ export default function CheckoutPage() {
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!address.email || !address.email.includes('@')) {
+      alert("Please provide a valid email address");
+      return;
+    }
     setStep(2);
   };
 
   const handleSelectSavedAddress = (index: number) => {
     setSelectedAddressIndex(index);
     const saved = savedAddresses[index];
-    setAddress({
+    setAddress((prev) => ({
+      ...prev,
       name: `${saved.first_name || ''} ${saved.last_name && saved.last_name !== '.' ? saved.last_name : ''}`.trim(),
       phone: saved.phone || "",
       pincode: saved.postal_code || "",
@@ -110,7 +117,7 @@ export default function CheckoutPage() {
       state: saved.province || "",
       house: saved.address_1 || "",
       area: saved.address_2 || "",
-    });
+    }));
   };
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -120,7 +127,7 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      const email = address.name.split(' ').join('').toLowerCase() + "@example.com";
+      const email = address.email.toLowerCase().trim();
       const shippingAddress = {
         first_name: address.name,
         last_name: ".",
@@ -313,6 +320,14 @@ export default function CheckoutPage() {
                     Contact Details
                   </h2>
                   <div className="space-y-4">
+                    <input
+                      type="email"
+                      required
+                      placeholder="Email Address"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
+                      value={address.email}
+                      onChange={(e) => setAddress({...address, email: e.target.value})}
+                    />
                     <input
                       type="text"
                       required
