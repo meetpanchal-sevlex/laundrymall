@@ -126,9 +126,12 @@ export default async function OrdersPage() {
           <div className="space-y-4">
             {orders.map((order: any) => {
               const items = order.items || [];
-              const total = order.total ?? order.summary?.total ?? 0;
-              const status = getOrderStatus(order);
-              const orderDate = new Date(order.created_at).toLocaleDateString("en-IN", {
+              const computedTotal = items.reduce((acc: number, item: any) => acc + ((item.unit_price ?? 0) * (item.quantity ?? 1)), 0);
+              const total = order.total ?? order.summary?.current_order_total ?? computedTotal;
+              
+              // Safely handle invalid dates
+              const createdDate = order.created_at ? new Date(order.created_at) : new Date();
+              const orderDate = createdDate.toLocaleDateString("en-IN", {
                 day: "numeric", month: "short", year: "numeric"
               });
 
@@ -140,7 +143,7 @@ export default async function OrdersPage() {
                     <div>
                       <span className="text-xs text-gray-400">Order</span>
                       <p className="font-black text-sm text-gray-900">#{order.display_id || order.id.slice(-6)}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{orderDate}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{orderDate !== "Invalid Date" ? orderDate : ""}</p>
                     </div>
                     {/* Status Badge */}
                     <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border ${status.color} ${status.bgColor} ${status.borderColor}`}>
@@ -151,36 +154,40 @@ export default async function OrdersPage() {
 
                   {/* Progress Bar — only show for active (non-canceled) orders */}
                   {status.step > 0 && (
-                    <div className="px-4 py-3 bg-gray-50 border-b border-gray-100">
-                      <div className="flex items-center justify-between mb-2">
-                        {STEPS.map((step, index) => {
-                          const stepNumber = index + 1;
-                          const isCompleted = status.step >= stepNumber;
-                          const isCurrent = status.step === stepNumber;
-                          return (
-                            <div key={step} className="flex flex-col items-center flex-1">
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                                isCompleted
-                                  ? "bg-blue-600 border-blue-600 text-white"
-                                  : "bg-white border-gray-300 text-gray-400"
-                              } ${isCurrent ? "ring-2 ring-blue-200 ring-offset-1" : ""}`}>
-                                {isCompleted ? "✓" : stepNumber}
-                              </div>
-                              <span className={`text-[9px] mt-1 text-center leading-tight font-semibold ${
-                                isCompleted ? "text-blue-600" : "text-gray-400"
-                              }`}>
-                                {step}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      {/* Connector line */}
-                      <div className="relative h-0.5 bg-gray-200 mx-3 -mt-7 mb-6 rounded-full">
-                        <div
-                          className="absolute left-0 top-0 h-0.5 bg-blue-600 rounded-full transition-all duration-500"
-                          style={{ width: `${((status.step - 1) / (STEPS.length - 1)) * 100}%` }}
+                    <div className="px-4 py-4 bg-gray-50 border-b border-gray-100">
+                      <div className="relative">
+                        {/* Background Line */}
+                        <div className="absolute top-2.5 left-[10%] right-[10%] h-[2px] bg-gray-200" />
+                        {/* Active Line */}
+                        <div 
+                          className="absolute top-2.5 left-[10%] h-[2px] bg-blue-600 transition-all duration-500" 
+                          style={{ width: `${((status.step - 1) / (STEPS.length - 1)) * 80}%` }}
                         />
+                        
+                        {/* Steps */}
+                        <div className="relative flex items-start justify-between">
+                          {STEPS.map((step, index) => {
+                            const stepNumber = index + 1;
+                            const isCompleted = status.step >= stepNumber;
+                            const isCurrent = status.step === stepNumber;
+                            return (
+                              <div key={step} className="flex flex-col items-center flex-1 z-10">
+                                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold border-2 transition-all ${
+                                  isCompleted
+                                    ? "bg-blue-600 border-blue-600 text-white"
+                                    : "bg-white border-gray-300 text-gray-400"
+                                } ${isCurrent ? "ring-2 ring-blue-200 ring-offset-1" : ""}`}>
+                                  {isCompleted ? "✓" : stepNumber}
+                                </div>
+                                <span className={`text-[9px] mt-1.5 text-center leading-tight font-semibold px-1 ${
+                                  isCompleted ? "text-blue-600" : "text-gray-400"
+                                }`}>
+                                  {step}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -215,8 +222,8 @@ export default async function OrdersPage() {
                       <span className="text-xs text-gray-400">{items.length} item{items.length !== 1 ? "s" : ""}</span>
                       <p className="font-black text-base text-gray-900">₹{Number(total).toFixed(0)}</p>
                     </div>
-                    <span className="text-xs text-gray-400 capitalize">
-                      {(order.payment_status || "").replace(/_/g, " ")}
+                    <span className="text-xs text-gray-400 capitalize font-medium">
+                      {(order.payment_status || order.payment_collections?.[0]?.status || "").replace(/_/g, " ")}
                     </span>
                   </div>
 

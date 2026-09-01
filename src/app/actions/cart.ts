@@ -283,7 +283,7 @@ export async function getCustomerOrdersAction() {
     const headers = getHeaders(token);
     const res: any = await medusaClient.client.fetch(`/store/orders`, {
       method: "GET",
-      query: { fields: "*items,*items.variant,*shipping_address,*summary,*payment_collections,*fulfillments,fulfillment_status,payment_status,status" },
+      query: { fields: "id,display_id,created_at,total,*items,*items.variant,*shipping_address,*summary,*payment_collections,*fulfillments,fulfillment_status,payment_status,status" },
       headers
     });
     return { orders: res.orders || [] };
