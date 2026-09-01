@@ -24,7 +24,9 @@ function getOrderStatus(order: any): {
   const isShipped = fulfillments.some((f: any) => !!f.shipped_at);
   
   const paymentCollections = order.payment_collections || [];
-  const isCaptured = paymentCollections.some((pc: any) => pc.status === "captured" || pc.status === "partially_captured");
+  const isCaptured = 
+    order.payment_status === "captured" || 
+    paymentCollections.some((pc: any) => pc.status === "captured" || pc.status === "partially_captured");
 
   // Canceled
   if (isCanceled) {
