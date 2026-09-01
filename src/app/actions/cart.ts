@@ -59,16 +59,53 @@ export async function getOrCreateCart() {
 }
 
 export async function addToCartAction(variantId: string, quantity: number) {
-  const token = (await cookies()).get("_medusa_jwt")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
   let cart = await getOrCreateCart();
   
-  await medusaClient.store.cart.createLineItem(cart.id, {
-    variant_id: variantId,
-    quantity
-  }, {}, headers);
+  try {
+    await medusaClient.store.cart.createLineItem(cart.id, {
+      variant_id: variantId,
+      quantity
+    }, {}, headers);
+  } catch (error: any) {
+    console.error("First add attempt failed, cart might be locked. Auto-healing...", error.message);
+    
+    // Shred the stuck cookie
+    cookieStore.set("_medusa_cart_id", "", { maxAge: 0, path: "/" });
+    
+    // Force generate a brand new cart
+    const { regions } = await medusaClient.store.region.list({}, headers) as any;
+    const indiaRegion = regions.find((r: any) => r.currency_code === "inr") || regions[0];
+    const { cart: newCart } = await medusaClient.store.cart.create({
+      region_id: indiaRegion.id,
+      currency_code: "inr"
+    }, headers);
+    
+    cookieStore.set("_medusa_cart_id", newCart.id, {
+      maxAge: 60 * 60 * 24 * 7,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    });
+    
+    // Retry adding to the fresh cart
+    await medusaClient.store.cart.createLineItem(newCart.id, {
+      variant_id: variantId,
+      quantity
+    }, {}, headers);
+    
+    cart = newCart;
+  }
   
-  return await getOrCreateCart();
+  // Fetch fully populated cart to return to UI
+  const { cart: finalCart } = await medusaClient.store.cart.retrieve(cart.id, {
+    fields: "*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection,*payment_collection.payment_sessions"
+  }, headers);
+  
+  return finalCart;
 }
 
 export async function updateCartItemAction(lineId: string, quantity: number) {
