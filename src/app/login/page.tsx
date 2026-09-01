@@ -15,6 +15,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const justRegistered = searchParams.get("registered") === "true";
+  const redirectUrl = searchParams.get("redirect") || "/account";
   
   const { login } = useAuthStore();
 
@@ -37,7 +38,7 @@ function LoginForm() {
         email: formData.get("email") as string,
       });
       setIsLoading(false);
-      router.push("/account");
+      router.push(redirectUrl);
     }
   };
 

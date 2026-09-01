@@ -2,6 +2,8 @@
 
 import { useCartStore } from "@/store/cartStore";
 import { useCart } from "@/hooks/useCart";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Heart, X, ShoppingBag, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +12,8 @@ import { useEffect, useState } from "react";
 export default function CartDrawer() {
   const { isOpen, setIsOpen } = useCartStore();
   const { cart, removeItem, updateQuantity, isLoading, isSyncing } = useCart();
+  const { user } = useAuthStore();
+  const router = useRouter();
   const items = cart.items;
   const [isMounted, setIsMounted] = useState(false);
 
@@ -27,6 +31,16 @@ export default function CartDrawer() {
   }, 0);
 
   const productTotal = items.reduce((acc: number, item: any) => acc + (item.originalPrice || item.price) * item.quantity, 0);
+
+  const handleCheckout = () => {
+    setIsOpen(false);
+    if (!user) {
+      alert("Please log in or create an account to check out.");
+      router.push("/login?redirect=/checkout");
+    } else {
+      router.push("/checkout");
+    }
+  };
 
   return (
     <>
@@ -218,13 +232,12 @@ export default function CartDrawer() {
                 <p className="text-xs text-green-600 font-bold">You save ₹{totalSavings.toFixed(0)}</p>
               )}
             </div>
-            <Link
-              href="/checkout"
-              onClick={() => setIsOpen(false)}
-              className="flex-1 bg-blue-600 text-white font-black py-3.5 px-6 rounded-xl text-center text-sm flex items-center justify-center gap-2 max-w-[180px]"
+            <button
+              onClick={handleCheckout}
+              className="flex-1 bg-blue-600 text-white font-black py-3.5 px-6 rounded-xl text-center text-sm flex items-center justify-center gap-2 max-w-[180px] hover:bg-blue-700 transition"
             >
               Proceed <ChevronRight className="w-4 h-4" />
-            </Link>
+            </button>
           </div>
         )}
       </div>

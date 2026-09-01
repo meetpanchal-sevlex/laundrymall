@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { useCart } from "@/hooks/useCart";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Script from "next/script";
@@ -12,11 +13,18 @@ import { getCustomer } from "@/app/actions/auth";
 
 export default function CheckoutPage() {
   const { cart, clearCart, removeItem, updateQuantity, isSyncing } = useCart();
+  const { user, isHydrated } = useAuthStore();
   const medusaTotal = cart.medusaTotal;
   const items = cart.items;
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isFetchingPin, setIsFetchingPin] = useState(false);
+
+  useEffect(() => {
+    if (isHydrated && !user) {
+      router.push("/login?redirect=/checkout");
+    }
+  }, [user, isHydrated, router]);
 
   const [address, setAddress] = useState({
     email: "",
@@ -96,35 +104,10 @@ export default function CheckoutPage() {
     fetchPincodeDetails();
   }, [address.pincode]);
 
-  const isValidEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!regex.test(email)) return false;
 
-    const lowerEmail = email.toLowerCase();
-    const invalidEndings = [
-      "@gmail.co",
-      "@gmai.com",
-      "@gamil.com",
-      "@gmail.con",
-      "@yahoo.co",
-      "@yahoo.con",
-      "@hotmail.co"
-    ];
-    
-    for (const ending of invalidEndings) {
-      if (lowerEmail.endsWith(ending)) return false;
-    }
-    
-    if (lowerEmail.endsWith(".")) return false;
-    return true;
-  };
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!address.email || !isValidEmail(address.email)) {
-      alert("Please provide a valid email address (e.g., name@gmail.com)");
-      return;
-    }
     setStep(2);
   };
 
@@ -150,13 +133,13 @@ export default function CheckoutPage() {
     setIsProcessing(true);
 
     try {
-      if (!isValidEmail(address.email)) {
-        alert("Please provide a valid and complete email address");
+      const email = user?.email || "";
+      if (!email) {
+        alert("Authentication error: No email found on your account. Please log in again.");
         setIsProcessing(false);
         return;
       }
       
-      const email = address.email.toLowerCase().trim();
       const shippingAddress = {
         first_name: address.name,
         last_name: ".",
@@ -349,14 +332,7 @@ export default function CheckoutPage() {
                     Contact Details
                   </h2>
                   <div className="space-y-4">
-                    <input
-                      type="email"
-                      required
-                      placeholder="Email Address"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none"
-                      value={address.email}
-                      onChange={(e) => setAddress({...address, email: e.target.value})}
-                    />
+
                     <input
                       type="text"
                       required

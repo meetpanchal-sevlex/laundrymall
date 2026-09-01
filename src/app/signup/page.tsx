@@ -8,10 +8,35 @@ import { signupAction } from "@/app/actions/auth";
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://backend-production-3a66.up.railway.app";
 
+import { Suspense } from 'react';
+import { useRouter, useSearchParams } from "next/navigation";
+
 export default function SignupPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignupForm />
+    </Suspense>
+  )
+}
+
+function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect");
+
+  const isValidEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regex.test(email)) return false;
+    const lowerEmail = email.toLowerCase();
+    const invalidEndings = ["@gmail.co", "@gmai.com", "@gamil.com", "@gmail.con", "@yahoo.co", "@yahoo.con", "@hotmail.co"];
+    for (const ending of invalidEndings) {
+      if (lowerEmail.endsWith(ending)) return false;
+    }
+    if (lowerEmail.endsWith(".")) return false;
+    return true;
+  };
 
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -19,6 +44,14 @@ export default function SignupPage() {
     setError(null);
     
     const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    
+    if (!isValidEmail(email)) {
+      setError("Please provide a valid email address (e.g., name@gmail.com)");
+      setIsLoading(false);
+      return;
+    }
+
     const result = await signupAction(formData);
 
     setIsLoading(false);
@@ -26,7 +59,11 @@ export default function SignupPage() {
     if (result?.error) {
       setError(result.error);
     } else if (result?.success) {
-      router.push("/login?registered=true");
+      if (redirectUrl) {
+        router.push(`/login?registered=true&redirect=${encodeURIComponent(redirectUrl)}`);
+      } else {
+        router.push("/login?registered=true");
+      }
     }
   };
 
