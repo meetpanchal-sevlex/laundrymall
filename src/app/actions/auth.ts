@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { medusaClient } from "@/lib/medusa";
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://backend-production-3a66.up.railway.app";
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
@@ -68,6 +69,28 @@ export async function loginAction(formData: FormData) {
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
       });
+
+      // MAGIC LINK: Attach any existing guest cart to this newly logged-in customer
+      try {
+        const cartId = cookieStore.get("_medusa_cart_id")?.value;
+        if (cartId) {
+          const headers = getHeaders(data.token);
+          const custRes = await fetch(MEDUSA_URL + "/store/customers/me", {
+            method: "GET",
+            headers,
+          });
+          if (custRes.ok) {
+            const custData = await custRes.json();
+            const customer = custData.customer;
+            if (customer && customer.id) {
+              await medusaClient.store.cart.update(cartId, { customer_id: customer.id }, headers);
+            }
+          }
+        }
+      } catch (linkError) {
+        console.error("Failed to link cart to customer during login:", linkError);
+      }
+
       return { success: true };
     } else {
       return { error: "Authentication failed. No token received." };
