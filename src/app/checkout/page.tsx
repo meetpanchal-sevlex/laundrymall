@@ -168,7 +168,11 @@ export default function CheckoutPage() {
         order_id: razorpayOrderId,
         handler: async function (response: any) {
           try {
-            await completeCartAction(response);
+            const result = await completeCartAction();
+            if (result.error) {
+              alert("Payment was captured, but order creation failed: " + result.error);
+              return;
+            }
             clearCart();
             router.push('/checkout/success');
           } catch (e: any) {

@@ -191,19 +191,17 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
   }
 }
 
-export async function completeCartAction(paymentData?: any) {
+export async function completeCartAction() {
   const token = (await cookies()).get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
   const cart = await getOrCreateCart();
 
   try {
-    // Some payment providers require verification data to authorize inline
-    const body = paymentData ? { payment_data: paymentData } : {};
-    const res = await medusaClient.store.cart.complete(cart.id, body, headers);
+    const res = await medusaClient.store.cart.complete(cart.id, {}, headers);
     return res;
   } catch (e: any) {
     console.error("Complete cart error:", e.response?.data || e.message);
-    throw new Error(e.response?.data?.message || e.message || "Failed to complete checkout");
+    return { error: e.response?.data?.message || e.message || "Failed to complete checkout" };
   }
 }
 
