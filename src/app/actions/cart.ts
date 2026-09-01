@@ -43,29 +43,10 @@ export async function getOrCreateCart() {
   const regions = await getCachedRegions();
   const indiaRegion = regions.find((r: any) => r.currency_code === "inr") || regions[0];
 
-  // If user is logged in, grab their customer ID so the order links to their account
-  let customerId = undefined;
-  let customerEmail = undefined;
-  if (token) {
-    try {
-      const custRes: any = await medusaClient.client.fetch("/store/customers/me", { method: "GET", headers });
-      if (custRes.customer) {
-        customerId = custRes.customer.id;
-        customerEmail = custRes.customer.email;
-      }
-    } catch (e) {
-      console.error("Failed to link customer to new cart:", e);
-    }
-  }
-
-  const payload: any = {
+  const { cart } = await medusaClient.store.cart.create({
     region_id: indiaRegion.id,
     currency_code: "inr"
-  };
-  if (customerId) payload.customer_id = customerId;
-  if (customerEmail) payload.email = customerEmail;
-
-  const { cart } = await medusaClient.store.cart.create(payload, {}, headers);
+  }, {}, headers);
 
   cookieStore.set("_medusa_cart_id", cart.id, {
     maxAge: 60 * 60 * 24 * 7,
