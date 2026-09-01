@@ -203,7 +203,9 @@ export async function prepareCheckoutAction(shippingAddress: any, email: string)
     // 2. Add shipping method if one exists
     const optionsData = await medusaClient.client.fetch(`/store/shipping-options?cart_id=${cart.id}`, { headers }) as any;
     const method = optionsData.shipping_options?.[0];
-    if (method) {
+    const hasShippingMethod = cart.shipping_methods && cart.shipping_methods.length > 0;
+    
+    if (method && !hasShippingMethod) {
       await medusaClient.store.cart.addShippingMethod(cart.id, { option_id: method.id }, {}, headers);
     }
 
@@ -259,9 +261,10 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
     }, {}, headers);
 
     const optionsData = await medusaClient.client.fetch(`/store/shipping-options?cart_id=${cart.id}`, { headers }) as any;
-    
     const method = optionsData.shipping_options?.[0];
-    if (method) {
+    const hasShippingMethod = cart.shipping_methods && cart.shipping_methods.length > 0;
+    
+    if (method && !hasShippingMethod) {
       await medusaClient.store.cart.addShippingMethod(cart.id, { option_id: method.id }, {}, headers);
     }
 
@@ -278,17 +281,19 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
   }
 }
 
-export async function completeCartAction() {
+export async function completeCartAction(paymentData?: any) {
   const token = (await cookies()).get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
   const cart = await getOrCreateCart();
 
   try {
-    const res = await medusaClient.store.cart.complete(cart.id, {}, headers);
+    // Some payment providers require verification data to authorize inline
+    const body = paymentData ? { payment_data: paymentData } : {};
+    const res = await medusaClient.store.cart.complete(cart.id, body, headers);
     return res;
   } catch (e: any) {
-    console.error("Complete cart error:", e);
-    throw new Error(e.message || "Failed to complete checkout");
+    console.error("Complete cart error:", e.response?.data || e.message);
+    throw new Error(e.response?.data?.message || e.message || "Failed to complete checkout");
   }
 }
 

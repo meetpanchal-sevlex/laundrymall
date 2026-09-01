@@ -168,7 +168,7 @@ export default function CheckoutPage() {
         order_id: razorpayOrderId,
         handler: async function (response: any) {
           try {
-            await completeCartAction();
+            await completeCartAction(response);
             clearCart();
             router.push('/checkout/success');
           } catch (e: any) {
