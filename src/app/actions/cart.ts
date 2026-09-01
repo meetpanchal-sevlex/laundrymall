@@ -198,7 +198,8 @@ export async function completeCartAction() {
 
   try {
     const res = await medusaClient.store.cart.complete(cart.id, {}, headers);
-    return res;
+    // Only return plain serializable data to avoid React Error #441 during Server Action serialization
+    return { success: true, type: res.type };
   } catch (e: any) {
     console.error("Complete cart error:", e.response?.data || e.message);
     return { error: e.response?.data?.message || e.message || "Failed to complete checkout" };

@@ -167,15 +167,18 @@ export default function CheckoutPage() {
         description: "Payment for your order",
         order_id: razorpayOrderId,
         handler: async function (response: any) {
+          setIsProcessing(true);
           try {
             const result = await completeCartAction();
             if (result.error) {
+              setIsProcessing(false);
               alert("Payment was captured, but order creation failed: " + result.error);
               return;
             }
             clearCart();
             router.push('/checkout/success');
           } catch (e: any) {
+            setIsProcessing(false);
             console.error("Order complete error:", e);
             alert("Payment was captured, but order creation failed: " + e.message);
           }
