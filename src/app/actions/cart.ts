@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { unstable_noStore as noStore } from "next/cache";
 import { medusaClient } from "@/lib/medusa";
+import { getCachedRegions } from "@/lib/medusa-cache";
 
 // IMPORTANT: Only return Authorization token here.
 // The Medusa SDK automatically handles Content-Type and x-publishable-api-key
@@ -38,8 +39,8 @@ export async function getOrCreateCart() {
     }
   }
 
-  // Get regions
-  const { regions } = await medusaClient.store.region.list({}, headers) as any;
+  // Use cached regions — this never changes so no need to hit Medusa on every cart creation
+  const regions = await getCachedRegions();
   const indiaRegion = regions.find((r: any) => r.currency_code === "inr") || regions[0];
 
   const { cart } = await medusaClient.store.cart.create({
@@ -76,7 +77,8 @@ export async function addToCartAction(variantId: string, quantity: number) {
     cookieStore.set("_medusa_cart_id", "", { maxAge: 0, path: "/" });
     
     // Force generate a brand new cart
-    const { regions } = await medusaClient.store.region.list({}, headers) as any;
+    // Use cached regions here too
+    const regions = await getCachedRegions();
     const indiaRegion = regions.find((r: any) => r.currency_code === "inr") || regions[0];
     const { cart: newCart } = await medusaClient.store.cart.create({
       region_id: indiaRegion.id,
