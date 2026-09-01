@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Lock, Mail, User, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signupAction } from "@/app/actions/auth";
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://backend-production-3a66.up.railway.app";
 
 import { Suspense } from 'react';
-import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SignupPage() {
   return (
