@@ -25,10 +25,16 @@ export async function getOrCreateCart() {
       const { cart } = await medusaClient.store.cart.retrieve(cartId, {
         fields: "*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection,*payment_collection.payment_sessions"
       }, headers);
+      
+      // CRITICAL FAILSAFE: If Medusa says this cart is already completed, throw it away!
+      if (cart.completed_at) {
+        throw new Error("Cart is already completed");
+      }
+      
       return cart;
     } catch (e) {
-      // Cart not found or expired
-      cookieStore.delete("_medusa_cart_id");
+      // Cart not found or expired or completed
+      cookieStore.set("_medusa_cart_id", "", { maxAge: 0, path: "/" });
     }
   }
 
@@ -46,6 +52,7 @@ export async function getOrCreateCart() {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
+    path: "/", // CRITICAL FIX: Ensure cookie is set at the root level so it can be deleted from anywhere
   });
 
   return cart;
@@ -200,7 +207,8 @@ export async function completeCartAction() {
   try {
     const res = await medusaClient.store.cart.complete(cart.id, {}, headers);
     // Explicitly delete the completed cart cookie so the next shopping session starts fresh
-    cookieStore.delete("_medusa_cart_id");
+    // CRITICAL FIX: Must specify path: "/" to match where it was created, or it won't delete!
+    cookieStore.set("_medusa_cart_id", "", { maxAge: 0, path: "/" });
     
     // Only return plain serializable data to avoid React Error #441
     return { success: true, type: res.type };
