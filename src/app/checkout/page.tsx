@@ -13,18 +13,23 @@ import { getCustomer } from "@/app/actions/auth";
 
 export default function CheckoutPage() {
   const { cart, clearCart, removeItem, updateQuantity, isSyncing } = useCart();
-  const { user, isHydrated } = useAuthStore();
+  const { user } = useAuthStore();
   const medusaTotal = cart.medusaTotal;
   const items = cart.items;
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isFetchingPin, setIsFetchingPin] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (isHydrated && !user) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !user) {
       router.push("/login?redirect=/checkout");
     }
-  }, [user, isHydrated, router]);
+  }, [user, mounted, router]);
 
   const [address, setAddress] = useState({
     email: "",
