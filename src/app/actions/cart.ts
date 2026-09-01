@@ -51,125 +51,35 @@ export async function getOrCreateCart() {
   return cart;
 }
 
-// Self-healing: If a cart is locked (e.g. by a payment collection), we duplicate it into a fresh unlocked cart.
-async function duplicateCart(oldCartId: string, token?: string, excludeLineId?: string) {
-  const headers = getHeaders(token);
-  
-  let oldCart;
-  try {
-    const res = await medusaClient.store.cart.retrieve(oldCartId, { fields: "*items,*items.variant" }, headers);
-    oldCart = res.cart;
-  } catch (e) {
-    return await getOrCreateCart();
-  }
-
-  const cookieStore = await cookies();
-  cookieStore.delete("_medusa_cart_id");
-  const newCart = await getOrCreateCart(); // Creates a fresh cart
-
-  // Copy items over, excluding the one they tried to delete
-  if (oldCart.items && oldCart.items.length > 0) {
-    for (const item of oldCart.items) {
-      if (excludeLineId && item.id === excludeLineId) continue;
-      await medusaClient.store.cart.createLineItem(newCart.id, {
-        variant_id: item.variant_id,
-        quantity: item.quantity
-      }, {}, headers);
-    }
-  }
-
-  // Preserve email and shipping address so the user doesn't lose progress
-  if (oldCart.email || oldCart.shipping_address) {
-    const updateBody: any = {};
-    if (oldCart.email) updateBody.email = oldCart.email;
-    if (oldCart.shipping_address) {
-      updateBody.shipping_address = {
-        first_name: oldCart.shipping_address.first_name,
-        last_name: oldCart.shipping_address.last_name,
-        address_1: oldCart.shipping_address.address_1,
-        address_2: oldCart.shipping_address.address_2,
-        city: oldCart.shipping_address.city,
-        province: oldCart.shipping_address.province,
-        postal_code: oldCart.shipping_address.postal_code,
-        country_code: oldCart.shipping_address.country_code,
-        phone: oldCart.shipping_address.phone
-      };
-    }
-    await medusaClient.store.cart.update(newCart.id, updateBody, {}, headers);
-  }
-
-  return await getOrCreateCart(); // Fetch final state
-}
-
 export async function addToCartAction(variantId: string, quantity: number) {
-  let cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
+  let cart = await getOrCreateCart();
   
-  try {
-    await medusaClient.store.cart.createLineItem(cart.id, {
-      variant_id: variantId,
-      quantity
-    }, {}, headers);
-  } catch (e: any) {
-    if (e.response?.status === 400 || e.response?.status === 409) {
-      cart = await duplicateCart(cart.id, token);
-      await medusaClient.store.cart.createLineItem(cart.id, {
-        variant_id: variantId,
-        quantity
-      }, {}, headers);
-      return await getOrCreateCart();
-    }
-    throw e;
-  }
+  await medusaClient.store.cart.createLineItem(cart.id, {
+    variant_id: variantId,
+    quantity
+  }, {}, headers);
   
   return await getOrCreateCart();
 }
 
 export async function updateCartItemAction(lineId: string, quantity: number) {
-  let cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
+  const cart = await getOrCreateCart();
   
-  try {
-    await medusaClient.store.cart.updateLineItem(cart.id, lineId, { quantity }, {}, headers);
-  } catch (e: any) {
-    if (e.response?.status === 400 || e.response?.status === 409) {
-      // Find the variantId for this lineId so we can update it during duplication
-      const itemToUpdate = cart.items?.find((i: any) => i.id === lineId);
-      if (!itemToUpdate) throw e;
-      
-      // Duplicate cart, EXCLUDING the old item to avoid copying the old quantity
-      const newCart = await duplicateCart(cart.id, token, lineId);
-      
-      // Re-add the item to the new cart with the NEW quantity
-      await medusaClient.store.cart.createLineItem(newCart.id, {
-        variant_id: itemToUpdate.variant_id,
-        quantity: quantity
-      }, {}, headers);
-      
-      return await getOrCreateCart();
-    }
-    throw e;
-  }
+  await medusaClient.store.cart.updateLineItem(cart.id, lineId, { quantity }, {}, headers);
   
   return await getOrCreateCart();
 }
 
 export async function removeCartItemAction(lineId: string) {
-  let cart = await getOrCreateCart();
   const token = (await cookies()).get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
+  const cart = await getOrCreateCart();
   
-  try {
-    await medusaClient.store.cart.deleteLineItem(cart.id, lineId, {}, headers);
-  } catch (e: any) {
-    console.error("SDK Delete Line Item Error:", e.response?.status, e.message);
-    if (e.response?.status === 400 || e.response?.status === 409) {
-      return await duplicateCart(cart.id, token, lineId);
-    }
-    throw e;
-  }
+  await medusaClient.store.cart.deleteLineItem(cart.id, lineId, {}, headers);
   
   return await getOrCreateCart();
 }

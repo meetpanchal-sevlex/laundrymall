@@ -55,9 +55,6 @@ export function mapMedusaToUICart(cart: any): UICart {
   };
 }
 
-let syncQueue = Promise.resolve<any>(null);
-let activeMutations = 0;
-
 export function useCart() {
   const queryClient = useQueryClient();
   const setIsOpen = useCartStore((state) => state.setIsOpen);
@@ -69,125 +66,64 @@ export function useCart() {
       const cart = await getOrCreateCart();
       return mapMedusaToUICart(cart);
     },
-    staleTime: 0, // Always treat cart data as stale — never serve a cached version after a mutation
-    gcTime: 1000 * 60 * 5, // Keep in memory for 5 minutes but always re-fetch
+    staleTime: 0,
+    gcTime: 1000 * 60 * 5,
   });
 
-  // Helper to handle queue completion
-  const onMutationSettled = () => {
-    activeMutations--;
-    if (activeMutations === 0) {
-      // Only refetch from server when all rapid clicks have finished processing
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    }
-  };
-
-  // Helper to force resync on error
-  const onMutationError = (err: any) => {
-    console.error("Cart mutation failed:", err);
-    // If something fails, force a hard resync from the server immediately
-    queryClient.invalidateQueries({ queryKey: ["cart"] });
-  };
-
-  // 2. Add To Cart Mutation
   const addToCartMutation = useMutation({
-    mutationFn: ({ product, quantity }: { product: Product; quantity: number }) => {
-      if (!product.variantId) return getOrCreateCart();
-      return new Promise<UICart>((resolve, reject) => {
-        syncQueue = syncQueue.then(async () => {
-          try {
-            const cart = await addToCartAction(product.variantId!, quantity);
-            resolve(mapMedusaToUICart(cart));
-          } catch (e) {
-            reject(e);
-          }
-        }).catch(() => {});
-      });
+    mutationFn: async ({ variantId, quantity }: { variantId: string; quantity: number }) => {
+      const cart = await addToCartAction(variantId, quantity);
+      return mapMedusaToUICart(cart);
     },
-    onMutate: async ({ product, quantity }) => {
-      activeMutations++;
-      await queryClient.cancelQueries({ queryKey: ["cart"] });
-      queryClient.setQueryData(["cart"], (old: any) => {
-        const newItems = old?.items ? [...old.items] : [];
-        const existing = newItems.find((i: any) => i.id === product.id || (product.variantId && i.variantId === product.variantId));
-        if (existing) {
-          existing.quantity += quantity;
-        } else {
-          newItems.push({ ...product, quantity, lineItemId: "temp-" + Date.now() });
-        }
-        return {
-          ...old,
-          items: newItems,
-          medusaTotal: newItems.reduce((t: number, i: any) => t + i.price * i.quantity, 0)
-        };
-      });
+    onSuccess: (newCart) => {
+      queryClient.setQueryData(["cart"], newCart);
       setIsOpen(true);
     },
-    onError: onMutationError,
-    onSettled: onMutationSettled,
+    onError: (error) => {
+      console.error("Failed to add to cart:", error);
+      alert("Could not add item to cart. Please try again.");
+    }
   });
 
-  // 3. Update Quantity Mutation
   const updateQuantityMutation = useMutation({
-    mutationFn: ({ lineItemId, quantity }: { lineItemId: string; quantity: number }) => {
-      if (lineItemId.startsWith("temp-")) throw new Error("Cannot update optimistic item");
-      return new Promise<UICart>((resolve, reject) => {
-        syncQueue = syncQueue.then(async () => {
-          try {
-            const cart = await updateCartItemAction(lineItemId, quantity);
-            resolve(mapMedusaToUICart(cart));
-          } catch (e) {
-            reject(e);
-          }
-        }).catch(() => {});
-      });
+    mutationFn: async ({ lineItemId, quantity }: { lineItemId: string; quantity: number }) => {
+      const cart = await updateCartItemAction(lineItemId, quantity);
+      return mapMedusaToUICart(cart);
     },
-    onMutate: async ({ lineItemId, quantity }) => {
-      activeMutations++;
-      await queryClient.cancelQueries({ queryKey: ["cart"] });
-      queryClient.setQueryData(["cart"], (old: any) => {
-        if (!old?.items) return old;
-        const newItems = old.items.map((i: any) => i.lineItemId === lineItemId ? { ...i, quantity } : i);
-        return { ...old, items: newItems, medusaTotal: newItems.reduce((t: number, i: any) => t + i.price * i.quantity, 0) };
-      });
+    onSuccess: (newCart) => {
+      queryClient.setQueryData(["cart"], newCart);
     },
-    onError: onMutationError,
-    onSettled: onMutationSettled,
+    onError: (error) => {
+      console.error("Failed to update cart:", error);
+      alert("Could not update item. Please try again.");
+    }
   });
 
-  // 4. Remove Item Mutation
   const removeItemMutation = useMutation({
-    mutationFn: (lineItemId: string) => {
-      if (lineItemId.startsWith("temp-")) return Promise.resolve(null);
-      return new Promise<UICart | null>((resolve, reject) => {
-        syncQueue = syncQueue.then(async () => {
-          try {
-            const cart = await removeCartItemAction(lineItemId);
-            resolve(mapMedusaToUICart(cart));
-          } catch (e) {
-            reject(e);
-          }
-        }).catch(() => {});
-      });
+    mutationFn: async (lineItemId: string) => {
+      const cart = await removeCartItemAction(lineItemId);
+      return mapMedusaToUICart(cart);
     },
-    onMutate: async (lineItemId) => {
-      activeMutations++;
-      await queryClient.cancelQueries({ queryKey: ["cart"] });
-      queryClient.setQueryData(["cart"], (old: any) => {
-        if (!old?.items) return old;
-        const newItems = old.items.filter((i: any) => i.lineItemId !== lineItemId);
-        return { ...old, items: newItems, medusaTotal: newItems.reduce((t: number, i: any) => t + i.price * i.quantity, 0) };
-      });
+    onSuccess: (newCart) => {
+      queryClient.setQueryData(["cart"], newCart);
     },
-    onError: onMutationError,
-    onSettled: onMutationSettled,
+    onError: (error) => {
+      console.error("Failed to remove item:", error);
+      alert("Could not remove item. Please try again.");
+    }
   });
+
+  // Calculate sync state based on standard react query loading states
+  const isSyncing = cartQuery.isFetching || 
+                    addToCartMutation.isPending || 
+                    updateQuantityMutation.isPending || 
+                    removeItemMutation.isPending;
 
   return {
     cart: cartQuery.data || { cartId: null, items: [], medusaTotal: 0, medusaSubtotal: 0 },
     isLoading: cartQuery.isLoading,
-    isSyncing: addToCartMutation.isPending || updateQuantityMutation.isPending || removeItemMutation.isPending,
-    addItem: (product: Product, quantity: number = 1) => addToCartMutation.mutate({ product, quantity }),
+    isSyncing,
+    addItem: (product: Product, quantity: number = 1) => product.variantId && addToCartMutation.mutate({ variantId: product.variantId, quantity }),
     updateQuantity: (lineItemId: string, quantity: number) => updateQuantityMutation.mutate({ lineItemId, quantity }),
     removeItem: (lineItemId: string) => removeItemMutation.mutate(lineItemId),
     clearCart: () => queryClient.setQueryData(["cart"], { cartId: null, items: [], medusaTotal: 0, medusaSubtotal: 0 }),
