@@ -128,6 +128,7 @@ export default async function OrdersPage() {
               const items = order.items || [];
               const computedTotal = items.reduce((acc: number, item: any) => acc + ((item.unit_price ?? 0) * (item.quantity ?? 1)), 0);
               const total = order.total ?? order.summary?.current_order_total ?? computedTotal;
+              const status = getOrderStatus(order);
               
               // Safely handle invalid dates
               const createdDate = order.created_at ? new Date(order.created_at) : new Date();
