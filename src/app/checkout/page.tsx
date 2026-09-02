@@ -164,9 +164,12 @@ export default function CheckoutPage() {
         }
         // CRITICAL: Must call completeCartAction to register the order in Medusa.
         // Without this, the cart stays as "not_paid" and no order is created.
-        await completeCartAction();
+        const codComplete = await completeCartAction();
         clearCart();
-        router.push(`/checkout/success`);
+        const successUrl = codComplete.displayId 
+          ? `/checkout/success?order_id=${codComplete.displayId}&total=${codComplete.total || ''}`
+          : '/checkout/success';
+        router.push(successUrl);
         return;
       }
 
@@ -200,7 +203,10 @@ export default function CheckoutPage() {
               return;
             }
             clearCart();
-            router.push('/checkout/success');
+            const successUrl = result.displayId 
+              ? `/checkout/success?order_id=${result.displayId}&total=${result.total || ''}`
+              : '/checkout/success';
+            router.push(successUrl);
           } catch (e: any) {
             setIsProcessing(false);
             console.error("Order complete error:", e);

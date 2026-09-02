@@ -63,21 +63,27 @@ export async function addToCartAction(variantId: string, quantity: number) {
   const cookieStore = await cookies();
   const token = cookieStore.get("_medusa_jwt")?.value;
   const headers = getHeaders(token);
-  let cart = await getOrCreateCart();
+  
+  const existingCartId = cookieStore.get("_medusa_cart_id")?.value;
+  const cartId: string = existingCartId || (await getOrCreateCart()).id;
+
+  const fields = "*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection,*payment_collection.payment_sessions";
   
   try {
-    await medusaClient.store.cart.createLineItem(cart.id, {
+    // High-speed single trip: createLineItem in Medusa v2 already returns the updated cart with fields!
+    const res = await medusaClient.store.cart.createLineItem(cartId, {
       variant_id: variantId,
       quantity
-    }, {}, headers);
+    }, { fields }, headers) as { cart: any };
+
+    return res.cart;
   } catch (error: any) {
-    console.error("First add attempt failed, cart might be locked. Auto-healing...", error.message);
+    console.error("First add attempt failed, cart might be locked or expired. Auto-healing...", error.message);
     
     // Shred the stuck cookie
     cookieStore.set("_medusa_cart_id", "", { maxAge: 0, path: "/" });
     
     // Force generate a brand new cart
-    // Use cached regions here too
     const regions = await getCachedRegions();
     const indiaRegion = regions.find((r: any) => r.currency_code === "inr") || regions[0];
     const { cart: newCart } = await medusaClient.store.cart.create({
@@ -93,21 +99,14 @@ export async function addToCartAction(variantId: string, quantity: number) {
       path: "/",
     });
     
-    // Retry adding to the fresh cart
-    await medusaClient.store.cart.createLineItem(newCart.id, {
+    // Retry adding to the fresh cart with fields in one shot
+    const retryRes = await medusaClient.store.cart.createLineItem(newCart.id, {
       variant_id: variantId,
       quantity
-    }, {}, headers);
+    }, { fields }, headers) as { cart: any };
     
-    cart = newCart;
+    return retryRes.cart;
   }
-  
-  // Fetch fully populated cart to return to UI
-  const { cart: finalCart } = await medusaClient.store.cart.retrieve(cart.id, {
-    fields: "*items,*items.variant,*items.variant.product,*shipping_address,*billing_address,*payment_collection,*payment_collection.payment_sessions"
-  }, headers);
-  
-  return finalCart;
 }
 
 export async function updateCartItemAction(lineId: string, quantity: number) {
@@ -250,7 +249,13 @@ export async function completeCartAction() {
     cookieStore.set("_medusa_cart_id", "", { maxAge: 0, path: "/" });
     
     // Only return plain serializable data to avoid React Error #441
-    return { success: true, type: res.type };
+    return { 
+      success: true, 
+      type: res.type,
+      orderId: (res as any).order?.id,
+      displayId: (res as any).order?.display_id,
+      total: (res as any).order?.total
+    };
   } catch (e: any) {
     console.error("Complete cart error:", e.response?.data || e.message);
     return { error: e.response?.data?.message || e.message || "Failed to complete checkout" };
