@@ -156,6 +156,27 @@ export async function signupAction(formData: FormData) {
       return { success: true, message: "Account created but profile setup incomplete." };
     }
 
+    // MAGIC LINK: Attach any existing guest cart to this newly created customer account
+    try {
+      const cartId = cookieStore.get("_medusa_cart_id")?.value;
+      if (cartId) {
+        const headers = getHeaders(token);
+        const custRes = await fetch(MEDUSA_URL + "/store/customers/me", {
+          method: "GET",
+          headers,
+        });
+        if (custRes.ok) {
+          const custData = await custRes.json();
+          const customer = custData.customer;
+          if (customer && customer.id) {
+            await medusaClient.store.cart.update(cartId, { customer_id: customer.id }, headers);
+          }
+        }
+      }
+    } catch (linkError) {
+      console.error("Failed to link cart to customer during signup:", linkError);
+    }
+
     return { success: true };
   } catch (error) {
     console.error("Signup error:", error);
