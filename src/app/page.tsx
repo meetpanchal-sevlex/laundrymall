@@ -1,67 +1,54 @@
 import Link from "next/link";
-import { Search, ChevronRight, Flame, Sparkles, Truck, ReceiptText, ShieldCheck, Headphones, ArrowRight } from "lucide-react";
+import { Search, ChevronRight, Flame, Sparkles, MapPin, Zap, ArrowRight, Tag, ShieldCheck } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { getCachedFrontendProducts } from "@/lib/medusa-cache";
+import ZeptoFloatingCart from "@/components/ZeptoFloatingCart";
 
 const CATEGORIES = [
-  { name: "All Products", href: "/products", icon: "🏪", color: "bg-blue-50 text-blue-600 border-blue-100" },
-  { name: "Machinery", href: "/products?category=Machinery", icon: "⚙️", color: "bg-orange-50 text-orange-600 border-orange-100" },
-  { name: "Chemicals", href: "/products?category=Detergent+Chemicals", icon: "🧪", color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-  { name: "Packaging", href: "/products?category=Packaging+Materials", icon: "📦", color: "bg-amber-50 text-amber-600 border-amber-100" },
-  { name: "Accessories", href: "/products?category=Accessories", icon: "🔧", color: "bg-purple-50 text-purple-600 border-purple-100" },
-  { name: "Technology", href: "/products?category=Technology", icon: "💻", color: "bg-rose-50 text-rose-600 border-rose-100" },
+  { name: "Machinery", href: "/products?category=Machinery", icon: "⚙️", bg: "bg-[#FFF2E8]", border: "border-[#FFD8BF]" },
+  { name: "Chemicals", href: "/products?category=Detergent+Chemicals", icon: "🧪", bg: "bg-[#E6F7FF]", border: "border-[#BAE7FF]" },
+  { name: "Packaging", href: "/products?category=Packaging+Materials", icon: "📦", bg: "bg-[#FFFBE6]", border: "border-[#FFE58F]" },
+  { name: "Accessories", href: "/products?category=Accessories", icon: "🔧", bg: "bg-[#F9F0FF]", border: "border-[#EFDBFF]" },
+  { name: "Technology", href: "/products?category=Technology", icon: "💻", bg: "bg-[#FFF0F6]", border: "border-[#FFD6E7]" },
+  { name: "B2B Deals", href: "/products", icon: "🏷️", bg: "bg-[#F6FFED]", border: "border-[#D9F7BE]" },
 ];
 
-const PROMO_BANNERS = [
+const RIGHT_FIT_DEALS = [
   {
-    tag: "FACTORY DIRECT",
-    title: "Commercial Machinery",
-    subtitle: "Hydro-extractors, spotting tables & commercial steam boilers",
-    cta: "Explore Machinery",
-    href: "/products?category=Machinery",
-    gradient: "from-blue-600 via-blue-700 to-indigo-800",
-    emoji: "⚙️",
-  },
-  {
-    tag: "10,000+ CYCLES TESTED",
-    title: "Industrial Formulations",
-    subtitle: "Concentrated dry cleaning spotters, emulsifiers & perc alternatives",
-    cta: "View Chemicals",
+    title: "Industrial Spotters",
+    tag: "UPTO 40% OFF",
+    desc: "Rust, ink, blood & oil removers",
     href: "/products?category=Detergent+Chemicals",
-    gradient: "from-emerald-600 via-emerald-700 to-teal-800",
+    bg: "bg-[#F0F5FF]",
+    border: "border-[#ADC6FF]",
     emoji: "🧪",
   },
   {
-    tag: "BULK WHOLESALE",
-    title: "Packaging & Supplies",
-    subtitle: "Custom garment poly rolls, wire hangers & dry cleaning tags",
-    cta: "Shop Packaging",
+    title: "Commercial Machinery",
+    tag: "FACTORY DIRECT",
+    desc: "Hydro-extractors & boilers",
+    href: "/products?category=Machinery",
+    bg: "bg-[#FFF7E6]",
+    border: "border-[#FFD591]",
+    emoji: "⚙️",
+  },
+  {
+    title: "Garment Packaging",
+    tag: "BULK DISCOUNTS",
+    desc: "Poly rolls, hangers & tags",
     href: "/products?category=Packaging+Materials",
-    gradient: "from-amber-600 via-amber-700 to-orange-800",
+    bg: "bg-[#FCFFE6]",
+    border: "border-[#EAFF8F]",
     emoji: "📦",
   },
-];
-
-const TRUST_PILLARS = [
   {
-    icon: <Truck className="w-6 h-6 text-blue-600" />,
-    title: "Pan-India Freight",
-    desc: "Fast air & surface cargo transit to all industrial hubs",
-  },
-  {
-    icon: <ReceiptText className="w-6 h-6 text-emerald-600" />,
-    title: "100% GST Invoicing",
-    desc: "Full Input Tax Credit (ITC) compliant tax invoices",
-  },
-  {
-    icon: <ShieldCheck className="w-6 h-6 text-indigo-600" />,
-    title: "OEM Manufacturer Warranty",
-    desc: "Genuine commercial equipment & spare parts assurance",
-  },
-  {
-    icon: <Headphones className="w-6 h-6 text-purple-600" />,
-    title: "B2B Technical Support",
-    desc: "Guidance on machinery setup & chemical dosing",
+    title: "Eco Formulations",
+    tag: "ISO CERTIFIED",
+    desc: "Safe fabric dry clean solvents",
+    href: "/products?category=Detergent+Chemicals",
+    bg: "bg-[#F6FFED]",
+    border: "border-[#B7EB8F]",
+    emoji: "🌿",
   },
 ];
 
@@ -71,71 +58,109 @@ export default async function Home() {
   const newArrivals = products.slice(6, 12);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8F9FA] pb-20 md:pb-12 text-gray-900">
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-        {/* Mobile Search Bar */}
-        <div className="md:hidden pt-3 pb-2">
+    <div className="flex flex-col min-h-screen bg-[#FAF8F5] pb-24 text-gray-900">
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6">
+        
+        {/* 1. Zepto Top Header Bar (Location + Dispatch Speed) */}
+        <div className="pt-4 pb-2 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-1.5 text-xs font-black text-gray-900 tracking-tight">
+              <Zap className="w-4 h-4 fill-[#E80071] text-[#E80071]" />
+              <span className="text-sm font-black">24-48 Hours Dispatch</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5 cursor-pointer hover:text-gray-800 transition">
+              <MapPin className="w-3 h-3 text-gray-400" />
+              <span>Delivering across All India</span>
+              <ChevronRight className="w-3 h-3 text-gray-400" />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-white border border-gray-200 text-gray-700 shadow-2xs">
+              ⚡ B2B Verified
+            </span>
+          </div>
+        </div>
+
+        {/* 2. Zepto Search Bar */}
+        <div className="mt-3">
           <form action="/products" method="GET">
-            <div className="flex items-center bg-white border border-gray-200 rounded-2xl px-4 py-3 gap-3 shadow-xs">
-              <Search className="w-4 h-4 text-gray-400 shrink-0" />
+            <div className="flex items-center bg-white border border-gray-200/90 rounded-2xl px-4 py-3.5 gap-3 shadow-xs focus-within:border-[#E80071] transition">
+              <Search className="w-5 h-5 text-gray-400 shrink-0" />
               <input
                 name="search"
                 type="text"
-                placeholder="Search Machinery, Spotters, Detergents..."
-                className="bg-transparent flex-1 text-sm outline-none text-gray-800 placeholder:text-gray-400"
+                placeholder='Search "Perc Alternative", "Dry Cleaning Spotters", "Machinery"...'
+                className="bg-transparent flex-1 text-sm outline-none text-gray-800 placeholder:text-gray-400 font-medium"
               />
             </div>
           </form>
         </div>
 
-        {/* 1. Hero Promo Grid — High-End Clean Marketplace (Shopify Plus / Apple Store Style) */}
-        <section className="pt-4 md:pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-            {PROMO_BANNERS.map((banner, idx) => (
-              <Link
-                key={idx}
-                href={banner.href}
-                className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br ${banner.gradient} text-white p-6 sm:p-8 flex flex-col justify-between min-h-[220px] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 border border-white/10`}
-              >
-                {/* Subtle light glow overlay */}
-                <div className="absolute -right-8 -bottom-8 text-7xl opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none">
-                  {banner.emoji}
-                </div>
+        {/* 3. Zepto Promotional Bento Banner (As seen in reference video) */}
+        <section className="mt-6">
+          <div className="rounded-3xl bg-gradient-to-br from-[#FFF0F6] via-[#FFF7E6] to-[#E6F7FF] p-5 sm:p-7 border border-pink-100/80 shadow-xs relative overflow-hidden">
+            {/* Header tag */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🏆</span>
+                <h3 className="text-base sm:text-lg font-black tracking-tight text-gray-900">
+                  Power Commercial Deals
+                </h3>
+              </div>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#E80071] bg-white px-2.5 py-1 rounded-full border border-pink-200">
+                Verified B2B
+              </span>
+            </div>
 
-                <div>
-                  <span className="inline-block text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-md mb-3">
-                    {banner.tag}
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-snug">
-                    {banner.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-white/80 mt-2 max-w-[240px] leading-relaxed">
-                    {banner.subtitle}
+            {/* 2x2 Deal Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {RIGHT_FIT_DEALS.map((deal, idx) => (
+                <Link
+                  key={idx}
+                  href={deal.href}
+                  className={`rounded-2xl ${deal.bg} ${deal.border} border p-3.5 flex flex-col justify-between hover:shadow-md transition-all duration-200 hover:-translate-y-0.5`}
+                >
+                  <div>
+                    <span className="text-3xl block mb-2">{deal.emoji}</span>
+                    <span className="text-[10px] font-black text-[#E80071] bg-white px-2 py-0.5 rounded-md shadow-2xs inline-block mb-1">
+                      {deal.tag}
+                    </span>
+                    <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">
+                      {deal.title}
+                    </h4>
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-2 font-medium line-clamp-1">
+                    {deal.desc}
                   </p>
-                </div>
-
-                <div className="mt-6 flex items-center gap-1.5 text-xs font-bold text-white group-hover:translate-x-1 transition-transform">
-                  <span>{banner.cta}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* 2. Category Quick Navigation */}
+        {/* 4. "Explore Categories" Tiles (Exact Zepto Mobile Style) */}
         <section className="mt-8">
-          <div className="flex md:justify-center gap-3.5 overflow-x-auto hide-scrollbar pb-2">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h3 className="text-base sm:text-lg font-black tracking-tight text-gray-900">
+              Explore Categories
+            </h3>
+            <Link href="/products" className="text-xs font-bold text-[#E80071] hover:underline flex items-center gap-0.5">
+              See All <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.name}
                 href={cat.href}
-                className="group shrink-0 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white border border-gray-200 hover:border-blue-400 hover:shadow-sm transition-all duration-200"
+                className="group flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-gray-200/80 hover:border-[#E80071] hover:shadow-sm transition-all duration-200 text-center"
               >
-                <div className={`w-9 h-9 rounded-xl ${cat.color} flex items-center justify-center text-lg border group-hover:scale-110 transition-transform duration-200`}>
+                <div className={`w-14 h-14 rounded-2xl ${cat.bg} ${cat.border} border flex items-center justify-center text-2xl group-hover:scale-105 transition-transform duration-200`}>
                   {cat.icon}
                 </div>
-                <span className="text-xs sm:text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors whitespace-nowrap">
+                <span className="text-xs font-bold text-gray-800 group-hover:text-[#E80071] transition-colors leading-tight">
                   {cat.name}
                 </span>
               </Link>
@@ -143,101 +168,104 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* 3. Best Sellers Section */}
+        {/* 5. Best Sellers Section (Zepto Clean Product Cards) */}
         <section className="mt-8 bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-orange-50 text-orange-500">
-                <Flame className="w-5 h-5" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-xl bg-orange-50 text-orange-500">
+                <Flame className="w-4 h-4" />
               </div>
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">Best Sellers</h2>
-                <p className="text-xs text-gray-500 mt-0.5">High-demand commercial supplies and detergents</p>
-              </div>
+              <h2 className="text-base sm:text-lg font-black text-gray-900 tracking-tight">
+                Best Sellers
+              </h2>
             </div>
             <Link
               href="/products"
-              className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold inline-flex items-center gap-1 transition"
+              className="text-[#E80071] text-xs font-bold flex items-center gap-0.5 hover:underline"
             >
-              View All <ChevronRight className="w-4 h-4" />
+              See All <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-x divide-y divide-gray-100">
             {bestSellers.length > 0 ? (
               bestSellers.map((product) => (
-                <div key={product.id} className="hover:bg-blue-50/20 transition-colors">
+                <div key={product.id} className="hover:bg-pink-50/20 transition-colors">
                   <ProductCard product={product} compact />
                 </div>
               ))
             ) : (
-              <div className="col-span-full py-16 text-center text-gray-400">
-                <p className="text-4xl mb-3">🛍️</p>
-                <p className="font-medium text-sm">Add products from your Medusa admin to showcase here.</p>
+              <div className="col-span-full py-12 text-center text-gray-400 text-xs">
+                Products loading from Medusa backend...
               </div>
             )}
           </div>
         </section>
 
-        {/* 4. New Arrivals & Commercial Machinery */}
+        {/* 6. Value Picks & New Arrivals */}
         <section className="mt-8 bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
-                <Sparkles className="w-5 h-5" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-xl bg-purple-50 text-purple-600">
+                <Sparkles className="w-4 h-4" />
               </div>
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">New Arrivals &amp; Machinery</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Specialized spotting agents, machinery, and accessories</p>
-              </div>
+              <h2 className="text-base sm:text-lg font-black text-gray-900 tracking-tight">
+                Value Picks &amp; Machinery
+              </h2>
             </div>
             <Link
               href="/products"
-              className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold inline-flex items-center gap-1 transition"
+              className="text-[#E80071] text-xs font-bold flex items-center gap-0.5 hover:underline"
             >
-              View All <ChevronRight className="w-4 h-4" />
+              See All <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-x divide-y divide-gray-100">
             {newArrivals.length > 0 ? (
               newArrivals.map((product) => (
-                <div key={product.id} className="hover:bg-blue-50/20 transition-colors">
+                <div key={product.id} className="hover:bg-pink-50/20 transition-colors">
                   <ProductCard product={product} compact />
                 </div>
               ))
             ) : (
-              <div className="col-span-full py-12 text-center text-gray-400">
-                <p className="font-medium text-sm">More commercial items arriving weekly.</p>
+              <div className="col-span-full py-12 text-center text-gray-400 text-xs">
+                More products coming soon!
               </div>
             )}
           </div>
         </section>
 
-        {/* 5. Minimalist B2B Trust Pillars (Clean, Professional, Non-distracting) */}
-        <section className="mt-10 mb-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {TRUST_PILLARS.map((pillar, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-xs flex items-start gap-4 hover:shadow-md transition-shadow"
-              >
-                <div className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 shrink-0">
-                  {pillar.icon}
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-gray-900 tracking-tight">
-                    {pillar.title}
-                  </h4>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                    {pillar.desc}
-                  </p>
-                </div>
+        {/* 7. Bottom Trust Strip (Zepto Clean Guarantee) */}
+        <section className="mt-8 mb-4">
+          <div className="bg-white rounded-2xl p-4 border border-gray-200/80 flex flex-col sm:flex-row items-center justify-around gap-4 text-center sm:text-left">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚡</span>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">24-48h Dispatch</h4>
+                <p className="text-[10px] text-gray-500">Pan-India air &amp; surface logistics</p>
               </div>
-            ))}
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🧾</span>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">100% GST Invoicing</h4>
+                <p className="text-[10px] text-gray-500">Full Input Tax Credit claimable</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🛡️</span>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">7-Day Guarantee</h4>
+                <p className="text-[10px] text-gray-500">Transit damage replacement</p>
+              </div>
+            </div>
           </div>
         </section>
       </div>
+
+      {/* 8. Floating Bottom Cart Bar (Exact Zepto video behavior) */}
+      <ZeptoFloatingCart />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, ShieldCheck, Truck, Star, Share2, Heart, ChevronRight, Store } from "lucide-react";
+import { ArrowLeft, Search, Share2, ShieldCheck, Truck, RotateCcw, Zap, ChevronRight, Info } from "lucide-react";
 import { notFound } from "next/navigation";
 import ProductBottomBar from "@/components/ProductBottomBar";
 import { getCachedFrontendProduct, getCachedFrontendProducts } from "@/lib/medusa-cache";
@@ -29,183 +29,178 @@ export default async function ProductDetailPage({
     notFound();
   }
 
-  const discount = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0;
-    
   const sliderImages = product.images && product.images.length > 0 
     ? product.images 
     : [product.image];
 
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-8">
-      <div className="md:max-w-7xl md:mx-auto md:px-4 md:py-8">
-        
-        {/* Desktop Container */}
-        <div className="md:flex md:gap-8 md:bg-white md:rounded-2xl md:shadow-sm md:p-8 md:overflow-hidden">
-          
-          {/* Left Column - Images */}
-          <div className="md:w-1/2 flex-shrink-0">
-            {/* Product Image Section */}
-            <div className="bg-white pb-2 relative md:sticky md:top-24 md:pb-0 md:rounded-xl md:border md:border-gray-100 md:overflow-hidden">
-              <ImageSlider images={sliderImages} alt={product.name} />
-
-              {/* Meesho-style Trust Badges Banner */}
-              <div className="flex items-center justify-between px-4 py-2.5 bg-blue-50 border-y border-blue-100 text-[10px] md:text-xs font-bold text-gray-700">
-                <div className="flex items-center gap-1 text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-                  <ShieldCheck className="w-3.5 h-3.5 md:w-4 md:h-4" /> Mall
-                </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600" /> Original Brands
-                </div>
-                <div className="flex items-center gap-1">
-                  <Store className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-500" /> Direct From Company
-                </div>
-              </div>
-            </div>
-
-            {/* Similar Products Placeholder - Meesho Style (Mobile Only or Under Image) */}
-            <div className="bg-white mt-2 p-4 md:mt-6 md:p-0 md:border-none md:bg-transparent">
-              <h3 className="text-gray-500 font-bold text-sm mb-3">Similar Products</h3>
-              <div className="flex gap-3">
-                <div className="w-16 h-16 md:w-20 md:h-20 border-2 border-blue-600 rounded-lg overflow-hidden p-1 bg-white relative hover:scale-105 transition-transform cursor-pointer shadow-sm">
-                  <Image src={product.image} alt="Similar" fill className="object-contain" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Details */}
-          <div className="md:w-1/2 md:pt-2">
-            {/* Title & Price Section */}
-            <div className="bg-white mt-2 p-4 pt-5 md:mt-0 md:p-0">
-              <div className="flex justify-between items-start gap-4 mb-3 md:mb-5">
-                <h1 className="text-gray-500 md:text-gray-900 font-medium md:font-black text-[15px] md:text-2xl leading-snug flex-1">
-                  {product.name}
-                </h1>
-                <div className="flex items-center gap-3 md:gap-5 text-gray-400">
-                  <div className="flex flex-col items-center gap-1 hover:text-red-500 transition cursor-pointer group">
-                    <Heart className="w-5 h-5 md:w-6 md:h-6 group-hover:fill-red-50" />
-                    <span className="text-[10px] md:text-xs font-medium">Wishlist</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 hover:text-blue-600 transition cursor-pointer group">
-                    <Share2 className="w-5 h-5 md:w-6 md:h-6 group-hover:fill-blue-50" />
-                    <span className="text-[10px] md:text-xs font-medium">Share</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-baseline gap-2 mb-2 md:mb-4">
-                <span className="text-2xl md:text-4xl font-black text-gray-900">₹{product.price.toFixed(0)}</span>
-                {product.originalPrice && (
-                  <>
-                    <span className="text-sm md:text-lg text-gray-400 line-through font-medium">
-                      ₹{product.originalPrice.toFixed(0)}
-                    </span>
-                    <span className="text-sm md:text-base font-bold text-green-600">{discount}% off</span>
-                  </>
-                )}
-              </div>
-
-              {discount > 0 && (
-                <div className="inline-flex items-center gap-1 text-green-600 font-bold text-xs md:text-sm bg-green-50 px-2 py-1 md:px-3 md:py-1.5 rounded md:rounded-lg mb-3 md:mb-5 border border-green-100">
-                  <span className="text-green-500">💰</span> ₹{product.originalPrice ? (product.originalPrice - product.price).toFixed(0) : 0} with 1 Special Offer <ChevronRight className="w-3 h-3 md:w-4 md:h-4" />
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 mb-4 md:mb-6">
-                <div className="bg-green-50 px-2 py-0.5 md:px-3 md:py-1 rounded md:rounded-full text-[10px] md:text-xs text-green-700 font-bold flex items-center gap-1 border border-green-100">
-                  <span className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
-                  ₹40 off | Exclusive Offers
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 pb-4 md:pb-6 border-b border-gray-100">
-                <div className="bg-green-600 text-white flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-sm">
-                  4.3 <Star className="w-3 h-3 md:w-4 md:h-4 fill-current" />
-                </div>
-                <span className="text-xs md:text-sm text-gray-500 font-medium hover:text-blue-600 cursor-pointer transition">513 Ratings, 168 Reviews</span>
-              </div>
-            </div>
-
-            {/* Select Size Section */}
-            <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100 hidden md:block">
-              <h2 className="text-gray-900 font-bold text-sm md:text-base mb-4">Select Size</h2>
-              <button className="inline-block border-2 border-blue-600 text-blue-700 font-bold text-sm px-5 py-2.5 rounded-full bg-blue-50/50 hover:bg-blue-100 transition shadow-sm">
-                Free Size
-              </button>
-            </div>
-            {/* Mobile Only version */}
-            <div className="bg-white mt-2 p-4 md:hidden">
-              <h2 className="text-gray-900 font-bold text-sm mb-4">Select Size</h2>
-              <div className="inline-block border-2 border-blue-600 text-blue-700 font-bold text-sm px-4 py-2 rounded-full bg-blue-50/50">
-                Free Size
-              </div>
-            </div>
-
-
-
-            {/* Product Highlights Section */}
-            <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100">
-              <div className="flex justify-between items-center mb-4 md:mb-6">
-                <h2 className="text-gray-900 font-bold text-sm md:text-base">Product Highlights</h2>
-                <button className="text-blue-700 hover:text-blue-800 font-black text-xs md:text-sm tracking-widest transition">COPY</button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 md:gap-y-8">
-                <div>
-                  <p className="text-xs md:text-sm text-gray-400 font-medium mb-1">Net Quantity (N)</p>
-                  <p className="text-sm md:text-base font-semibold text-gray-800">1</p>
-                </div>
-                <div>
-                  <p className="text-xs md:text-sm text-gray-400 font-medium mb-1">Brand</p>
-                  <p className="text-sm md:text-base font-semibold text-gray-800">LaundryMall</p>
-                </div>
-                <div>
-                  <p className="text-xs md:text-sm text-gray-400 font-medium mb-1">Category</p>
-                  <p className="text-sm md:text-base font-semibold text-gray-800">{product.category}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Details Section */}
-            <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6">
-              <div className="flex justify-between items-center mb-4 md:mb-6">
-                <h2 className="text-gray-900 font-bold text-sm md:text-base">Additional Details</h2>
-                <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-400 -rotate-90 md:hidden" />
-              </div>
-              <div className="space-y-4 md:space-y-5">
-                <div className="flex">
-                  <p className="w-1/2 text-sm md:text-base text-gray-500 font-medium">Item Type</p>
-                  <p className="w-1/2 text-sm md:text-base text-gray-800 font-medium">{product.category}</p>
-                </div>
-                <div className="flex">
-                  <p className="w-1/2 text-sm md:text-base text-gray-500 font-medium">Ideal For</p>
-                  <p className="w-1/2 text-sm md:text-base text-gray-800 font-medium">Commercial Use</p>
-                </div>
-                <div className="flex">
-                  <p className="w-1/2 text-sm md:text-base text-gray-500 font-medium">Country of Origin</p>
-                  <p className="w-1/2 text-sm md:text-base text-gray-800 font-medium">India</p>
-                </div>
-              </div>
-              <div className="mt-4 md:mt-6 border-t border-gray-100 pt-4 md:pt-6 text-sm md:text-base text-gray-600 leading-relaxed max-w-prose">
-                {product.description}
-              </div>
-              <button className="mt-3 md:mt-4 text-blue-600 font-medium text-xs md:text-sm underline hover:text-blue-800 transition">More Information</button>
-            </div>
-            
-            {/* Desktop Add to Cart Bar (Replaces Mobile Bottom Bar) */}
-            <div className="hidden md:block mt-8 sticky bottom-8">
-              <ProductBottomBar product={product} />
-            </div>
-          </div>
+    <div className="bg-[#FAF8F5] min-h-screen pb-28 md:pb-12 text-gray-900">
+      {/* Top Floating Mobile App Bar (Zepto Style) */}
+      <div className="sticky top-0 z-40 bg-[#FAF8F5]/90 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-gray-200/50">
+        <Link
+          href="/products"
+          className="w-10 h-10 rounded-full bg-white border border-gray-200/80 shadow-xs flex items-center justify-center text-gray-700 hover:bg-gray-50 transition"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/products"
+            className="w-10 h-10 rounded-full bg-white border border-gray-200/80 shadow-xs flex items-center justify-center text-gray-700 hover:bg-gray-50 transition"
+            aria-label="Search"
+          >
+            <Search className="w-4 h-4" />
+          </Link>
+          <button
+            className="w-10 h-10 rounded-full bg-white border border-gray-200/80 shadow-xs flex items-center justify-center text-gray-700 hover:bg-gray-50 transition"
+            aria-label="Share"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* Mobile Add to Cart Bar */}
-      <div className="md:hidden">
-        <ProductBottomBar product={product} />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-2">
+        {/* Product Image Section with Clean Background */}
+        <div className="relative rounded-3xl bg-white border border-gray-200/80 overflow-hidden shadow-xs mb-4">
+          <div className="p-4 sm:p-8 flex items-center justify-center min-h-[320px] sm:min-h-[420px]">
+            <ImageSlider images={sliderImages} alt={product.name} />
+          </div>
+
+          {/* Floating Select Badge (Zepto Style) */}
+          <div className="absolute top-4 right-4">
+            <span className="bg-[#5C382A] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-sm tracking-wider uppercase">
+              Select
+            </span>
+          </div>
+
+          {/* Bottom Indicators */}
+          <div className="px-4 py-3 bg-gray-50/70 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <Info className="w-3.5 h-3.5 text-gray-400" /> Commercial Grade
+            </span>
+            <span className="font-semibold text-gray-600">
+              100% Genuine Verified
+            </span>
+          </div>
+        </div>
+
+        {/* 1. Main Title & Price Card (Exact Zepto Layout from Image) */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs mb-4">
+          {/* Dispatch Speed Badge */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-50 text-amber-800 border border-amber-200/80">
+              <Zap className="w-3.5 h-3.5 fill-amber-600 text-amber-600" />
+              <span>⚡ 24-48h Dispatch</span>
+            </div>
+            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">
+              In Stock
+            </span>
+          </div>
+
+          {/* Category / Brand Breadcrumb */}
+          <Link
+            href={`/products?category=${encodeURIComponent(product.category || "")}`}
+            className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-gray-400 hover:text-blue-600 transition mb-1.5"
+          >
+            <span>{product.category || "COMMERCIAL SUPPLY"}</span>
+            <ChevronRight className="w-3 h-3" />
+          </Link>
+
+          {/* Product Title (Clean Editorial Typography) */}
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 leading-snug">
+            {product.name}
+          </h1>
+
+          <p className="text-xs font-medium text-gray-500 mt-1">
+            Commercial Packaging / Industrial Unit
+          </p>
+
+          {/* Price & MRP Row */}
+          <div className="mt-4 pt-4 border-t border-gray-100 flex items-baseline gap-2.5">
+            <span className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
+              ₹{product.price.toFixed(0)}
+            </span>
+            {product.originalPrice && (
+              <span className="text-sm sm:text-base text-gray-400 line-through font-medium">
+                ₹{product.originalPrice.toFixed(0)} MRP
+              </span>
+            )}
+            <span className="text-xs text-gray-400 font-medium">
+              (incl. of all taxes)
+            </span>
+          </div>
+        </div>
+
+        {/* 2. Key Details 2x2 Grid (Exact Match to Reference Screenshot) */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs mb-4">
+          <h2 className="text-base sm:text-lg font-black tracking-tight text-gray-900 mb-4">
+            Key details
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-gray-50/90 rounded-2xl p-4 border border-gray-100">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">
+                BRAND
+              </span>
+              <span className="text-sm font-bold text-gray-900">
+                LaundryMall Commercial
+              </span>
+            </div>
+
+            <div className="bg-gray-50/90 rounded-2xl p-4 border border-gray-100">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-0.5">
+                COUNTRY OF ORIGIN
+              </span>
+              <span className="text-sm font-bold text-gray-900">
+                India
+              </span>
+            </div>
+
+            <div className="bg-gray-50/90 rounded-2xl p-4 border border-gray-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shrink-0 text-gray-700">
+                <RotateCcw className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">
+                  7-Day Return or Replacement
+                </h4>
+                <p className="text-[10px] text-gray-500 mt-0.5">
+                  Damaged or defective transit coverage
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50/90 rounded-2xl p-4 border border-gray-100 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shrink-0 text-gray-700">
+                <Truck className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-900">
+                  Fast Insured Freight
+                </h4>
+                <p className="text-[10px] text-gray-500 mt-0.5">
+                  Pan-India door-to-door delivery
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Product Description & Commercial Usage */}
+        <div className="bg-white rounded-3xl p-6 border border-gray-200/80 shadow-xs mb-6">
+          <h2 className="text-base sm:text-lg font-black tracking-tight text-gray-900 mb-3">
+            Product Description
+          </h2>
+          <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+            {product.description || "Commercial grade industrial supplies engineered for high-capacity laundry and dry cleaning operations. Verified for chemical stability, fabric protection, and maximum wash cycle longevity."}
+          </p>
+        </div>
       </div>
+
+      {/* Sticky Bottom Action Bar (Zepto Style) */}
+      <ProductBottomBar product={product} />
     </div>
   );
 }
-
