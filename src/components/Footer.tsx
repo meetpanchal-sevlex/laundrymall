@@ -25,20 +25,21 @@ export default function Footer() {
           
           {/* Support */}
           <div>
-            <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
+            <h4 className="font-semibold text-gray-900 mb-4">Support &amp; Policies</h4>
             <ul className="space-y-2 text-sm text-gray-500">
               <li><Link href="/faq" className="hover:text-blue-600 transition">FAQ</Link></li>
               <li><Link href="/shipping" className="hover:text-blue-600 transition">Shipping Policy</Link></li>
-              <li><Link href="/returns" className="hover:text-blue-600 transition">Returns</Link></li>
+              <li><Link href="/returns" className="hover:text-blue-600 transition">Returns &amp; Refunds</Link></li>
               <li><Link href="/privacy" className="hover:text-blue-600 transition">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-blue-600 transition">Terms &amp; Conditions</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold text-gray-900 mb-4">Contact</h4>
             <address className="text-sm not-italic space-y-2 text-gray-500">
-              <p>Email: info@laundrymall.com</p>
-              <p>Phone: +91 1234567890</p>
+              <p>Email: support@laundrymall.in</p>
+              <p>Phone: +91 98790 00000</p>
               <p>Ahmedabad, Gujarat, India</p>
             </address>
           </div>
