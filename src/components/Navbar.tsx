@@ -69,9 +69,12 @@ export default function Navbar() {
                 type="text"
                 name="search"
                 placeholder="Search products..."
-                className="w-full border-2 border-gray-200 rounded-full py-2.5 px-6 focus:outline-none focus:border-blue-500 transition shadow-sm"
+                className="w-full border border-gray-200/80 rounded-full py-2.5 pl-6 pr-16 focus:outline-none focus:border-blue-500 transition shadow-xs text-sm"
               />
-              <button type="submit" className="absolute right-2 top-1.5 bottom-1.5 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition">
+              <span className="absolute right-12 top-2.5 text-[10px] bg-gray-100 border border-gray-200 text-gray-400 font-mono px-1.5 py-0.5 rounded-md pointer-events-none hidden md:block">
+                ⌘K
+              </span>
+              <button type="submit" className="absolute right-2 top-1.5 bottom-1.5 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition" aria-label="Search">
                 <Search className="w-4 h-4" />
               </button>
             </form>

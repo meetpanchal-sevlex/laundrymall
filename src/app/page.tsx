@@ -1,28 +1,29 @@
 import Link from "next/link";
-import { Search, ChevronRight, Flame, Sparkles } from "lucide-react";
+import { Search, ChevronRight, Flame, Sparkles, ShieldCheck, Truck, ReceiptText, Wrench, Award, CheckCircle2 } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { getCachedFrontendProducts } from "@/lib/medusa-cache";
+import { Marquee } from "@/components/ui/Marquee";
+import { BentoGrid, BentoCard } from "@/components/ui/BentoGrid";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
 
 const CATEGORIES = [
-  { name: "All", href: "/products", icon: "🏪", color: "bg-blue-50" },
-  { name: "Machinery", href: "/products?category=Machinery", icon: "⚙️", color: "bg-orange-50" },
-  { name: "Chemicals", href: "/products?category=Detergent+Chemicals", icon: "🧪", color: "bg-green-50" },
-  { name: "Packaging", href: "/products?category=Packaging+Materials", icon: "📦", color: "bg-yellow-50" },
-  { name: "Accessories", href: "/products?category=Accessories", icon: "🔧", color: "bg-purple-50" },
-  { name: "Technology", href: "/products?category=Technology", icon: "💻", color: "bg-red-50" },
+  { name: "All Products", href: "/products", icon: "🏪", color: "bg-blue-50 text-blue-600" },
+  { name: "Machinery", href: "/products?category=Machinery", icon: "⚙️", color: "bg-orange-50 text-orange-600" },
+  { name: "Chemicals", href: "/products?category=Detergent+Chemicals", icon: "🧪", color: "bg-emerald-50 text-emerald-600" },
+  { name: "Packaging", href: "/products?category=Packaging+Materials", icon: "📦", color: "bg-amber-50 text-amber-600" },
+  { name: "Accessories", href: "/products?category=Accessories", icon: "🔧", color: "bg-purple-50 text-purple-600" },
+  { name: "Technology", href: "/products?category=Technology", icon: "💻", color: "bg-rose-50 text-rose-600" },
 ];
 
-const BANNERS = [
-  { title: "Wholesale Machinery", subtitle: "Up to 30% off on bulk orders", color: "from-blue-600 to-blue-800", emoji: "⚙️" },
-  { title: "Eco Chemicals", subtitle: "ISO certified, trusted quality", color: "from-green-600 to-green-800", emoji: "🧪" },
-  { title: "Smart Packaging", subtitle: "Branded packaging solutions", color: "from-purple-600 to-purple-800", emoji: "📦" },
-];
-
-const WHY_US = [
-  { icon: "🚚", title: "Pan India Delivery", sub: "Fast shipping to all outlets" },
-  { icon: "✅", title: "ISO Certified", sub: "Guaranteed quality products" },
-  { icon: "💰", title: "Wholesale Pricing", sub: "Best rates for bulk orders" },
-  { icon: "🛡️", title: "Easy Returns", sub: "7-day hassle-free policy" },
+const LOGISTICS_PARTNERS = [
+  { icon: "🚚", label: "Delhivery Commercial Logistics" },
+  { icon: "✈️", label: "Blue Dart Express Air Cargo" },
+  { icon: "🚛", label: "V-Trans Pan-India Surface Freight" },
+  { icon: "🧾", label: "100% Verified GST Tax Invoices" },
+  { icon: "📦", label: "Hazardous Chemical Certified Packing" },
+  { icon: "🛡️", label: "Original OEM Manufacturer Warranty" },
+  { icon: "⚡", label: "24-48h Guaranteed Dispatch" },
+  { icon: "🔒", label: "PCI-DSS Level 1 Razorpay Security" },
 ];
 
 export default async function Home() {
@@ -31,130 +32,251 @@ export default async function Home() {
   const newArrivals = products.slice(6, 12);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-20 md:pb-4">
-      <div className="max-w-7xl mx-auto w-full">
+    <div className="flex flex-col min-h-screen bg-[#FBFBFB] pb-20 md:pb-8">
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         {/* Mobile Search Bar */}
-        <div className="md:hidden bg-white px-4 py-3 border-b border-gray-100 shadow-sm">
+        <div className="md:hidden pt-3 pb-2">
           <form action="/products" method="GET">
-            <div className="flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-3">
-              <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <div className="flex items-center bg-white border border-gray-200/80 rounded-2xl px-4 py-3 gap-3 shadow-xs">
+              <Search className="w-4 h-4 text-gray-400 shrink-0" />
               <input
                 name="search"
                 type="text"
-                placeholder="Search for Machinery, Chemicals..."
-                className="bg-transparent flex-1 text-sm outline-none text-gray-700 placeholder:text-gray-400"
+                placeholder="Search Machinery, Spotters, Detergents..."
+                className="bg-transparent flex-1 text-sm outline-none text-gray-800 placeholder:text-gray-400"
               />
             </div>
           </form>
         </div>
 
-        {/* Hero Banners — horizontal scroll */}
-        <section className="bg-white md:bg-transparent pt-3 md:pt-6 pb-4">
-          <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar pb-1 md:grid md:grid-cols-3">
-            {BANNERS.map((b, i) => (
-              <Link
-                key={i}
-                href="/products"
-                className={`flex-shrink-0 w-72 md:w-full rounded-2xl bg-gradient-to-r ${b.color} text-white p-6 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow`}
-              >
-                <div>
-                  <p className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-1">Featured</p>
-                  <h3 className="text-lg md:text-xl font-black leading-tight">{b.title}</h3>
-                  <p className="text-sm text-white/80 mt-1">{b.subtitle}</p>
-                  <div className="mt-4 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 transition-colors">
-                    Shop Now <ChevronRight className="w-3 h-3" />
-                  </div>
-                </div>
-                <span className="text-6xl drop-shadow-md">{b.emoji}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Hero Section — Ultra Premium B2B Banner */}
+        <section className="pt-4 md:pt-8">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white p-8 sm:p-12 lg:p-16 border border-slate-800 shadow-xl">
+            {/* Ambient Radial Gradient Glow */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-radial from-blue-500/20 via-indigo-500/10 to-transparent blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-1/3 w-[300px] h-[300px] bg-radial from-cyan-500/15 to-transparent blur-2xl pointer-events-none" />
 
-        {/* Category Icons — Meesho style */}
-        <section className="bg-white md:bg-transparent mt-2 md:mt-6 py-4 md:py-0 border-t border-gray-100 md:border-none">
-          <div className="flex md:justify-center gap-6 px-4 overflow-x-auto hide-scrollbar">
-            {CATEGORIES.map((cat) => (
-              <Link key={cat.name} href={cat.href} className="flex-shrink-0 flex flex-col items-center gap-3 w-16 md:w-24 group">
-                <div className={`w-14 h-14 md:w-20 md:h-20 rounded-full ${cat.color} flex items-center justify-center text-2xl md:text-4xl shadow-sm border border-white group-hover:shadow-md group-hover:scale-105 transition-all`}>
-                  {cat.icon}
-                </div>
-                <span className="text-xs md:text-sm font-semibold text-gray-700 text-center leading-tight group-hover:text-blue-600 transition-colors">{cat.name}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
+            <div className="relative z-10 max-w-3xl">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-blue-300 border border-white/15 backdrop-blur-md mb-6">
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                <span>India&apos;s Dedicated B2B Dry Cleaning &amp; Laundry Platform</span>
+              </div>
 
-        {/* Best Sellers */}
-        <section className="mt-2 md:mt-10 bg-white md:rounded-2xl md:shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-orange-500" />
-              <h2 className="text-base md:text-xl font-black text-gray-900">Best Sellers</h2>
-            </div>
-            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700">
-              See All <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-gray-100">
-            {bestSellers.length > 0 ? (
-              bestSellers.map((product) => (
-                <div key={product.id} className="border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors">
-                  <ProductCard product={product} compact />
-                </div>
-              ))
-            ) : (
-              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-16 text-center text-gray-400">
-                <p className="text-4xl mb-3">🛍️</p>
-                <p className="font-medium">Add products from your Medusa admin!</p>
-                <Link href="/products" className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-2 rounded-full transition-colors">
-                  Browse Catalog
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white">
+                Commercial Machinery &amp; Industrial Formulations.
+              </h1>
+
+              <p className="mt-5 text-base sm:text-lg text-slate-300 max-w-xl leading-relaxed">
+                Direct wholesale supply for commercial laundries, dry cleaning chains, hospitals, and institutional facilities with pan-India insured freight.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link
+                  href="/products?category=Machinery"
+                  className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition shadow-lg shadow-blue-600/30 inline-flex items-center gap-2"
+                >
+                  Explore Machinery <ChevronRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/products?category=Detergent+Chemicals"
+                  className="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold text-sm backdrop-blur-md transition inline-flex items-center gap-2"
+                >
+                  Chemical Solutions
                 </Link>
               </div>
-            )}
+            </div>
           </div>
         </section>
 
-        {/* New Arrivals */}
-        <section className="mt-2 md:mt-8 bg-white md:rounded-2xl md:shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-500" />
-              <h2 className="text-base md:text-xl font-black text-gray-900">New Arrivals</h2>
+        {/* Social Proof Logistics Marquee */}
+        <section className="mt-8 py-3 rounded-2xl bg-white border border-gray-200/70 shadow-2xs overflow-hidden">
+          <Marquee pauseOnHover className="[--duration:32s]">
+            {LOGISTICS_PARTNERS.map((partner, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2.5 px-4 py-1.5 rounded-xl bg-gray-50 border border-gray-200/60 shrink-0"
+              >
+                <span className="text-base">{partner.icon}</span>
+                <span className="text-xs font-semibold tracking-tight text-gray-700">
+                  {partner.label}
+                </span>
+              </div>
+            ))}
+          </Marquee>
+        </section>
+
+        {/* Category Navigation */}
+        <section className="mt-8">
+          <div className="flex md:justify-center gap-4 overflow-x-auto hide-scrollbar pb-2">
+            {CATEGORIES.map((cat) => (
+              <Link
+                key={cat.name}
+                href={cat.href}
+                className="group shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl bg-white border border-gray-200/80 hover:border-blue-400 hover:shadow-sm transition-all duration-200 w-24 sm:w-28 text-center"
+              >
+                <div className={`w-12 h-12 rounded-xl ${cat.color} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-200`}>
+                  {cat.icon}
+                </div>
+                <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-600 transition-colors line-clamp-1">
+                  {cat.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Best Sellers Section */}
+        <section className="mt-10 bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-orange-50 text-orange-500">
+                <Flame className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">Best Sellers</h2>
+                <p className="text-xs text-gray-500 mt-0.5">High-demand equipment and detergents across commercial chains</p>
+              </div>
             </div>
-            <Link href="/products" className="text-blue-600 text-sm font-bold flex items-center gap-0.5 hover:text-blue-700">
-              See All <ChevronRight className="w-4 h-4" />
+            <Link
+              href="/products"
+              className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold inline-flex items-center gap-1 transition"
+            >
+              View All <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 border-gray-100">
-            {newArrivals.length > 0 ? (
-              newArrivals.map((product) => (
-                <div key={product.id} className="border-r border-b border-gray-100 last:border-r-0 hover:bg-gray-50 transition-colors">
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-x divide-y divide-gray-100">
+            {bestSellers.length > 0 ? (
+              bestSellers.map((product) => (
+                <div key={product.id} className="hover:bg-gray-50/50 transition-colors">
                   <ProductCard product={product} compact />
                 </div>
               ))
             ) : (
-              <div className="col-span-2 md:col-span-4 lg:col-span-6 py-12 text-center text-gray-400">
-                <p className="font-medium text-sm">More products coming soon!</p>
+              <div className="col-span-full py-16 text-center text-gray-400">
+                <p className="text-4xl mb-3">🛍️</p>
+                <p className="font-medium text-sm">Add products from your Medusa admin to showcase here.</p>
               </div>
             )}
           </div>
         </section>
 
-        {/* Why LaundryMall */}
-        <section className="mt-2 md:mt-8 md:mb-12 bg-white md:bg-transparent px-4 py-6 md:py-0">
-          <h2 className="text-base md:text-xl font-black text-gray-900 mb-4 md:mb-6 text-center md:text-left">Why LaundryMall?</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-            {WHY_US.map((item) => (
-              <div key={item.title} className="bg-gray-50 md:bg-white rounded-xl md:rounded-2xl p-4 flex md:flex-col md:items-center md:text-center gap-3 md:gap-4 md:shadow-sm md:hover:shadow-md transition-shadow">
-                <span className="text-2xl md:text-4xl">{item.icon}</span>
-                <div>
-                  <p className="text-sm md:text-base font-bold text-gray-800">{item.title}</p>
-                  <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1">{item.sub}</p>
-                </div>
+        {/* New Arrivals Section */}
+        <section className="mt-8 bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-purple-50 text-purple-600">
+                <Sparkles className="w-5 h-5" />
               </div>
-            ))}
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">New Arrivals &amp; Machinery</h2>
+                <p className="text-xs text-gray-500 mt-0.5">Latest industrial releases and specialized spotting agents</p>
+              </div>
+            </div>
+            <Link
+              href="/products"
+              className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm font-semibold inline-flex items-center gap-1 transition"
+            >
+              View All <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-x divide-y divide-gray-100">
+            {newArrivals.length > 0 ? (
+              newArrivals.map((product) => (
+                <div key={product.id} className="hover:bg-gray-50/50 transition-colors">
+                  <ProductCard product={product} compact />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full py-12 text-center text-gray-400">
+                <p className="font-medium text-sm">More specialized commercial items arriving weekly.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Enterprise Value Pillars — The Bento Grid */}
+        <section className="mt-14 mb-8">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              Industrial Advantage
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-gray-900 mt-3">
+              Why Commercial Laundries Choose LaundryMall
+            </h2>
+            <p className="text-sm text-gray-500 mt-2">
+              Engineered specifically for high-capacity industrial dry cleaning and wet cleaning operations.
+            </p>
+          </div>
+
+          <BentoGrid>
+            <BentoCard
+              className="md:col-span-2"
+              header={
+                <SpotlightCard className="h-44 flex flex-col justify-center bg-gradient-to-br from-blue-50 to-indigo-50/40 border border-blue-100/80">
+                  <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">Certified Formulations</span>
+                  <h4 className="text-xl font-bold text-gray-900 mt-1">Industrial Chemical Stability</h4>
+                  <p className="text-xs text-gray-600 mt-1 max-w-md">
+                    Professional stain removal spotters, perc alternatives, and concentrated emulsifiers engineered to preserve fabric tensile strength.
+                  </p>
+                </SpotlightCard>
+              }
+              icon={<Award className="w-6 h-6" />}
+              title="Tested Over 10,000+ Wash Cycles"
+              description="Our chemicals undergo strict laboratory testing to ensure zero color bleeding and maximum soil release."
+            />
+
+            <BentoCard
+              header={
+                <div className="h-44 rounded-xl bg-gray-50 border border-gray-100 p-5 flex flex-col justify-between">
+                  <div className="flex items-center gap-2 text-green-600 text-xs font-semibold">
+                    <CheckCircle2 className="w-4 h-4" /> Ready for Dispatch
+                  </div>
+                  <div>
+                    <span className="text-2xl font-black text-gray-900">24-48h</span>
+                    <p className="text-xs text-gray-500 mt-0.5">Average dispatch turnaround</p>
+                  </div>
+                </div>
+              }
+              icon={<Truck className="w-6 h-6" />}
+              title="Pan-India Logistics Freight"
+              description="Dedicated surface and air transport partners for commercial delivery across all industrial corridors."
+            />
+
+            <BentoCard
+              header={
+                <div className="h-44 rounded-xl bg-gray-50 border border-gray-100 p-5 flex flex-col justify-between">
+                  <div className="flex items-center gap-2 text-blue-600 text-xs font-semibold">
+                    <ReceiptText className="w-4 h-4" /> ITC Eligible
+                  </div>
+                  <div>
+                    <span className="text-2xl font-black text-gray-900">100%</span>
+                    <p className="text-xs text-gray-500 mt-0.5">Input Tax Credit Invoices</p>
+                  </div>
+                </div>
+              }
+              icon={<ReceiptText className="w-6 h-6" />}
+              title="Direct GST Tax Invoicing"
+              description="Every commercial purchase includes a verified GSTIN tax invoice so your business claims full tax credits."
+            />
+
+            <BentoCard
+              className="md:col-span-2"
+              header={
+                <SpotlightCard className="h-44 flex flex-col justify-center bg-gradient-to-br from-slate-900 to-blue-950 text-white border border-slate-800">
+                  <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Heavy Equipment Freight</span>
+                  <h4 className="text-xl font-bold text-white mt-1">Full Factory OEM Warranties</h4>
+                  <p className="text-xs text-slate-300 mt-1 max-w-md">
+                    Hydro-extractors, commercial dryers, spotting tables, and steam boilers with insured door-to-door transit.
+                  </p>
+                </SpotlightCard>
+              }
+              icon={<Wrench className="w-6 h-6" />}
+              title="Dedicated Machinery Technical Support"
+              description="Access to manufacturer maintenance manuals, electrical spare parts, and layout planning assistance."
+            />
+          </BentoGrid>
         </section>
       </div>
     </div>
