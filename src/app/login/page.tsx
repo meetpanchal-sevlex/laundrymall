@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Script from "next/script";
 import { useState, useRef, useEffect, Suspense } from "react";
-import { Lock, Mail, Phone, ArrowRight, CheckCircle, ShieldCheck, Sparkles, RotateCcw, Edit2, MessageSquare } from "lucide-react";
+import { Lock, Mail, ArrowRight, CheckCircle, WashingMachine, Sparkles, Package, Tag, Shield } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { loginAction, verifyMsg91PhoneLoginAction } from "@/app/actions/auth";
@@ -41,7 +41,7 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [resendTimer, setResendTimer] = useState(15);
+  const [resendTimer, setResendTimer] = useState(45);
   const [error, setError] = useState<string | null>(null);
   const [infoMsg, setInfoMsg] = useState<string | null>(null);
 
@@ -53,7 +53,7 @@ function LoginForm() {
 
   const { login } = useAuthStore();
 
-  // Initialize MSG91 Widget in headless mode (exposeMethods: true, NO POPUP)
+  // Initialize MSG91 Widget headless
   const initMsg91Widget = () => {
     if (typeof window !== "undefined" && window.initSendOTP && !window._msg91Initialized) {
       window._msg91Initialized = true;
@@ -61,7 +61,7 @@ function LoginForm() {
         window.initSendOTP({
           widgetId: MSG91_WIDGET_ID,
           tokenAuth: MSG91_TOKEN_AUTH,
-          exposeMethods: true, // Disables MSG91 popup completely
+          exposeMethods: true,
           success: (data: any) => {
             console.log("MSG91 widget initialized headless:", data);
           },
@@ -97,7 +97,7 @@ function LoginForm() {
     return () => clearInterval(interval);
   }, [phoneStep, resendTimer]);
 
-  // Focus first OTP box on entering OTP step
+  // Auto focus first OTP input
   useEffect(() => {
     if (phoneStep === "enter_otp") {
       setTimeout(() => {
@@ -106,7 +106,6 @@ function LoginForm() {
     }
   }, [phoneStep]);
 
-  // Helper to ensure window.sendOtp is ready
   const getSendOtp = async (): Promise<typeof window.sendOtp> => {
     if (typeof window === "undefined") return undefined;
     if (window.sendOtp) return window.sendOtp;
@@ -119,7 +118,6 @@ function LoginForm() {
     return window.sendOtp;
   };
 
-  // Helper to ensure window.verifyOtp is ready
   const getVerifyOtp = async (): Promise<typeof window.verifyOtp> => {
     if (typeof window === "undefined") return undefined;
     if (window.verifyOtp) return window.verifyOtp;
@@ -131,7 +129,7 @@ function LoginForm() {
     return window.verifyOtp;
   };
 
-  // 1. Send OTP (100% on-page)
+  // 1. Send OTP
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -139,7 +137,7 @@ function LoginForm() {
 
     const cleanNumber = phone.replace(/\D/g, "");
     if (cleanNumber.length !== 10 || !/^[6-9]\d{9}$/.test(cleanNumber)) {
-      setError("Please enter a valid 10-digit Indian mobile number (starting with 6, 7, 8, or 9).");
+      setError("Please enter a valid 10-digit mobile number.");
       return;
     }
 
@@ -148,7 +146,7 @@ function LoginForm() {
     try {
       const sendOtpFn = await getSendOtp();
       if (!sendOtpFn) {
-        setError("SMS Gateway service is connecting. Please retry in a moment.");
+        setError("Connecting to SMS gateway. Please try again.");
         setIsLoading(false);
         return;
       }
@@ -158,22 +156,22 @@ function LoginForm() {
         (res: any) => {
           setIsLoading(false);
           setPhoneStep("enter_otp");
-          setResendTimer(15);
+          setResendTimer(45);
           setOtp(["", "", "", ""]);
-          setInfoMsg(`OTP sent successfully to +91 ${cleanNumber}`);
+          setInfoMsg(`OTP sent to ${cleanNumber}`);
         },
         (err: any) => {
           setIsLoading(false);
-          setError(err?.message || "Failed to send OTP. Please check your number and try again.");
+          setError(err?.message || "Failed to send OTP. Please try again.");
         }
       );
     } catch (err: any) {
       setIsLoading(false);
-      setError(err?.message || "An unexpected error occurred while sending OTP.");
+      setError(err?.message || "An error occurred while sending OTP.");
     }
   };
 
-  // 2. Verify OTP (100% on-page)
+  // 2. Verify OTP
   const handleVerifyOtp = async (otpCode?: string) => {
     setError(null);
     setInfoMsg(null);
@@ -198,7 +196,6 @@ function LoginForm() {
       verifyOtpFn(
         codeToVerify,
         async (res: any) => {
-          // Extract access token from response
           let tokenStr = "";
           if (typeof res === "string") {
             tokenStr = res;
@@ -213,12 +210,11 @@ function LoginForm() {
           }
 
           if (!tokenStr) {
-            setError("Unable to process verification token from gateway. Please retry.");
+            setError("Unable to process verification token. Please retry.");
             setIsVerifying(false);
             return;
           }
 
-          // Complete login on server with Medusa 2.0 customer linking & cart transfer
           const result = await verifyMsg91PhoneLoginAction(tokenStr, cleanNumber);
 
           if (result?.error) {
@@ -236,7 +232,7 @@ function LoginForm() {
         },
         (err: any) => {
           setIsVerifying(false);
-          setError(err?.message || "Invalid OTP entered. Please check the code and retry.");
+          setError(err?.message || "Invalid OTP entered. Please try again.");
           setOtp(["", "", "", ""]);
           otpInputRefs.current[0]?.focus();
         }
@@ -247,7 +243,7 @@ function LoginForm() {
     }
   };
 
-  // Handle OTP digit box input
+  // OTP box input navigation
   const handleOtpDigitChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, "").slice(-1);
     const newOtp = [...otp];
@@ -258,7 +254,6 @@ function LoginForm() {
       otpInputRefs.current[index + 1]?.focus();
     }
 
-    // If 4th digit entered and all 4 filled, trigger verification automatically
     if (digit && index === 3 && newOtp.every((d) => d !== "")) {
       handleVerifyOtp(newOtp.join(""));
     }
@@ -289,7 +284,7 @@ function LoginForm() {
     }
   };
 
-  // Resend OTP via SMS (11) or WhatsApp (12)
+  // Resend OTP
   const handleResendOtp = (channel: 11 | 12) => {
     setError(null);
     setInfoMsg(null);
@@ -303,7 +298,7 @@ function LoginForm() {
         channel,
         (res: any) => {
           setIsResending(false);
-          setResendTimer(15);
+          setResendTimer(45);
           setInfoMsg(channel === 12 ? "OTP resent via WhatsApp!" : "OTP resent via SMS!");
         },
         (err: any) => {
@@ -316,7 +311,7 @@ function LoginForm() {
         "91" + cleanNumber,
         (res: any) => {
           setIsResending(false);
-          setResendTimer(15);
+          setResendTimer(45);
           setInfoMsg("OTP resent successfully!");
         },
         (err: any) => {
@@ -326,11 +321,11 @@ function LoginForm() {
       );
     } else {
       setIsResending(false);
-      setError("Gateway unavailable. Please wait a moment.");
+      setError("Gateway service temporarily unavailable.");
     }
   };
 
-  // Traditional Email & Password Login
+  // Email login
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -363,298 +358,313 @@ function LoginForm() {
         onLoad={initMsg91Widget}
       />
 
-      {justRegistered && (
-        <div className="mb-6 bg-green-50 text-green-700 p-4 rounded-xl flex items-center gap-3 border border-green-200">
-          <CheckCircle className="w-5 h-5 flex-shrink-0" />
-          <p className="font-medium text-sm">Account created successfully! Please sign in.</p>
-        </div>
-      )}
+      {/* Outer Meesho Style Card */}
+      <div className="w-full max-w-[430px] bg-white rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
+        
+        {/* Meesho Top Promotional Banner */}
+        <div className="relative bg-gradient-to-r from-[#9F2089] via-[#A6228F] to-[#B82B9E] px-6 py-6 text-white overflow-hidden select-none">
+          {/* Background pattern accents */}
+          <div className="absolute -top-10 -right-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-black/10 rounded-full blur-xl pointer-events-none" />
 
-      {error && (
-        <div className="mb-6 bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-sm font-medium">
-          {error}
-        </div>
-      )}
-
-      {infoMsg && (
-        <div className="mb-6 bg-green-50 text-green-700 p-4 rounded-xl border border-green-200 text-sm font-medium flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 flex-shrink-0" />
-          {infoMsg}
-        </div>
-      )}
-
-      {authMode === "phone" ? (
-        <div>
-          {phoneStep === "enter_phone" ? (
-            <div>
-              <div className="mb-5 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5" /> Fast 10-Second Login • No Password Required
+          <div className="relative flex items-center justify-between gap-3">
+            {/* Left: 4 Floating Visual Badges */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹499</span>
+                <WashingMachine className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Washer</span>
               </div>
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹299</span>
+                <Sparkles className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Liquid</span>
+              </div>
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹149</span>
+                <Package className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Packaging</span>
+              </div>
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹99</span>
+                <Tag className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Tag Pins</span>
+              </div>
+            </div>
 
-              <form onSubmit={handleSendOtp} className="space-y-5">
+            {/* Right: Meesho Exact Tagline Typography */}
+            <div className="text-right pr-1">
+              <h2 className="text-2xl font-black tracking-tight leading-tight drop-shadow-sm">
+                Great Quality
+              </h2>
+              <p className="text-xl font-medium opacity-95 leading-tight mt-0.5">
+                Lowest prices
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Card Body */}
+        <div className="p-7 sm:p-9">
+          {justRegistered && (
+            <div className="mb-5 bg-green-50 text-green-700 p-3 rounded-lg flex items-center gap-2 border border-green-200 text-xs font-medium">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <p>Account created successfully! Please sign in.</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-5 bg-red-50 text-red-600 p-3 rounded-lg border border-red-100 text-xs font-medium">
+              {error}
+            </div>
+          )}
+
+          {infoMsg && (
+            <div className="mb-5 bg-green-50 text-green-700 p-3 rounded-lg border border-green-200 text-xs font-medium flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              {infoMsg}
+            </div>
+          )}
+
+          {authMode === "phone" ? (
+            <div>
+              {phoneStep === "enter_phone" ? (
+                /* Step 1: Sign Up / Sign In phone screen (Exact Meesho Style) */
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Mobile Number</label>
-                  <div className="flex rounded-xl border border-gray-200 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 transition-all overflow-hidden bg-white">
-                    <div className="bg-gray-50 border-r border-gray-200 px-4 py-4 flex items-center gap-2 text-sm font-bold text-gray-700 select-none">
-                      <span>🇮🇳</span>
-                      <span>+91</span>
+                  <h1 className="text-lg font-bold text-[#333333] mb-6">
+                    Sign Up to view your profile
+                  </h1>
+
+                  <form onSubmit={handleSendOtp}>
+                    <div className="flex gap-4 mb-7">
+                      {/* Country Box */}
+                      <div className="w-24">
+                        <label className="block text-[11px] text-gray-400 font-medium mb-1">
+                          Country
+                        </label>
+                        <div className="border-b border-gray-300 pb-2 text-sm font-semibold text-gray-800">
+                          IN +91
+                        </div>
+                      </div>
+
+                      {/* Phone Number Input */}
+                      <div className="flex-1">
+                        <label className="block text-[11px] font-medium text-[#9F2089] mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={10}
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          required
+                          autoFocus
+                          placeholder="9574707385"
+                          className="w-full border-b border-gray-300 focus:border-[#9F2089] focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent tracking-wide placeholder:text-gray-300 placeholder:font-normal"
+                        />
+                      </div>
                     </div>
-                    <div className="relative flex-1">
+
+                    <button
+                      type="submit"
+                      disabled={isLoading || phone.length !== 10}
+                      className="w-full bg-[#9F2089] hover:bg-[#851a73] text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+                    >
+                      {isLoading ? "Sending..." : "Continue"}
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                /* Step 2: OTP Verification screen (Exact Meesho Style) */
+                <div>
+                  <h1 className="text-lg font-bold text-[#333333] mb-1">
+                    Enter OTP sent to {phone}
+                  </h1>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPhoneStep("enter_phone");
+                      setError(null);
+                      setInfoMsg(null);
+                    }}
+                    className="text-xs font-bold text-[#9F2089] tracking-wider mb-6 hover:underline uppercase inline-block cursor-pointer"
+                  >
+                    CHANGE NUMBER
+                  </button>
+
+                  {/* Underline Dash OTP Inputs */}
+                  <div className="flex justify-center gap-3 sm:gap-4 my-7">
+                    {otp.map((digit, idx) => (
                       <input
-                        type="tel"
+                        key={idx}
+                        ref={(el) => { otpInputRefs.current[idx] = el; }}
+                        type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        maxLength={10}
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        required
-                        autoFocus
-                        placeholder="Enter 10-digit number"
-                        className="w-full px-4 py-4 text-base font-semibold tracking-wide text-gray-900 placeholder:text-gray-400 placeholder:font-normal outline-none bg-transparent"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                        onPaste={handleOtpPaste}
+                        className="w-12 sm:w-14 text-2xl font-bold text-center text-gray-900 border-b-2 border-gray-300 focus:border-[#9F2089] outline-none pb-2 bg-transparent transition-colors"
                       />
-                      <Phone className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                    </div>
+                    ))}
                   </div>
-                  <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                    <ShieldCheck className="w-4 h-4 text-green-600 inline" />
-                    We&apos;ll send an OTP via SMS / WhatsApp for instant verification.
-                  </p>
+
+                  {/* Resend OTP Timer */}
+                  <div className="mb-7 text-left">
+                    {resendTimer > 0 ? (
+                      <p className="text-xs text-gray-400 font-medium">
+                        Resend OTP in {resendTimer} s
+                      </p>
+                    ) : (
+                      <div className="flex items-center gap-3 text-xs font-bold">
+                        <button
+                          type="button"
+                          disabled={isResending}
+                          onClick={() => handleResendOtp(11)}
+                          className="text-[#9F2089] hover:underline cursor-pointer disabled:opacity-50"
+                        >
+                          Resend via SMS
+                        </button>
+                        <span className="text-gray-300">•</span>
+                        <button
+                          type="button"
+                          disabled={isResending}
+                          onClick={() => handleResendOtp(12)}
+                          className="text-green-600 hover:underline cursor-pointer disabled:opacity-50"
+                        >
+                          Resend via WhatsApp
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Verify Action Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyOtp()}
+                    disabled={isVerifying || otp.some((d) => !d)}
+                    className="w-full bg-[#9F2089] hover:bg-[#851a73] text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+                  >
+                    {isVerifying ? "Verifying..." : "Verify"}
+                  </button>
+                </div>
+              )}
+
+              {/* Terms and Privacy Policy (Exact Meesho Footer) */}
+              <div className="mt-9 text-center text-[11px] text-gray-500 leading-relaxed">
+                By continuing, you agree to LaundryMall&apos;s{" "}
+                <br />
+                <Link href="/terms" className="font-bold text-[#9F2089] hover:underline">
+                  Terms &amp; Conditions
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="font-bold text-[#9F2089] hover:underline">
+                  Privacy Policy
+                </Link>
+              </div>
+
+              {/* Corporate Fallback Toggle */}
+              <div className="mt-5 pt-4 border-t border-gray-100 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null);
+                    setInfoMsg(null);
+                    setAuthMode("email");
+                  }}
+                  className="text-xs font-medium text-gray-500 hover:text-[#9F2089] transition-colors inline-flex items-center gap-1 cursor-pointer"
+                >
+                  <Mail className="w-3 h-3" />
+                  Sign in with Corporate Email &amp; Password
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Corporate Email & Password Form */
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Corporate Login</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError(null);
+                    setInfoMsg(null);
+                    setAuthMode("phone");
+                  }}
+                  className="text-xs font-bold text-[#9F2089] hover:underline transition-colors cursor-pointer"
+                >
+                  ← Back to Mobile OTP
+                </button>
+              </div>
+
+              <form onSubmit={handleEmailLogin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    className="w-full border-b border-gray-300 focus:border-[#9F2089] focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent"
+                    placeholder="procurement@hotel.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Password</label>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    className="w-full border-b border-gray-300 focus:border-[#9F2089] focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-gray-500">
+                    <input type="checkbox" className="rounded text-[#9F2089] focus:ring-[#9F2089]" />
+                    <span>Remember me</span>
+                  </label>
+                  <Link href="#" className="font-semibold text-[#9F2089] hover:underline">
+                    Forgot password?
+                  </Link>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isLoading || phone.length !== 10}
-                  className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-[0_8px_30px_rgb(59,130,246,0.3)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group disabled:opacity-60 disabled:hover:translate-y-0 disabled:shadow-none cursor-pointer disabled:cursor-not-allowed"
+                  disabled={isLoading}
+                  className="w-full mt-4 bg-[#9F2089] hover:bg-[#851a73] text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 cursor-pointer shadow-sm"
                 >
-                  {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      Send OTP
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  )}
+                  {isLoading ? "Signing In..." : "Sign In"}
                 </button>
               </form>
             </div>
-          ) : (
-            <div>
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Verification Code</span>
-                  <p className="text-sm font-semibold text-gray-800 mt-0.5">
-                    Sent to +91 {phone.slice(0, 5)} {phone.slice(5)}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPhoneStep("enter_phone");
-                    setError(null);
-                    setInfoMsg(null);
-                  }}
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-                >
-                  <Edit2 className="w-3 h-3" /> Edit
-                </button>
-              </div>
-
-              {/* 4-Digit Native OTP Input Boxes */}
-              <div className="my-6">
-                <div className="flex justify-between gap-3 max-w-[280px] mx-auto">
-                  {otp.map((digit, idx) => (
-                    <input
-                      key={idx}
-                      ref={(el) => { otpInputRefs.current[idx] = el; }}
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                      onPaste={handleOtpPaste}
-                      className="w-14 h-16 text-2xl font-black text-center text-gray-900 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Verify Button */}
-              <button
-                type="button"
-                onClick={() => handleVerifyOtp()}
-                disabled={isVerifying || otp.some((d) => !d)}
-                className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-[0_8px_30px_rgb(59,130,246,0.3)] hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-60 disabled:hover:translate-y-0 disabled:shadow-none cursor-pointer disabled:cursor-not-allowed"
-              >
-                {isVerifying ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Verifying OTP...
-                  </>
-                ) : (
-                  <>
-                    Verify &amp; Sign In
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                )}
-              </button>
-
-              {/* Resend Actions */}
-              <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-                {resendTimer > 0 ? (
-                  <p className="text-xs text-gray-500 font-medium">
-                    Resend OTP in <span className="font-bold text-gray-800">{resendTimer}s</span>
-                  </p>
-                ) : (
-                  <div className="flex items-center justify-center gap-4 text-xs font-semibold">
-                    <button
-                      type="button"
-                      disabled={isResending}
-                      onClick={() => handleResendOtp(11)}
-                      className="text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      Resend via SMS
-                    </button>
-                    <span className="text-gray-300">•</span>
-                    <button
-                      type="button"
-                      disabled={isResending}
-                      onClick={() => handleResendOtp(12)}
-                      className="text-green-600 hover:text-green-700 inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      Resend via WhatsApp
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
           )}
-
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setError(null);
-                setInfoMsg(null);
-                setAuthMode("email");
-              }}
-              className="text-xs font-semibold text-gray-600 hover:text-blue-600 transition-colors inline-flex items-center gap-1 cursor-pointer"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              Corporate or Hotel Account? Sign in with Email &amp; Password
-            </button>
-          </div>
         </div>
-      ) : (
-        <div>
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Email Login</span>
-            <button
-              type="button"
-              onClick={() => {
-                setError(null);
-                setInfoMsg(null);
-                setAuthMode("phone");
-              }}
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors inline-flex items-center gap-1 cursor-pointer"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              ← Use Mobile OTP instead
-            </button>
-          </div>
-
-          <form onSubmit={handleEmailLogin} className="space-y-5">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
-                  placeholder="procurement@hotel.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <span className="text-gray-600 font-medium group-hover:text-gray-900 transition-colors">Remember me</span>
-              </label>
-              <Link href="#" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">
-                Forgot password?
-              </Link>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl hover:bg-blue-700 transition-all shadow-[0_8px_30px_rgb(59,130,246,0.3)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:hover:translate-y-0 cursor-pointer"
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  Sign In with Password
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-      )}
+      </div>
     </>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[80vh] flex items-center justify-center p-4 bg-gray-50">
-      <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Welcome to LaundryMall</h1>
-          <p className="text-gray-500 font-medium">India&apos;s B2B Commercial Laundry Marketplace</p>
-        </div>
-
-        <Suspense
-          fallback={
-            <div className="h-40 flex justify-center items-center">
-              <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
-            </div>
-          }
-        >
-          <LoginForm />
-        </Suspense>
-
-        <div className="mt-8 pt-8 border-t border-gray-100 text-center">
-          <p className="text-gray-500 font-medium text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="font-bold text-blue-600 hover:text-blue-700 transition-colors">
-              Sign up
-            </Link>
-          </p>
-        </div>
-      </div>
+    <div className="min-h-[85vh] flex items-center justify-center p-4 bg-[#FAF4F6]">
+      <Suspense
+        fallback={
+          <div className="h-60 flex justify-center items-center">
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-[#9F2089] rounded-full animate-spin" />
+          </div>
+        }
+      >
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }
+
 
