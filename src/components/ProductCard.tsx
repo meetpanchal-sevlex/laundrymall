@@ -16,10 +16,10 @@ export default function ProductCard({ product, compact }: { product: Product; co
 
   if (compact) {
     return (
-      <Link href={`/products/${product.id}`} className="group bg-white border-b border-r border-gray-100 flex flex-col hover:bg-blue-50/20 transition-all duration-200 relative">
+      <Link href={`/products/${product.id}`} className="group bg-white border-b border-r border-gray-100 flex flex-col hover:bg-gray-50 transition-colors relative">
         <div className="relative aspect-square bg-gray-50 overflow-hidden flex items-center justify-center">
           {product.originalPrice && (
-            <div className="absolute top-2 left-2 bg-rose-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full z-10 shadow-xs">
+            <div className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full z-10">
               SALE
             </div>
           )}
@@ -27,7 +27,7 @@ export default function ProductCard({ product, compact }: { product: Product; co
             src={product.image}
             alt={product.name}
             fill
-            className="object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+            className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 50vw, 25vw"
           />
           <button
@@ -38,10 +38,10 @@ export default function ProductCard({ product, compact }: { product: Product; co
             <ShoppingCart className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="px-3 pb-3 pt-2">
-          <p className="text-[11px] font-medium text-gray-500 mb-0.5">{product.category}</p>
-          <h3 className="text-xs sm:text-sm font-semibold text-gray-900 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">{product.name}</h3>
-          <div className="mt-2 flex items-baseline gap-1.5">
+        <div className="px-2.5 pb-3 pt-2">
+          <p className="text-xs text-gray-500 mb-0.5">{product.category}</p>
+          <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-snug">{product.name}</h3>
+          <div className="mt-1.5 flex items-baseline gap-1.5">
             <span className="text-sm font-black text-gray-900">₹{product.price.toFixed(0)}</span>
             {product.originalPrice && (
               <span className="text-xs text-gray-400 line-through">₹{product.originalPrice.toFixed(0)}</span>
@@ -53,7 +53,7 @@ export default function ProductCard({ product, compact }: { product: Product; co
   }
 
   return (
-    <Link href={`/products/${product.id}`} className="group bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col h-full border border-gray-200/80 hover:border-blue-400/80 hover:-translate-y-1 relative">
+    <Link href={`/products/${product.id}`} className="group bg-white rounded-2xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex flex-col h-full border border-gray-100 hover:border-blue-100 relative">
       <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden p-4 flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
         {product.originalPrice && (
