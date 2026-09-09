@@ -4,9 +4,11 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { medusaClient } from "@/lib/medusa";
+import crypto from "crypto";
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://backend-production-3a66.up.railway.app";
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+const MSG91_AUTH_KEY = process.env.MSG91_AUTH_KEY || "566554AFhqTDveEa6aa123eaP1";
 
 // Phase 0: Enterprise Hardening - Zod Schemas
 const LoginSchema = z.object({
@@ -231,3 +233,148 @@ export async function getGoogleAuthUrl() {
     return { error: "Network error" };
   }
 }
+
+export async function verifyMsg91PhoneLoginAction(accessToken: string, clientPhone?: string) {
+  if (!accessToken) {
+    return { error: "Verification token is required." };
+  }
+
+  try {
+    // 1. Dual-Verification against MSG91 Gateway
+    const msg91Res = await fetch("https://control.msg91.com/api/v5/widget/verifyAccessToken", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "authkey": MSG91_AUTH_KEY,
+      },
+      body: JSON.stringify({
+        "authkey": MSG91_AUTH_KEY,
+        "access-token": accessToken,
+      }),
+    });
+
+    const msg91Data = await msg91Res.json();
+    if (!msg91Res.ok || msg91Data.type === "error") {
+      console.error("MSG91 token verification rejected:", msg91Data);
+      return { error: msg91Data.message || "Invalid or expired OTP token. Please try again." };
+    }
+
+    // 2. Extract verified identifier
+    const verifiedIdentifier =
+      msg91Data?.data?.mobile ||
+      msg91Data?.mobile ||
+      msg91Data?.identifier ||
+      clientPhone ||
+      "";
+
+    let cleanPhone = String(verifiedIdentifier).replace(/\D/g, "");
+    if (cleanPhone.length === 12 && cleanPhone.startsWith("91")) {
+      cleanPhone = cleanPhone.slice(2);
+    }
+
+    if (!cleanPhone || cleanPhone.length < 10) {
+      return { error: "Could not retrieve verified phone number from authentication service." };
+    }
+
+    // 3. Deterministic Medusa 2.0 Identity Mapping
+    const syntheticEmail = `${cleanPhone}@phone.laundrymall.in`;
+    const secretSalt = process.env.MEDUSA_ADMIN_API_KEY || MSG91_AUTH_KEY || "laundrymall-secret-2026";
+    const deterministicPassword =
+      crypto.createHmac("sha256", secretSalt).update(cleanPhone).digest("hex").slice(0, 24) + "Aa1!";
+
+    let token: string | null = null;
+    let isNewCustomer = false;
+
+    // 4. Attempt login with phone credentials
+    const loginRes = await fetch(MEDUSA_URL + "/auth/customer/emailpass", {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ email: syntheticEmail, password: deterministicPassword }),
+    });
+
+    if (loginRes.ok) {
+      const loginData = await loginRes.json();
+      token = loginData.token;
+    } else {
+      // If customer doesn't exist yet, register new auth identity
+      const registerRes = await fetch(MEDUSA_URL + "/auth/customer/emailpass/register", {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ email: syntheticEmail, password: deterministicPassword }),
+      });
+
+      if (!registerRes.ok) {
+        const regErr = await registerRes.json().catch(() => ({}));
+        return { error: regErr.message || "Failed to create account for this phone number." };
+      }
+
+      const registerData = await registerRes.json();
+      token = registerData.token;
+      isNewCustomer = true;
+
+      // Create store customer profile
+      if (token) {
+        try {
+          await fetch(MEDUSA_URL + "/store/customers", {
+            method: "POST",
+            headers: getHeaders(token),
+            body: JSON.stringify({
+              email: syntheticEmail,
+              phone: cleanPhone,
+              first_name: "Customer",
+              last_name: cleanPhone.slice(-4),
+            }),
+          });
+        } catch (profileError) {
+          console.error("Non-fatal: failed to set customer profile details:", profileError);
+        }
+      }
+    }
+
+    if (!token) {
+      return { error: "Authentication failed. No session token generated." };
+    }
+
+    // 5. Establish session cookie
+    const cookieStore = await cookies();
+    cookieStore.set("_medusa_jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+    });
+
+    // 6. Magic Link: Attach existing guest cart to authenticated user
+    try {
+      const cartId = cookieStore.get("_medusa_cart_id")?.value;
+      if (cartId) {
+        const headers = getHeaders(token);
+        const custRes = await fetch(MEDUSA_URL + "/store/customers/me", {
+          method: "GET",
+          headers,
+        });
+        if (custRes.ok) {
+          const custData = await custRes.json();
+          const customer = custData.customer;
+          if (customer && customer.id) {
+            await medusaClient.store.cart.update(cartId, { customer_id: customer.id }, headers);
+          }
+        }
+      }
+    } catch (linkError) {
+      console.error("Non-fatal: failed to link cart to customer during phone login:", linkError);
+    }
+
+    return {
+      success: true,
+      phone: cleanPhone,
+      email: syntheticEmail,
+      isNewCustomer,
+    };
+  } catch (error) {
+    console.error("verifyMsg91PhoneLoginAction error:", error);
+    return { error: "An unexpected error occurred during phone OTP verification." };
+  }
+}
+
