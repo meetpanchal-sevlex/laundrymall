@@ -361,8 +361,8 @@ function LoginForm() {
       {/* Outer Meesho Style Card */}
       <div className="w-full max-w-[430px] bg-white rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden">
         
-        {/* Meesho Top Promotional Banner */}
-        <div className="relative bg-gradient-to-r from-[#9F2089] via-[#A6228F] to-[#B82B9E] px-6 py-6 text-white overflow-hidden select-none">
+        {/* LaundryMall Top Promotional Banner */}
+        <div className="relative bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600 px-6 py-6 text-white overflow-hidden select-none">
           {/* Background pattern accents */}
           <div className="absolute -top-10 -right-10 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none" />
           <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-black/10 rounded-full blur-xl pointer-events-none" />
@@ -371,28 +371,28 @@ function LoginForm() {
             {/* Left: 4 Floating Visual Badges */}
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹499</span>
-                <WashingMachine className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-black text-white bg-blue-600 px-1 py-0.2 rounded-full mb-0.5">₹499</span>
+                <WashingMachine className="w-5 h-5 text-blue-600" />
                 <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Washer</span>
               </div>
               <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹299</span>
-                <Sparkles className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-black text-white bg-blue-600 px-1 py-0.2 rounded-full mb-0.5">₹299</span>
+                <Sparkles className="w-5 h-5 text-blue-600" />
                 <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Liquid</span>
               </div>
               <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹149</span>
-                <Package className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-black text-white bg-blue-600 px-1 py-0.2 rounded-full mb-0.5">₹149</span>
+                <Package className="w-5 h-5 text-blue-600" />
                 <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Packaging</span>
               </div>
               <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <span className="text-[9px] font-black text-white bg-[#9F2089] px-1 py-0.2 rounded-full mb-0.5">₹99</span>
-                <Tag className="w-5 h-5 text-[#9F2089]" />
+                <span className="text-[9px] font-black text-white bg-blue-600 px-1 py-0.2 rounded-full mb-0.5">₹99</span>
+                <Tag className="w-5 h-5 text-blue-600" />
                 <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Tag Pins</span>
               </div>
             </div>
 
-            {/* Right: Meesho Exact Tagline Typography */}
+            {/* Right: Clean Tagline Typography */}
             <div className="text-right pr-1">
               <h2 className="text-2xl font-black tracking-tight leading-tight drop-shadow-sm">
                 Great Quality
@@ -429,7 +429,7 @@ function LoginForm() {
           {authMode === "phone" ? (
             <div>
               {phoneStep === "enter_phone" ? (
-                /* Step 1: Sign Up / Sign In phone screen (Exact Meesho Style) */
+                /* Step 1: Sign Up / Sign In phone screen (Clean Minimalist Layout) */
                 <div>
                   <h1 className="text-lg font-bold text-[#333333] mb-6">
                     Sign Up to view your profile
@@ -449,7 +449,7 @@ function LoginForm() {
 
                       {/* Phone Number Input */}
                       <div className="flex-1">
-                        <label className="block text-[11px] font-medium text-[#9F2089] mb-1">
+                        <label className="block text-[11px] font-medium text-blue-600 mb-1">
                           Phone Number
                         </label>
                         <input
@@ -462,7 +462,7 @@ function LoginForm() {
                           required
                           autoFocus
                           placeholder="9574707385"
-                          className="w-full border-b border-gray-300 focus:border-[#9F2089] focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent tracking-wide placeholder:text-gray-300 placeholder:font-normal"
+                          className="w-full border-b border-gray-300 focus:border-blue-600 focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent tracking-wide placeholder:text-gray-300 placeholder:font-normal"
                         />
                       </div>
                     </div>
@@ -470,14 +470,14 @@ function LoginForm() {
                     <button
                       type="submit"
                       disabled={isLoading || phone.length !== 10}
-                      className="w-full bg-[#9F2089] hover:bg-[#851a73] text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
                     >
                       {isLoading ? "Sending..." : "Continue"}
                     </button>
                   </form>
                 </div>
               ) : (
-                /* Step 2: OTP Verification screen (Exact Meesho Style) */
+                /* Step 2: OTP Verification screen (Clean Minimalist Layout) */
                 <div>
                   <h1 className="text-lg font-bold text-[#333333] mb-1">
                     Enter OTP sent to {phone}
@@ -490,7 +490,7 @@ function LoginForm() {
                       setError(null);
                       setInfoMsg(null);
                     }}
-                    className="text-xs font-bold text-[#9F2089] tracking-wider mb-6 hover:underline uppercase inline-block cursor-pointer"
+                    className="text-xs font-bold text-blue-600 tracking-wider mb-6 hover:underline uppercase inline-block cursor-pointer"
                   >
                     CHANGE NUMBER
                   </button>
@@ -509,7 +509,7 @@ function LoginForm() {
                         onChange={(e) => handleOtpDigitChange(idx, e.target.value)}
                         onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                         onPaste={handleOtpPaste}
-                        className="w-12 sm:w-14 text-2xl font-bold text-center text-gray-900 border-b-2 border-gray-300 focus:border-[#9F2089] outline-none pb-2 bg-transparent transition-colors"
+                        className="w-12 sm:w-14 text-2xl font-bold text-center text-gray-900 border-b-2 border-gray-300 focus:border-blue-600 outline-none pb-2 bg-transparent transition-colors"
                       />
                     ))}
                   </div>
@@ -526,7 +526,7 @@ function LoginForm() {
                           type="button"
                           disabled={isResending}
                           onClick={() => handleResendOtp(11)}
-                          className="text-[#9F2089] hover:underline cursor-pointer disabled:opacity-50"
+                          className="text-blue-600 hover:underline cursor-pointer disabled:opacity-50"
                         >
                           Resend via SMS
                         </button>
@@ -548,22 +548,22 @@ function LoginForm() {
                     type="button"
                     onClick={() => handleVerifyOtp()}
                     disabled={isVerifying || otp.some((d) => !d)}
-                    className="w-full bg-[#9F2089] hover:bg-[#851a73] text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
                   >
                     {isVerifying ? "Verifying..." : "Verify"}
                   </button>
                 </div>
               )}
 
-              {/* Terms and Privacy Policy (Exact Meesho Footer) */}
+              {/* Terms and Privacy Policy */}
               <div className="mt-9 text-center text-[11px] text-gray-500 leading-relaxed">
                 By continuing, you agree to LaundryMall&apos;s{" "}
                 <br />
-                <Link href="/terms" className="font-bold text-[#9F2089] hover:underline">
+                <Link href="/terms" className="font-bold text-blue-600 hover:underline">
                   Terms &amp; Conditions
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy" className="font-bold text-[#9F2089] hover:underline">
+                <Link href="/privacy" className="font-bold text-blue-600 hover:underline">
                   Privacy Policy
                 </Link>
               </div>
@@ -577,7 +577,7 @@ function LoginForm() {
                     setInfoMsg(null);
                     setAuthMode("email");
                   }}
-                  className="text-xs font-medium text-gray-500 hover:text-[#9F2089] transition-colors inline-flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-medium text-gray-500 hover:text-blue-600 transition-colors inline-flex items-center gap-1 cursor-pointer"
                 >
                   <Mail className="w-3 h-3" />
                   Sign in with Corporate Email &amp; Password
@@ -596,7 +596,7 @@ function LoginForm() {
                     setInfoMsg(null);
                     setAuthMode("phone");
                   }}
-                  className="text-xs font-bold text-[#9F2089] hover:underline transition-colors cursor-pointer"
+                  className="text-xs font-bold text-blue-600 hover:underline transition-colors cursor-pointer"
                 >
                   ← Back to Mobile OTP
                 </button>
@@ -609,7 +609,7 @@ function LoginForm() {
                     type="email"
                     name="email"
                     required
-                    className="w-full border-b border-gray-300 focus:border-[#9F2089] focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent"
+                    className="w-full border-b border-gray-300 focus:border-blue-600 focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent"
                     placeholder="procurement@hotel.com"
                   />
                 </div>
@@ -620,17 +620,17 @@ function LoginForm() {
                     type="password"
                     name="password"
                     required
-                    className="w-full border-b border-gray-300 focus:border-[#9F2089] focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent"
+                    className="w-full border-b border-gray-300 focus:border-blue-600 focus:border-b-2 pb-2 text-sm font-semibold text-gray-900 outline-none transition-colors bg-transparent"
                     placeholder="••••••••"
                   />
                 </div>
 
                 <div className="flex items-center justify-between text-xs pt-1">
                   <label className="flex items-center gap-1.5 cursor-pointer text-gray-500">
-                    <input type="checkbox" className="rounded text-[#9F2089] focus:ring-[#9F2089]" />
+                    <input type="checkbox" className="rounded text-blue-600 focus:ring-blue-600" />
                     <span>Remember me</span>
                   </label>
-                  <Link href="#" className="font-semibold text-[#9F2089] hover:underline">
+                  <Link href="#" className="font-semibold text-blue-600 hover:underline">
                     Forgot password?
                   </Link>
                 </div>
@@ -638,7 +638,7 @@ function LoginForm() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full mt-4 bg-[#9F2089] hover:bg-[#851a73] text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 cursor-pointer shadow-sm"
+                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 cursor-pointer shadow-sm"
                 >
                   {isLoading ? "Signing In..." : "Sign In"}
                 </button>
@@ -653,11 +653,11 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[85vh] flex items-center justify-center p-4 bg-[#FAF4F6]">
+    <div className="min-h-[85vh] flex items-center justify-center p-4 bg-gray-50">
       <Suspense
         fallback={
           <div className="h-60 flex justify-center items-center">
-            <div className="w-8 h-8 border-4 border-gray-200 border-t-[#9F2089] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
           </div>
         }
       >
