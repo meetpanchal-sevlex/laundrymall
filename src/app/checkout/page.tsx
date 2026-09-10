@@ -180,7 +180,7 @@ export default function CheckoutPage() {
       }
       
       const razorpayOrderId = checkoutResult.razorpayOrderId;
-      const matchingKeyId = checkoutResult.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_TUR2Fq27NAhvyo";
+      const matchingKeyId = checkoutResult.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_TaIQ1k97sERx3v";
 
       // 2. Open Razorpay using Medusa's official Order ID and amount.
       // IMPORTANT: We use the amount from the Medusa payment collection (the source of truth),
