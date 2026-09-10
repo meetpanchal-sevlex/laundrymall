@@ -216,45 +216,10 @@ export default function CheckoutPage() {
         prefill: {
           name: address.name,
           contact: address.phone,
-          email: email,
-          method: paymentMethod === "upi" ? "upi" : paymentMethod === "card" ? "card" : undefined,
+          email: email
         },
         theme: {
           color: "#2563eb",
-        },
-        config: {
-          display: {
-            blocks: {
-              upi: {
-                name: "Pay using UPI (Google Pay, PhonePe, Paytm, BHIM)",
-                instruments: [
-                  {
-                    method: "upi",
-                  },
-                ],
-              },
-              other: {
-                name: "Cards & Netbanking",
-                instruments: [
-                  {
-                    method: "card",
-                  },
-                  {
-                    method: "netbanking",
-                  },
-                  {
-                    method: "wallet",
-                  },
-                ],
-              },
-            },
-            sequence: paymentMethod === "upi"
-              ? ["block.upi", "block.other"]
-              : ["block.other", "block.upi"],
-            preferences: {
-              show_default_blocks: true,
-            },
-          },
         },
       };
 
