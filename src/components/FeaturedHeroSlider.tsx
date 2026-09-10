@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
 import TurnkeyQuoteModal from "@/components/TurnkeyQuoteModal";
@@ -67,6 +67,8 @@ export const DEFAULT_HERO_BANNERS: HeroBanner[] = [
   },
 ];
 
+const AUTO_PLAY_INTERVAL = 3800; // ms between auto-advances
+
 export default function FeaturedHeroSlider({
   banners = DEFAULT_HERO_BANNERS,
 }: {
@@ -74,79 +76,82 @@ export default function FeaturedHeroSlider({
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Mouse Dragging State (Senior Engineer Touch + Mouse Physics)
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartX, setDragStartX] = useState(0);
-  const [dragStartScroll, setDragStartScroll] = useState(0);
-  const [hasMoved, setHasMoved] = useState(false);
-
-  const updateScrollState = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    
-    // Calculate active slide based on scroll offset
-    const cardWidth = clientWidth * 0.85; // approximate width of card + gap
-    const index = Math.round(scrollLeft / (cardWidth > 0 ? cardWidth : 320));
-    setActiveIndex(Math.min(Math.max(0, index), banners.length - 1));
-
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
-
-  useEffect(() => {
+  // Scroll to a specific slide by index
+  const scrollToSlide = useCallback((idx: number) => {
     const el = scrollRef.current;
     if (!el) return;
-    el.addEventListener("scroll", updateScrollState, { passive: true });
-    updateScrollState();
-    return () => el.removeEventListener("scroll", updateScrollState);
-  }, [banners.length]);
-
-  const scrollToSlide = (idx: number) => {
-    if (!scrollRef.current) return;
-    const cards = scrollRef.current.children;
+    const cards = el.children;
     if (cards[idx]) {
       (cards[idx] as HTMLElement).scrollIntoView({
         behavior: "smooth",
         block: "nearest",
-        inline: "center",
+        inline: "start",
       });
     }
+  }, []);
+
+  // Track active slide from scroll position
+  const updateActiveIndex = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, clientWidth } = el;
+    const idx = Math.round(scrollLeft / clientWidth);
+    setActiveIndex(Math.min(Math.max(0, idx), banners.length - 1));
+  }, [banners.length]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateActiveIndex, { passive: true });
+    return () => el.removeEventListener("scroll", updateActiveIndex);
+  }, [updateActiveIndex]);
+
+  // Auto-play: advance slide every interval unless paused or user interacting
+  const startAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    autoPlayRef.current = setInterval(() => {
+      if (!isPaused) {
+        setActiveIndex((prev) => {
+          const next = prev >= banners.length - 1 ? 0 : prev + 1;
+          scrollToSlide(next);
+          return next;
+        });
+      }
+    }, AUTO_PLAY_INTERVAL);
+  }, [isPaused, banners.length, scrollToSlide]);
+
+  useEffect(() => {
+    startAutoPlay();
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [startAutoPlay]);
+
+  // Pause auto-play on hover or touch
+  const handlePause = () => {
+    setIsPaused(true);
+    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+  };
+
+  // Resume auto-play when interaction ends
+  const handleResume = () => {
+    setIsPaused(false);
   };
 
   const scrollPrev = () => {
-    scrollToSlide(Math.max(0, activeIndex - 1));
+    const prev = activeIndex <= 0 ? banners.length - 1 : activeIndex - 1;
+    setActiveIndex(prev);
+    scrollToSlide(prev);
   };
 
   const scrollNext = () => {
-    scrollToSlide(Math.min(banners.length - 1, activeIndex + 1));
-  };
-
-  // Mouse Drag Handlers
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    setHasMoved(false);
-    setDragStartX(e.pageX - scrollRef.current.offsetLeft);
-    setDragStartScroll(scrollRef.current.scrollLeft);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - dragStartX) * 1.5;
-    if (Math.abs(walk) > 6) {
-      setHasMoved(true);
-    }
-    scrollRef.current.scrollLeft = dragStartScroll - walk;
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
+    const next = activeIndex >= banners.length - 1 ? 0 : activeIndex + 1;
+    setActiveIndex(next);
+    scrollToSlide(next);
   };
 
   return (
@@ -157,35 +162,33 @@ export default function FeaturedHeroSlider({
         defaultPackage="Turnkey Commercial Plant Setup"
       />
 
-      <section className="relative pt-3 md:pt-6 pb-2 group">
-        {/* Scrollable Container with Native Touch Snap & Desktop Mouse Dragging */}
+      <section
+        className="relative pt-3 md:pt-6 pb-2"
+        onMouseEnter={handlePause}
+        onMouseLeave={handleResume}
+        onTouchStart={handlePause}
+        onTouchEnd={handleResume}
+      >
+        {/* Scrollable slide container - full card width, no peeking on desktop */}
         <div
           ref={scrollRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          className={`flex gap-3 sm:gap-4 px-4 overflow-x-auto scroll-smooth hide-scrollbar select-none ${
-            isDragging ? "cursor-grabbing snap-none" : "cursor-grab snap-x snap-mandatory"
-          }`}
+          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar select-none px-4 gap-3 sm:gap-4"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           {banners.map((b, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-[84vw] sm:w-[380px] md:w-[410px] snap-center rounded-2xl bg-gradient-to-r text-white p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 relative overflow-hidden group/card"
-              style={{
-                backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))`,
-              }}
+              className="flex-shrink-0 w-[84vw] sm:w-[380px] md:w-[460px] snap-start rounded-2xl text-white p-5 sm:p-6 flex items-center justify-between shadow-md relative overflow-hidden"
             >
-              {/* Background decorative blur circles */}
-              <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
-              <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-black/10 rounded-full blur-xl pointer-events-none" />
+              {/* Gradient background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${b.color}`} />
 
-              <div className={`absolute inset-0 bg-gradient-to-r ${b.color} -z-10`} />
+              {/* Decorative circles */}
+              <div className="absolute -top-10 -right-10 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-black/10 rounded-full blur-xl pointer-events-none" />
 
-              <div className="relative z-10 pr-2">
-                <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mb-2">
+              <div className="relative z-10 pr-2 flex-1">
+                <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full mb-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                   <p className="text-[10px] font-bold text-white uppercase tracking-wider">
                     {b.tag}
@@ -198,12 +201,9 @@ export default function FeaturedHeroSlider({
                   {b.subtitle}
                 </p>
 
-                <div className="mt-4 flex items-center gap-2">
+                <div className="mt-4 flex items-center gap-2 flex-wrap">
                   <Link
                     href={b.href}
-                    onClick={(e) => {
-                      if (hasMoved) e.preventDefault();
-                    }}
                     className="bg-white text-gray-900 text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm transition-transform hover:scale-105 active:scale-95"
                   >
                     Explore <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
@@ -212,11 +212,8 @@ export default function FeaturedHeroSlider({
                   {b.isQuoteModal && (
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!hasMoved) setIsQuoteOpen(true);
-                      }}
-                      className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1 border border-white/40 transition cursor-pointer"
+                      onClick={() => setIsQuoteOpen(true)}
+                      className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1 border border-white/40 transition cursor-pointer"
                     >
                       <MessageCircle className="w-3.5 h-3.5" /> Quote
                     </button>
@@ -224,43 +221,45 @@ export default function FeaturedHeroSlider({
                 </div>
               </div>
 
-              <span className="text-5xl sm:text-6xl drop-shadow-md select-none transform transition-transform group-hover/card:scale-110 ml-2 flex-shrink-0">
+              <span className="text-5xl sm:text-6xl drop-shadow-md select-none ml-2 flex-shrink-0">
                 {b.emoji}
               </span>
             </div>
           ))}
         </div>
 
-        {/* Desktop Chevron Navigation Buttons */}
-        {canScrollLeft && (
-          <button
-            type="button"
-            onClick={scrollPrev}
-            aria-label="Previous Slide"
-            className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        )}
+        {/* Left Chevron */}
+        <button
+          type="button"
+          onClick={scrollPrev}
+          aria-label="Previous Slide"
+          className="hidden md:flex absolute left-2 top-1/2 -translate-y-5 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-        {canScrollRight && (
-          <button
-            type="button"
-            onClick={scrollNext}
-            aria-label="Next Slide"
-            className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        )}
+        {/* Right Chevron */}
+        <button
+          type="button"
+          onClick={scrollNext}
+          aria-label="Next Slide"
+          className="hidden md:flex absolute right-2 top-1/2 -translate-y-5 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
 
-        {/* Touch & Click Indicator Dots */}
+        {/* Pagination Dots — hover/touch on these pauses the slider */}
         <div className="flex justify-center items-center gap-1.5 mt-3">
           {banners.map((_, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => scrollToSlide(idx)}
+              onClick={() => {
+                setActiveIndex(idx);
+                scrollToSlide(idx);
+              }}
+              onMouseEnter={handlePause}
+              onMouseLeave={handleResume}
               aria-label={`Go to slide ${idx + 1}`}
               className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                 activeIndex === idx
