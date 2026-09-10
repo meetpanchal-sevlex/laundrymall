@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -8,10 +8,19 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import QueryProvider from "@/providers/QueryProvider";
+import SmoothScrollProvider from "@/providers/SmoothScrollProvider";
 
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geist",
+  display: "swap",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta",
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -41,17 +50,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen flex flex-col bg-gray-50 text-gray-900 font-sans">
-        <QueryProvider>
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-          <CartDrawer />
-          <MobileBottomNav />
-          <Analytics />
-          <SpeedInsights />
-        </QueryProvider>
+    <html lang="en" className={`${geist.variable} ${plusJakarta.variable}`}>
+      <body className="min-h-screen flex flex-col bg-[#FAFAFA] text-gray-900 font-sans antialiased selection:bg-blue-500 selection:text-white">
+        <SmoothScrollProvider>
+          <QueryProvider>
+            <Navbar />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+            <CartDrawer />
+            <MobileBottomNav />
+            <Analytics />
+            <SpeedInsights />
+          </QueryProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );
