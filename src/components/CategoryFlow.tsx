@@ -87,8 +87,27 @@ export default function CategoryFlow() {
   const [dragStartScroll, setDragStartScroll] = useState(0);
   const [hasMoved, setHasMoved] = useState(false);
 
-  // Gentle Slow Auto-Scroll Engine
+  // Detect whether categories actually overflow the container width.
+  // Only show duplicates when overflow is real — otherwise duplicates are visible on wide screens.
+  const [hasOverflow, setHasOverflow] = useState(false);
+
   useEffect(() => {
+    const checkOverflow = () => {
+      const el = scrollRef.current;
+      if (!el) return;
+      // scrollWidth > clientWidth means list is longer than the container
+      setHasOverflow(el.scrollWidth > el.clientWidth + 8);
+    };
+    checkOverflow();
+    // Re-check on resize (e.g., rotating device or resizing browser window)
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, []);
+
+
+  useEffect(() => {
+    // Only animate when the list overflows the container (mobile/narrow screens)
+    if (!hasOverflow) return;
     let animId: number;
 
     const tick = () => {
@@ -97,7 +116,7 @@ export default function CategoryFlow() {
         // Slow gentle drift: 0.45px per frame (~27px/s)
         el.scrollLeft += 0.45;
 
-        // If we reach the end of the first duplicate set, loop back seamlessly
+        // Loop back seamlessly when reaching the end of the first copy
         const maxScroll = el.scrollWidth / 2;
         if (el.scrollLeft >= maxScroll) {
           el.scrollLeft -= maxScroll;
@@ -111,7 +130,7 @@ export default function CategoryFlow() {
 
     animId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animId);
-  }, [isPaused, isDragging]);
+  }, [isPaused, isDragging, hasOverflow]);
 
   // Pause on touch or hover, resume after user stops interacting
   const handleInteractionStart = () => {
@@ -159,8 +178,12 @@ export default function CategoryFlow() {
     handleInteractionEnd();
   };
 
-  // We duplicate the list so the slow flow loops indefinitely
-  const displayCategories = [...CATEGORIES_FLOW, ...CATEGORIES_FLOW];
+  // Only duplicate the list when the scroll container overflows its viewport.
+  // On wider screens (tablets/desktop) where all 7 categories fit without scrolling,
+  // show just one copy so duplicates are never visible to the user.
+  const displayCategories = hasOverflow
+    ? [...CATEGORIES_FLOW, ...CATEGORIES_FLOW]
+    : CATEGORIES_FLOW;
 
   return (
     <section className="relative bg-white md:bg-transparent py-4 md:py-6 border-y md:border-y-0 border-gray-100 group select-none">
