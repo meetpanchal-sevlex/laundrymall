@@ -19,7 +19,30 @@ export default async function ProductsPage({
   let filteredProducts = frontendProducts;
   
   if (selectedCategory) {
-    filteredProducts = filteredProducts.filter((p) => p.category === selectedCategory);
+    const sel = selectedCategory.trim().toLowerCase();
+    filteredProducts = filteredProducts.filter((p) => {
+      const cat = (p.category || "").trim().toLowerCase();
+      if (cat === sel) return true;
+      if (sel === "chemicals" || sel.includes("chemical") || sel.includes("detergent")) {
+        return cat.includes("chemical") || cat.includes("detergent") || cat.includes("softener") || cat.includes("stain");
+      }
+      if (sel === "packaging" || sel.includes("packaging")) {
+        return cat.includes("packag") || cat.includes("poly") || cat.includes("cover");
+      }
+      if (sel === "accessories" || sel.includes("accessor")) {
+        return cat.includes("accessor") || cat.includes("hanger") || cat.includes("tag") || cat.includes("pin");
+      }
+      if (sel === "machinery" || sel.includes("machin")) {
+        return cat.includes("machin") || cat.includes("washer") || cat.includes("dryer") || cat.includes("iron");
+      }
+      if (sel === "technology" || sel.includes("tech")) {
+        return cat.includes("tech") || cat.includes("pos") || cat.includes("software");
+      }
+      if (sel.includes("setup") || sel.includes("laundry setup")) {
+        return cat.includes("setup") || cat.includes("plant") || cat.includes("franchise");
+      }
+      return cat.includes(sel) || sel.includes(cat);
+    });
   }
   
   if (searchQuery) {
@@ -34,6 +57,15 @@ export default async function ProductsPage({
     const results = fuse.search(searchQuery);
     filteredProducts = results.map(result => result.item);
   }
+
+  const STORE_CATEGORIES = [
+    "Chemicals",
+    "Packaging",
+    "Accessories",
+    "Machinery",
+    "Technology",
+    "Laundry Setup",
+  ];
 
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-8">
@@ -74,16 +106,25 @@ export default async function ProductsPage({
                   All Products
                 </Link>
               </li>
-              {collections.map((collection) => (
-                <li key={collection.id}>
-                  <Link 
-                    href={`/products?category=` + encodeURIComponent(collection.title)}
-                    className={`block py-1 ${selectedCategory === collection.title ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'}`}
-                  >
-                    {collection.title}
-                  </Link>
-                </li>
-              ))}
+              {STORE_CATEGORIES.map((catName) => {
+                const isSelected = selectedCategory?.toLowerCase() === catName.toLowerCase() ||
+                  (selectedCategory?.toLowerCase().includes("chemical") && catName === "Chemicals") ||
+                  (selectedCategory?.toLowerCase().includes("packaging") && catName === "Packaging") ||
+                  (selectedCategory?.toLowerCase().includes("setup") && catName === "Laundry Setup");
+                return (
+                  <li key={catName}>
+                    <Link 
+                      href={`/products?category=` + encodeURIComponent(catName)}
+                      className={`block py-1 flex items-center justify-between ${isSelected ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'}`}
+                    >
+                      <span>{catName}</span>
+                      {catName === "Laundry Setup" && (
+                        <span className="text-[9px] bg-rose-100 text-rose-600 font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">New</span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </aside>

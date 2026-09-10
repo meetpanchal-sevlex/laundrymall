@@ -1,7 +1,7 @@
 import { medusaClient } from "./medusa";
 import { unstable_cache } from "next/cache";
 import { MedusaProduct, MedusaCollection, MedusaRegion } from "@/types/medusa";
-import { Product } from "@/data/products";
+import { Product, PRODUCTS } from "@/data/products";
 
 // Adapter to convert Medusa API product to our frontend format
 function adaptProduct(medusaProduct: MedusaProduct, collections: MedusaCollection[]): Product {
@@ -66,10 +66,11 @@ export const getCachedFrontendProducts = unstable_cache(
       
       const collections = await getCachedCollections();
 
-      return products.map((p) => adaptProduct(p, collections));
+      const mapped = products.map((p) => adaptProduct(p, collections));
+      return mapped.length > 0 ? mapped : PRODUCTS;
     } catch (error) {
       console.error("Failed to fetch products from Medusa:", error);
-      return [];
+      return PRODUCTS;
     }
   },
   ['medusa-frontend-products-v2'],
@@ -90,10 +91,10 @@ export const getCachedFrontendProduct = unstable_cache(
       
       const collections = await getCachedCollections();
 
-      return adaptProduct(response.product, collections);
+      return response?.product ? adaptProduct(response.product, collections) : (PRODUCTS.find((p: Product) => p.id === id) || null);
     } catch (error) {
       console.error(`Failed to fetch product ${id}:`, error);
-      return null;
+      return PRODUCTS.find((p: Product) => p.id === id) || null;
     }
   },
   ['medusa-frontend-product-v2'],

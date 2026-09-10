@@ -11,14 +11,17 @@ export interface Product {
 }
 
 export const CATEGORIES = [
-  "Hangers",
   "Chemicals",
+  "Packaging",
+  "Accessories",
+  "Machinery",
+  "Technology",
+  "Laundry Setup",
+  "Hangers",
   "Laundry Detergent",
   "Fabric Softener",
   "Stain Remover",
   "Irons",
-  "Accessories",
-  "Machinery"
 ];
 
 export const PRODUCTS: Product[] = [
@@ -138,5 +141,23 @@ export const PRODUCTS: Product[] = [
     price: 415.00,
     image: "https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?w=500&q=80",
     description: "High quality tagging gun for attaching price tags easily."
+  },
+  {
+    id: "p15",
+    name: "Commercial Turnkey Plant Package (500kg/day)",
+    category: "Laundry Setup",
+    price: 485000.00,
+    originalPrice: 550000.00,
+    image: "https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=600&q=80",
+    description: "Complete commercial laundry plant setup including 3x high-spin extractors, 2x gas dryers, steam boiler and layout consulting."
+  },
+  {
+    id: "p16",
+    name: "Laundromat Modular Franchise Setup Kit",
+    category: "Laundry Setup",
+    price: 295000.00,
+    originalPrice: 340000.00,
+    image: "https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=600&q=80",
+    description: "Plug-and-play setup for boutique retail laundromats. Includes coin/card billing, smart POS integration, and machine installation."
   }
 ];

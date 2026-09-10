@@ -4,22 +4,8 @@ import ProductCard from "@/components/ProductCard";
 import { getCachedFrontendProducts } from "@/lib/medusa-cache";
 import { Marquee } from "@/components/ui/Marquee";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
-
-const CATEGORIES = [
-  { name: "All", href: "/products", icon: "🏪", color: "bg-blue-50" },
-  { name: "Machinery", href: "/products?category=Machinery", icon: "⚙️", color: "bg-orange-50" },
-  { name: "Chemicals", href: "/products?category=Detergent+Chemicals", icon: "🧪", color: "bg-green-50" },
-  { name: "Packaging", href: "/products?category=Packaging+Materials", icon: "📦", color: "bg-yellow-50" },
-  { name: "Accessories", href: "/products?category=Accessories", icon: "🔧", color: "bg-purple-50" },
-  { name: "Technology", href: "/products?category=Technology", icon: "💻", color: "bg-red-50" },
-];
-
-const BANNERS = [
-  { title: "Wholesale Machinery", subtitle: "Heavy-duty commercial washers & dryers", color: "from-blue-600 via-blue-700 to-indigo-800", emoji: "⚙️", href: "/products?category=Machinery" },
-  { title: "Eco Chemicals", subtitle: "ISO certified bulk detergents & softeners", color: "from-emerald-600 via-teal-700 to-emerald-900", emoji: "🧪", href: "/products?category=Detergent+Chemicals" },
-  { title: "Smart Packaging", subtitle: "Rolls, polybags & branded garment covers", color: "from-purple-600 via-indigo-700 to-purple-900", emoji: "📦", href: "/products?category=Packaging+Materials" },
-  { title: "Industrial Supplies", subtitle: "Tagging guns, pins, hangers & accessories", color: "from-amber-600 via-orange-600 to-rose-700", emoji: "🔧", href: "/products?category=Accessories" },
-];
+import FeaturedHeroSlider from "@/components/FeaturedHeroSlider";
+import CategoryFlow from "@/components/CategoryFlow";
 
 const WHY_US = [
   { icon: "🚚", title: "Pan India Delivery", sub: "Fast shipping to all outlets" },
@@ -51,31 +37,8 @@ export default async function Home() {
           </form>
         </div>
 
-        {/* Moving Featured Hero Banners (Animate UI / Inspire UI Marquee) */}
-        <section className="pt-3 md:pt-6 pb-2 overflow-hidden select-none">
-          <Marquee pauseOnHover className="[--duration:34s] [--gap:1.25rem] py-1">
-            {BANNERS.map((b, i) => (
-              <Link
-                key={i}
-                href={b.href}
-                className={`flex-shrink-0 w-[290px] sm:w-[350px] md:w-[390px] rounded-2xl bg-gradient-to-r ${b.color} text-white p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
-              >
-                <div>
-                  <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mb-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                    <p className="text-[10px] font-bold text-white uppercase tracking-wider">Featured</p>
-                  </div>
-                  <h3 className="text-lg md:text-xl font-black leading-tight tracking-tight">{b.title}</h3>
-                  <p className="text-xs sm:text-sm text-white/85 mt-1 leading-snug line-clamp-1">{b.subtitle}</p>
-                  <div className="mt-4 bg-white text-gray-900 text-xs font-bold px-3.5 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm transition-transform hover:scale-105">
-                    Shop Now <ChevronRight className="w-3 h-3 text-blue-600" />
-                  </div>
-                </div>
-                <span className="text-5xl sm:text-6xl drop-shadow-md select-none transform transition-transform group-hover:scale-110 ml-2">{b.emoji}</span>
-              </Link>
-            ))}
-          </Marquee>
-        </section>
+        {/* Option 1: Touch-Driven Featured Hero Banner Slider */}
+        <FeaturedHeroSlider />
 
         {/* Infinite Trust Marquee (Inspire UI / Magic UI) */}
         <div className="my-3 mx-4 rounded-xl border border-gray-200/80 bg-white/90 backdrop-blur-md shadow-xs overflow-hidden">
@@ -93,19 +56,8 @@ export default async function Home() {
           </Marquee>
         </div>
 
-        {/* Category Icons — Meesho style */}
-        <section className="bg-white md:bg-transparent mt-2 md:mt-6 py-4 md:py-0 border-t border-gray-100 md:border-none">
-          <div className="flex md:justify-center gap-6 px-4 overflow-x-auto hide-scrollbar">
-            {CATEGORIES.map((cat) => (
-              <Link key={cat.name} href={cat.href} className="flex-shrink-0 flex flex-col items-center gap-3 w-16 md:w-24 group">
-                <div className={`w-14 h-14 md:w-20 md:h-20 rounded-full ${cat.color} flex items-center justify-center text-2xl md:text-4xl shadow-sm border border-white group-hover:shadow-md group-hover:scale-105 transition-all`}>
-                  {cat.icon}
-                </div>
-                <span className="text-xs md:text-sm font-semibold text-gray-700 text-center leading-tight group-hover:text-blue-600 transition-colors">{cat.name}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Category Flow with Slow Motion, Pause on Touch & Exact Sequence */}
+        <CategoryFlow />
 
         {/* Best Sellers */}
         <section className="mt-2 md:mt-10 bg-white md:rounded-2xl md:shadow-sm overflow-hidden">

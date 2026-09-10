@@ -18,17 +18,6 @@ const CATEGORIES = [
     ],
   },
   {
-    name: "Machinery",
-    icon: "⚙️",
-    href: "/products?category=Machinery",
-    subcategories: [
-      { name: "Washing Machines", icon: "🫧", href: "/products?category=Machinery&q=washing" },
-      { name: "Dryers", icon: "🌀", href: "/products?category=Machinery&q=dryer" },
-      { name: "Ironing", icon: "♨️", href: "/products?category=Machinery&q=iron" },
-      { name: "Folders", icon: "📐", href: "/products?category=Machinery&q=folder" },
-    ],
-  },
-  {
     name: "Chemicals",
     icon: "🧪",
     href: "/products?category=Detergent+Chemicals",
@@ -62,6 +51,17 @@ const CATEGORIES = [
     ],
   },
   {
+    name: "Machinery",
+    icon: "⚙️",
+    href: "/products?category=Machinery",
+    subcategories: [
+      { name: "Washing Machines", icon: "🫧", href: "/products?category=Machinery&q=washing" },
+      { name: "Dryers", icon: "🌀", href: "/products?category=Machinery&q=dryer" },
+      { name: "Ironing", icon: "♨️", href: "/products?category=Machinery&q=iron" },
+      { name: "Folders", icon: "📐", href: "/products?category=Machinery&q=folder" },
+    ],
+  },
+  {
     name: "Technology",
     icon: "💻",
     href: "/products?category=Technology",
@@ -70,6 +70,17 @@ const CATEGORIES = [
       { name: "Barcode", icon: "📊", href: "/products?category=Technology&q=barcode" },
       { name: "Software", icon: "💾", href: "/products?category=Technology&q=software" },
       { name: "Cameras", icon: "📷", href: "/products?category=Technology&q=camera" },
+    ],
+  },
+  {
+    name: "Laundry Setup",
+    icon: "🏗️",
+    href: "/products?category=Laundry+Setup",
+    subcategories: [
+      { name: "Turnkey Plant Setup", icon: "🏗️", href: "/products?category=Laundry+Setup&q=plant" },
+      { name: "Commercial Packages", icon: "📦", href: "/products?category=Laundry+Setup&q=package" },
+      { name: "Franchise Consulting", icon: "💼", href: "/products?category=Laundry+Setup&q=consulting" },
+      { name: "Machine Layout Design", icon: "📐", href: "/products?category=Laundry+Setup&q=layout" },
     ],
   },
 ];

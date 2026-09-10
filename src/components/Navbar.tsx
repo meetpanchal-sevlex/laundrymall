@@ -104,11 +104,17 @@ export default function Navbar() {
           <ul className="flex space-x-8 py-3 text-sm font-semibold text-gray-600 overflow-x-auto whitespace-nowrap hide-scrollbar">
             <li><Link href="/" className="hover:text-blue-600 transition">Home</Link></li>
             <li><Link href="/products" className="hover:text-blue-600 transition">All Products</Link></li>
-            <li><Link href="/products?category=Machinery" className="hover:text-blue-600 transition">Machinery</Link></li>
             <li><Link href="/products?category=Detergent%20Chemicals" className="hover:text-blue-600 transition">Chemicals</Link></li>
             <li><Link href="/products?category=Packaging%20Materials" className="hover:text-blue-600 transition">Packaging</Link></li>
             <li><Link href="/products?category=Accessories" className="hover:text-blue-600 transition">Accessories</Link></li>
+            <li><Link href="/products?category=Machinery" className="hover:text-blue-600 transition">Machinery</Link></li>
             <li><Link href="/products?category=Technology" className="hover:text-blue-600 transition">Technology</Link></li>
+            <li>
+              <Link href="/products?category=Laundry%20Setup" className="hover:text-blue-600 transition inline-flex items-center gap-1 font-bold text-rose-600">
+                Laundry Setup
+                <span className="text-[10px] bg-rose-100 text-rose-600 font-extrabold px-1.5 py-0.2 rounded-full uppercase tracking-wider">New</span>
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
