@@ -15,9 +15,10 @@ const CATEGORIES = [
 ];
 
 const BANNERS = [
-  { title: "Wholesale Machinery", subtitle: "Up to 30% off on bulk orders", color: "from-blue-600 to-blue-800", emoji: "⚙️" },
-  { title: "Eco Chemicals", subtitle: "ISO certified, trusted quality", color: "from-green-600 to-green-800", emoji: "🧪" },
-  { title: "Smart Packaging", subtitle: "Branded packaging solutions", color: "from-purple-600 to-purple-800", emoji: "📦" },
+  { title: "Wholesale Machinery", subtitle: "Heavy-duty commercial washers & dryers", color: "from-blue-600 via-blue-700 to-indigo-800", emoji: "⚙️", href: "/products?category=Machinery" },
+  { title: "Eco Chemicals", subtitle: "ISO certified bulk detergents & softeners", color: "from-emerald-600 via-teal-700 to-emerald-900", emoji: "🧪", href: "/products?category=Detergent+Chemicals" },
+  { title: "Smart Packaging", subtitle: "Rolls, polybags & branded garment covers", color: "from-purple-600 via-indigo-700 to-purple-900", emoji: "📦", href: "/products?category=Packaging+Materials" },
+  { title: "Industrial Supplies", subtitle: "Tagging guns, pins, hangers & accessories", color: "from-amber-600 via-orange-600 to-rose-700", emoji: "🔧", href: "/products?category=Accessories" },
 ];
 
 const WHY_US = [
@@ -50,27 +51,30 @@ export default async function Home() {
           </form>
         </div>
 
-        {/* Hero Banners — horizontal scroll */}
-        <section className="bg-white md:bg-transparent pt-3 md:pt-6 pb-2">
-          <div className="flex gap-4 px-4 overflow-x-auto hide-scrollbar pb-1 md:grid md:grid-cols-3">
+        {/* Moving Featured Hero Banners (Animate UI / Inspire UI Marquee) */}
+        <section className="pt-3 md:pt-6 pb-2 overflow-hidden select-none">
+          <Marquee pauseOnHover className="[--duration:34s] [--gap:1.25rem] py-1">
             {BANNERS.map((b, i) => (
               <Link
                 key={i}
-                href="/products"
-                className={`flex-shrink-0 w-72 md:w-full rounded-2xl bg-gradient-to-r ${b.color} text-white p-6 flex items-center justify-between shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5`}
+                href={b.href}
+                className={`flex-shrink-0 w-[290px] sm:w-[350px] md:w-[390px] rounded-2xl bg-gradient-to-r ${b.color} text-white p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}
               >
                 <div>
-                  <p className="text-xs font-semibold text-white/70 uppercase tracking-wider mb-1">Featured</p>
+                  <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mb-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    <p className="text-[10px] font-bold text-white uppercase tracking-wider">Featured</p>
+                  </div>
                   <h3 className="text-lg md:text-xl font-black leading-tight tracking-tight">{b.title}</h3>
-                  <p className="text-sm text-white/80 mt-1">{b.subtitle}</p>
-                  <div className="mt-4 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 transition-colors">
-                    Shop Now <ChevronRight className="w-3 h-3" />
+                  <p className="text-xs sm:text-sm text-white/85 mt-1 leading-snug line-clamp-1">{b.subtitle}</p>
+                  <div className="mt-4 bg-white text-gray-900 text-xs font-bold px-3.5 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm transition-transform hover:scale-105">
+                    Shop Now <ChevronRight className="w-3 h-3 text-blue-600" />
                   </div>
                 </div>
-                <span className="text-6xl drop-shadow-md">{b.emoji}</span>
+                <span className="text-5xl sm:text-6xl drop-shadow-md select-none transform transition-transform group-hover:scale-110 ml-2">{b.emoji}</span>
               </Link>
             ))}
-          </div>
+          </Marquee>
         </section>
 
         {/* Infinite Trust Marquee (Inspire UI / Magic UI) */}
