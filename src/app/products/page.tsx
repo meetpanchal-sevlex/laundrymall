@@ -1,7 +1,21 @@
+import type { Metadata } from "next";
 import { getCachedCollections, getCachedFrontendProducts } from "@/lib/medusa-cache";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 import { ArrowDownUp, Filter } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Commercial Laundry Products & Equipment Catalog",
+  description: "Browse India's largest B2B collection of commercial laundry machinery, dry cleaning chemicals, packaging supplies, and industrial accessories at wholesale prices.",
+  alternates: {
+    canonical: "/products",
+  },
+  openGraph: {
+    title: "Commercial Laundry & Dry Cleaning Supplies Catalog | LaundryMall",
+    description: "Browse India's largest B2B collection of commercial laundry machinery, dry cleaning chemicals, and packaging supplies.",
+    url: "https://laundrymall.in/products",
+  },
+};
 
 export default async function ProductsPage({
   searchParams,

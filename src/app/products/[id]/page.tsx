@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, ShieldCheck, Truck, Star, Share2, Heart, ChevronRight, Store } from "lucide-react";
@@ -16,6 +17,57 @@ export async function generateStaticParams() {
   } catch {
     return [];
   }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const product = await getCachedFrontendProduct(resolvedParams.id);
+
+  if (!product) {
+    return {
+      title: "Product Not Found",
+      description: "The requested commercial laundry product could not be found.",
+    };
+  }
+
+  const title = `${product.name} - Buy Online at Best Price`;
+  const description = product.description
+    ? product.description.slice(0, 160)
+    : `Buy ${product.name} at wholesale B2B pricing with fast India-wide shipping on LaundryMall.`;
+  const imageUrl = product.image || (product.images && product.images[0]) || "https://laundrymall.in/logo-icon.png";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/products/${product.id}`,
+    },
+    openGraph: {
+      title: `${product.name} | LaundryMall`,
+      description,
+      url: `https://laundrymall.in/products/${product.id}`,
+      siteName: "LaundryMall",
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 800,
+          alt: product.name,
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} | LaundryMall`,
+      description,
+      images: [imageUrl],
+    },
+  };
 }
 
 export default async function ProductDetailPage({
@@ -38,8 +90,39 @@ export default async function ProductDetailPage({
     ? product.images 
     : [product.image];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: sliderImages,
+    description: product.description || `Commercial grade ${product.name}`,
+    sku: product.id,
+    brand: {
+      "@type": "Brand",
+      name: "LaundryMall",
+    },
+    offers: {
+      "@type": "Offer",
+      url: `https://laundrymall.in/products/${product.id}`,
+      priceCurrency: "INR",
+      price: product.price,
+      priceValidUntil: "2027-12-31",
+      itemCondition: "https://schema.org/NewCondition",
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: "LaundryMall",
+      },
+    },
+  };
+
   return (
     <div className="bg-gray-100 min-h-screen pb-20 md:pb-8">
+      {/* Schema.org Product Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="md:max-w-7xl md:mx-auto md:px-4 md:py-8">
         
         {/* Desktop Container */}

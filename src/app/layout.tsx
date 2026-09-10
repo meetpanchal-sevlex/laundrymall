@@ -24,8 +24,15 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "LaundryMall | Professional Laundry & Dry Cleaning Supplies",
+  metadataBase: new URL("https://laundrymall.in"),
+  title: {
+    default: "LaundryMall | Professional Laundry & Dry Cleaning Supplies",
+    template: "%s | LaundryMall",
+  },
   description: "The premier B2B supplier for commercial laundry, dry cleaning chemicals, packaging, and machinery.",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -53,6 +60,12 @@ export const metadata: Metadata = {
     ],
     locale: "en_IN",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LaundryMall | Professional Laundry & Dry Cleaning Supplies",
+    description: "The premier B2B supplier for commercial laundry, dry cleaning chemicals, packaging, and machinery.",
+    images: ["https://images.unsplash.com/photo-1582735689369-4fe89db7114c?q=80&w=1200"],
   },
 };
 
