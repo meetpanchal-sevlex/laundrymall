@@ -16,10 +16,14 @@ export default function ProductCard({ product, compact }: { product: Product; co
 
   if (compact) {
     return (
-      <Link href={`/products/${product.id}`} className="group bg-white border-b border-r border-gray-100 flex flex-col hover:bg-gray-50 transition-colors relative">
-        <div className="relative aspect-square bg-gray-50 overflow-hidden flex items-center justify-center">
+      <Link
+        href={`/products/${product.id}`}
+        className="group flex flex-col bg-white hover:bg-blue-50/30 transition-colors duration-200 relative overflow-hidden"
+      >
+        {/* Image area */}
+        <div className="relative aspect-square bg-gray-50 overflow-hidden">
           {product.originalPrice && (
-            <div className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full z-10">
+            <div className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full z-10">
               SALE
             </div>
           )}
@@ -27,24 +31,28 @@ export default function ProductCard({ product, compact }: { product: Product; co
             src={product.image}
             alt={product.name}
             fill
-            className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
-            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-contain p-2.5 group-hover:scale-108 transition-transform duration-500"
+            sizes="(max-width: 768px) 33vw, 20vw"
           />
+          {/* Quick add button on hover */}
           <button
             onClick={handleAddToCart}
-            className="absolute bottom-2 right-2 bg-blue-600 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute bottom-1.5 right-1.5 bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 scale-75 group-hover:scale-100"
             aria-label="Add to cart"
           >
-            <ShoppingCart className="w-3.5 h-3.5" />
+            <ShoppingCart className="w-3 h-3" />
           </button>
         </div>
-        <div className="px-2.5 pb-3 pt-2">
-          <p className="text-xs text-gray-500 mb-0.5">{product.category}</p>
-          <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-snug">{product.name}</h3>
-          <div className="mt-1.5 flex items-baseline gap-1.5">
-            <span className="text-sm font-black text-gray-900">₹{product.price.toFixed(0)}</span>
+
+        {/* Text area */}
+        <div className="px-2 pb-2.5 pt-1.5">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-900 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+            {product.name}
+          </h3>
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-xs font-black text-gray-900">₹{product.price.toFixed(0)}</span>
             {product.originalPrice && (
-              <span className="text-xs text-gray-400 line-through">₹{product.originalPrice.toFixed(0)}</span>
+              <span className="text-[9px] text-gray-400 line-through">₹{product.originalPrice.toFixed(0)}</span>
             )}
           </div>
         </div>

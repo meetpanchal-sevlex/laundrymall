@@ -93,7 +93,7 @@ export default function CategoryFlow() {
 
         {/* Static scrollable row — no auto-movement */}
         <div
-          className="flex gap-4 overflow-x-auto hide-scrollbar pb-1"
+          className="flex gap-4 overflow-x-auto hide-scrollbar pt-1 pb-2"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           {CATEGORIES.map((cat) => (
@@ -102,7 +102,7 @@ export default function CategoryFlow() {
               href={cat.href}
               className="flex-shrink-0 flex flex-col items-center w-[72px] sm:w-20 md:w-24 group"
             >
-              <div className="relative">
+              <div className="relative mt-1">
                 <div
                   className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl ${cat.bg} flex items-center justify-center text-2xl sm:text-3xl md:text-4xl ring-2 ${cat.ring} transition-all duration-200 group-hover:scale-105 group-hover:shadow-md`}
                 >
@@ -110,7 +110,7 @@ export default function CategoryFlow() {
                 </div>
 
                 {cat.isNew && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[8px] font-black uppercase px-1 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+                  <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
                     <Sparkles className="w-2 h-2" /> NEW
                   </span>
                 )}
