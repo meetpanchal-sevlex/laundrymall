@@ -368,23 +368,23 @@ function LoginForm() {
           <div className="absolute -bottom-10 -left-10 w-36 h-36 bg-black/10 rounded-full blur-xl pointer-events-none" />
 
           <div className="relative flex items-center justify-between gap-3">
-            {/* Left: 4 Floating Visual Badges without specific price tags */}
+            {/* Left: 4 Floating Visual Badges */}
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-white/95 text-gray-800 rounded-xl p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <WashingMachine className="w-6 h-6 text-blue-600" />
-                <span className="text-[10px] font-bold text-gray-800 leading-none mt-1">Washer</span>
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <WashingMachine className="w-5 h-5 text-blue-600" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Washer</span>
               </div>
-              <div className="bg-white/95 text-gray-800 rounded-xl p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <Sparkles className="w-6 h-6 text-blue-600" />
-                <span className="text-[10px] font-bold text-gray-800 leading-none mt-1">Chemicals</span>
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Liquid</span>
               </div>
-              <div className="bg-white/95 text-gray-800 rounded-xl p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <Package className="w-6 h-6 text-blue-600" />
-                <span className="text-[10px] font-bold text-gray-800 leading-none mt-1">Packaging</span>
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <Package className="w-5 h-5 text-blue-600" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Packaging</span>
               </div>
-              <div className="bg-white/95 text-gray-800 rounded-xl p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
-                <Tag className="w-6 h-6 text-blue-600" />
-                <span className="text-[10px] font-bold text-gray-800 leading-none mt-1">Tag Pins</span>
+              <div className="bg-white/95 text-gray-800 rounded-lg p-1.5 shadow-sm flex flex-col items-center justify-center w-14 h-14 border border-white/50">
+                <Tag className="w-5 h-5 text-blue-600" />
+                <span className="text-[9px] font-bold text-gray-700 leading-none mt-0.5">Tag Pins</span>
               </div>
             </div>
 
