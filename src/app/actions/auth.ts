@@ -378,3 +378,44 @@ export async function verifyMsg91PhoneLoginAction(accessToken: string, clientPho
   }
 }
 
+export async function updateCustomerProfileAction(payload: {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+}) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("_medusa_jwt")?.value;
+  if (!token) {
+    return { error: "Not logged in" };
+  }
+
+  try {
+    const updateBody: Record<string, any> = {};
+    if (payload.first_name !== undefined) updateBody.first_name = payload.first_name.trim();
+    if (payload.last_name !== undefined) updateBody.last_name = payload.last_name.trim();
+    if (payload.phone !== undefined && payload.phone.trim()) updateBody.phone = payload.phone.trim();
+    // Only update email if it is a valid non-synthetic email
+    if (payload.email && !payload.email.includes("@phone.")) {
+      updateBody.email = payload.email.trim();
+    }
+
+    const res = await fetch(MEDUSA_URL + "/store/customers/me", {
+      method: "POST",
+      headers: getHeaders(token),
+      body: JSON.stringify(updateBody),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      return { error: err.message || "Failed to update profile details." };
+    }
+
+    const data = await res.json();
+    return { success: true, customer: data.customer };
+  } catch (error: any) {
+    console.error("updateCustomerProfileAction error:", error);
+    return { error: error.message || "Network error updating customer profile." };
+  }
+}
+

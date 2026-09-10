@@ -79,17 +79,32 @@ export default function FeaturedHeroSlider({
   const [isPaused, setIsPaused] = useState(false);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isInViewport, setIsInViewport] = useState(true);
 
-  // Scroll to a specific slide by index
+  // Pause auto-play when slider is scrolled out of view
+  useEffect(() => {
+    if (!sectionRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInViewport(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Scroll to a specific slide by index — ONLY inside the horizontal container, NEVER scrolls the page!
   const scrollToSlide = useCallback((idx: number) => {
     const el = scrollRef.current;
     if (!el) return;
     const cards = el.children;
-    if (cards[idx]) {
-      (cards[idx] as HTMLElement).scrollIntoView({
+    const targetCard = cards[idx] as HTMLElement;
+    if (targetCard) {
+      el.scrollTo({
+        left: targetCard.offsetLeft,
         behavior: "smooth",
-        block: "nearest",
-        inline: "start",
       });
     }
   }, []);
@@ -110,11 +125,11 @@ export default function FeaturedHeroSlider({
     return () => el.removeEventListener("scroll", updateActiveIndex);
   }, [updateActiveIndex]);
 
-  // Auto-play: advance slide every interval unless paused or user interacting
+  // Auto-play: advance slide every interval ONLY when in viewport and not paused
   const startAutoPlay = useCallback(() => {
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     autoPlayRef.current = setInterval(() => {
-      if (!isPaused) {
+      if (!isPaused && isInViewport) {
         setActiveIndex((prev) => {
           const next = prev >= banners.length - 1 ? 0 : prev + 1;
           scrollToSlide(next);
@@ -122,7 +137,7 @@ export default function FeaturedHeroSlider({
         });
       }
     }, AUTO_PLAY_INTERVAL);
-  }, [isPaused, banners.length, scrollToSlide]);
+  }, [isPaused, isInViewport, banners.length, scrollToSlide]);
 
   useEffect(() => {
     startAutoPlay();
@@ -163,6 +178,7 @@ export default function FeaturedHeroSlider({
       />
 
       <section
+        ref={sectionRef}
         className="relative pt-3 md:pt-6 pb-2"
         onMouseEnter={handlePause}
         onMouseLeave={handleResume}

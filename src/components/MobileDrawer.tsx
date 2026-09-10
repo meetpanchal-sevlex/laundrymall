@@ -160,8 +160,14 @@ export default function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onC
           <button onClick={onClose} className="text-gray-600 p-1">
             <X className="w-6 h-6" />
           </button>
-          <Link href="/" onClick={onClose} className="text-2xl font-black text-blue-600 tracking-tight">
-            Laundry<span className="text-gray-900">Mall</span>
+          <Link href="/" onClick={onClose} className="flex items-center gap-2 text-2xl font-black text-blue-600 tracking-tight">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-icon.png"
+              alt="LaundryMall"
+              className="h-7 w-auto object-contain flex-shrink-0"
+            />
+            <span>Laundry<span className="text-gray-900">Mall</span></span>
           </Link>
         </div>
 

@@ -40,9 +40,17 @@ export default function Navbar() {
     await logoutAction();
   };
 
-  const displayName = mounted && user
-    ? [user.first_name, user.last_name].filter(Boolean).join(" ") || "B2B Partner"
-    : "Guest";
+  const isSyntheticEmail = user?.email?.includes("@phone.") || false;
+  const rawPhone = user?.phone || (isSyntheticEmail ? user?.email?.split("@phone.")[0] : "");
+  const formattedPhone = rawPhone && rawPhone.length >= 10
+    ? `+91 ${rawPhone.replace(/\D/g, "").slice(-10, -5)} ${rawPhone.replace(/\D/g, "").slice(-5)}`
+    : rawPhone;
+
+  const rawName = [user?.first_name, user?.last_name].filter(Boolean).join(" ").trim();
+  const isGenericName = !rawName || /^customer\s*\d*$/i.test(rawName);
+  const cleanDisplayName = !isGenericName
+    ? rawName
+    : formattedPhone || "My Account";
 
   return (
     <>
@@ -51,7 +59,7 @@ export default function Navbar() {
         {/* Main Navbar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
                 className="sm:hidden text-gray-500 hover:text-blue-600 transition p-1 cursor-pointer"
                 onClick={() => setMobileDrawerOpen(true)}
@@ -61,15 +69,15 @@ export default function Navbar() {
               </button>
               <div className="flex items-center">
                 <Link href="/" className="flex items-center gap-2 group">
-                  {/* Logo icon — the shopping bag + washer icon */}
+                  {/* Logo icon — same size as the wordmark */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/logo.jpg"
-                    alt="LaundryMall Logo"
-                    className="h-10 w-10 object-contain rounded-xl"
+                    src="/logo-icon.png"
+                    alt="LaundryMall"
+                    className="h-7 w-auto sm:h-8 object-contain flex-shrink-0"
                   />
-                  {/* Wordmark */}
-                  <span className="text-2xl font-black tracking-tight text-blue-700 group-hover:text-blue-800 transition-colors hidden xs:inline">
+                  {/* Earlier wordmark */}
+                  <span className="text-2xl sm:text-3xl font-black tracking-tighter text-blue-600 group-hover:text-blue-700 transition-colors">
                     Laundry<span className="text-gray-900">Mall</span>
                   </span>
                 </Link>
@@ -83,7 +91,7 @@ export default function Navbar() {
 
             {/* Right Action Icons */}
             <div className="flex items-center gap-6 sm:gap-8">
-              {/* Account Dropdown (Eliminates Profile Glitch) */}
+              {/* Account Dropdown */}
               <div ref={accountMenuRef} className="relative">
                 <button
                   type="button"
@@ -99,7 +107,7 @@ export default function Navbar() {
                     )}
                   </div>
                   <span className="text-xs font-medium hidden sm:flex items-center gap-0.5">
-                    {mounted && user ? (user.first_name || "Account") : "Sign In"}
+                    {mounted && user ? (!isGenericName ? user.first_name : "Account") : "Sign In"}
                     <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-blue-600 transition" />
                   </span>
                 </button>
@@ -114,9 +122,14 @@ export default function Navbar() {
                             Verified B2B Buyer
                           </p>
                           <p className="text-sm font-black text-gray-900 truncate">
-                            {displayName}
+                            {cleanDisplayName}
                           </p>
-                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                          {/* Clean display: only show real email or show formatted phone */}
+                          {!isSyntheticEmail && user.email ? (
+                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                          ) : formattedPhone ? (
+                            <p className="text-xs text-blue-700 font-semibold truncate">{formattedPhone}</p>
+                          ) : null}
                         </div>
 
                         <div className="space-y-1 text-sm font-semibold text-gray-700">
@@ -126,7 +139,7 @@ export default function Navbar() {
                             className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition"
                           >
                             <Package className="w-4 h-4 text-gray-400" />
-                            My Orders & GST Invoices
+                            My Orders
                           </Link>
                           <Link
                             href="/account/addresses"
