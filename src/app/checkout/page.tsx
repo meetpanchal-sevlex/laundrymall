@@ -219,7 +219,7 @@ export default function CheckoutPage() {
           email: email
         },
         theme: {
-          color: "#f43397",
+          color: "#2563eb",
         },
       };
 
@@ -277,39 +277,48 @@ export default function CheckoutPage() {
         {step === 1 && (
           <div className="space-y-4">
             {isLoadingAddress ? (
-              <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-4 animate-pulse">
-                <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-                <div className="h-20 bg-gray-100 rounded-lg"></div>
-                <div className="h-20 bg-gray-100 rounded-lg"></div>
+              <div className="bg-white p-8 rounded-xl border border-gray-200 text-center">
+                <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                <p className="text-sm text-gray-500">Checking saved address...</p>
               </div>
             ) : (
-              <>
-                {!isAddingNew && savedAddresses.length > 0 && (
-                  <div className="space-y-3">
-                    <h2 className="font-bold text-gray-900 text-lg mb-3">Saved Addresses</h2>
-                    {savedAddresses.map((addr, idx) => (
-                  <label key={addr.id} className="flex items-start gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm cursor-pointer hover:border-blue-300">
-                    <input 
-                      type="radio" 
-                      name="saved_address" 
-                      className="mt-1 w-4 h-4 text-blue-600"
-                      checked={selectedAddressIndex === idx}
-                      onChange={() => handleSelectSavedAddress(idx)}
-                    />
-                    <div>
-                      <h3 className="font-bold text-gray-900">{addr.first_name} {addr.last_name !== "." ? addr.last_name : ""}</h3>
-                      <p className="text-gray-600 text-sm mt-1 leading-relaxed">
-                        {addr.address_1}, {addr.address_2}<br/>
-                        {addr.city}, {addr.province} - {addr.postal_code}
-                      </p>
-                      {addr.phone && <p className="text-gray-900 font-medium text-sm mt-1">{addr.phone}</p>}
+            <>
+            {savedAddresses.length > 0 && !isAddingNew && (
+              <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                <h2 className="font-bold text-gray-900 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                  Select Delivery Address
+                </h2>
+                {savedAddresses.map((addr, idx) => (
+                  <label 
+                    key={addr.id || idx} 
+                    className={`block p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      selectedAddressIndex === idx ? 'border-blue-600 bg-blue-50/20' : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <input 
+                        type="radio" 
+                        name="saved_address" 
+                        checked={selectedAddressIndex === idx}
+                        onChange={() => handleSelectSavedAddress(idx)}
+                        className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-600"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-bold text-gray-900">{addr.first_name} {addr.last_name !== "." ? addr.last_name : ""}</h3>
+                        <p className="text-gray-600 text-sm mt-1 leading-relaxed">
+                          {addr.address_1}, {addr.address_2}<br/>
+                          {addr.city}, {addr.province} - {addr.postal_code}
+                        </p>
+                        {addr.phone && <p className="text-gray-900 font-medium text-sm mt-1">{addr.phone}</p>}
+                      </div>
                     </div>
                   </label>
                 ))}
 
                 <button
                   onClick={() => setStep(2)}
-                  className="w-full bg-[#f43397] hover:bg-[#e02d8b] text-white font-bold text-lg py-4 rounded-lg shadow-sm transition-colors mt-6"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-xl shadow-md shadow-blue-500/20 transition-all active:scale-[0.99] mt-6"
                 >
                   Deliver Here
                 </button>
@@ -419,7 +428,7 @@ export default function CheckoutPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#f43397] hover:bg-[#e02d8b] text-white font-bold text-lg py-4 rounded-lg shadow-sm transition-colors mt-6"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 rounded-xl shadow-md shadow-blue-500/20 transition-all active:scale-[0.99] mt-6"
                 >
                   Save Address and Continue
                 </button>
@@ -522,7 +531,7 @@ export default function CheckoutPage() {
                   value="upi"
                   checked={paymentMethod === "upi"}
                   onChange={() => setPaymentMethod("upi")}
-                  className="w-5 h-5 text-[#f43397] focus:ring-[#f43397]"
+                  className="w-5 h-5 text-blue-600 focus:ring-blue-600"
                 />
                 <div className="flex-1">
                   <span className="font-semibold text-gray-900 block">UPI (GPay, PhonePe, Paytm)</span>
@@ -538,7 +547,7 @@ export default function CheckoutPage() {
                   value="card"
                   checked={paymentMethod === "card"}
                   onChange={() => setPaymentMethod("card")}
-                  className="w-5 h-5 text-[#f43397] focus:ring-[#f43397]"
+                  className="w-5 h-5 text-blue-600 focus:ring-blue-600"
                 />
                 <div className="flex-1">
                   <span className="font-semibold text-gray-900 block">Credit / Debit Card</span>
@@ -554,7 +563,7 @@ export default function CheckoutPage() {
                   value="cod"
                   checked={paymentMethod === "cod"}
                   onChange={() => setPaymentMethod("cod")}
-                  className="w-5 h-5 text-[#f43397] focus:ring-[#f43397]"
+                  className="w-5 h-5 text-blue-600 focus:ring-blue-600"
                 />
                 <div className="flex-1">
                   <span className="font-semibold text-gray-900 block">Cash on Delivery</span>
@@ -572,7 +581,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={handlePayment}
                   disabled={isProcessing}
-                  className="flex-1 bg-[#f43397] hover:bg-[#e02d8b] text-white font-bold text-lg py-3 rounded-lg shadow-sm transition-colors disabled:opacity-50"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-3.5 rounded-xl shadow-md shadow-blue-500/20 transition-all active:scale-[0.99] disabled:opacity-50"
                 >
                   {isProcessing ? "Processing..." : "Pay Now"}
                 </button>

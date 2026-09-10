@@ -48,7 +48,7 @@ export default function AddAddressForm() {
       <button 
         type="submit" 
         disabled={loading}
-        className="w-full bg-[#f43397] hover:bg-[#e02d8b] text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md shadow-blue-500/20 disabled:opacity-50"
       >
         {loading ? "Saving..." : "Save Address"}
       </button>

@@ -14,7 +14,7 @@ export default function WishlistPage() {
         </div>
         <h2 className="text-lg font-black text-gray-800 mb-2">Your Wishlist is Empty</h2>
         <p className="text-sm text-gray-500 mb-6">Save products you love by tapping the heart icon on any product!</p>
-        <Link href="/products" className="bg-[#f43397] text-white font-bold px-8 py-3 rounded-xl hover:bg-[#e02d8b] transition">
+        <Link href="/products" className="bg-blue-600 text-white font-bold px-8 py-3 rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/20 transition">
           Browse Products
         </Link>
       </div>

@@ -108,7 +108,7 @@ function SuccessContent() {
             <div className="space-y-3">
               <Link 
                 href="/account/orders"
-                className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-[#f43397] to-pink-500 hover:from-[#e02d8b] hover:to-pink-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-pink-200/50 active:scale-95"
+                className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-md shadow-blue-500/20 active:scale-95"
               >
                 <Eye className="w-4 h-4" /> Track in My Orders
               </Link>
