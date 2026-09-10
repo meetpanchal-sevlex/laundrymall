@@ -61,7 +61,15 @@ export default function Navbar() {
               </button>
               <div className="flex items-center">
                 <Link href="/" className="flex items-center gap-2 group">
-                  <span className="text-3xl font-black tracking-tighter text-blue-600 group-hover:text-blue-700 transition-colors">
+                  {/* Logo icon — the shopping bag + washer icon */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/logo.jpg"
+                    alt="LaundryMall Logo"
+                    className="h-10 w-10 object-contain rounded-xl"
+                  />
+                  {/* Wordmark */}
+                  <span className="text-2xl font-black tracking-tight text-blue-700 group-hover:text-blue-800 transition-colors hidden xs:inline">
                     Laundry<span className="text-gray-900">Mall</span>
                   </span>
                 </Link>
