@@ -155,8 +155,6 @@ export default function AccountPage() {
   const phoneFromEmail = parsePhoneFromEmail(cachedUser.email);
   const phoneRaw = cachedUser.phone || phoneFromEmail || "";
   const phoneDisplay = phoneRaw ? formatPhone(phoneRaw) : null;
-  // Avatar letter: use first letter of name, or first digit of phone
-  const avatarChar = displayName?.[0]?.toUpperCase() ?? phoneRaw?.[0] ?? "U";
 
   return (
     <div className="min-h-screen bg-[#F4F6FA] pb-28 md:pb-8">
@@ -168,9 +166,14 @@ export default function AccountPage() {
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-900/30 rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex items-center gap-4 relative z-10">
-          {/* Avatar */}
-          <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center text-2xl font-black text-white shadow-lg flex-shrink-0">
-            {avatarChar}
+          {/* Avatar - LaundryMall Logo Icon */}
+          <div className="w-16 h-16 rounded-2xl bg-white p-2 shadow-lg border border-white/40 flex items-center justify-center flex-shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-icon.png"
+              alt="LaundryMall Profile"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
