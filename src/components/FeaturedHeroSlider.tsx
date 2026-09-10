@@ -169,16 +169,28 @@ export default function FeaturedHeroSlider({
         onTouchStart={handlePause}
         onTouchEnd={handleResume}
       >
-        {/* Scrollable slide container - full card width, no peeking on desktop */}
+        {/* 
+          Slider container:
+          - Mobile: no padding, no gap → each card is exactly full-width → perfect snap alignment
+          - Desktop (sm+): side padding + gap to show partial next card (peek effect)
+        */}
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar select-none px-4 gap-3 sm:gap-4"
+          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar select-none
+                     sm:px-4 sm:gap-3 md:gap-4"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           {banners.map((b, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-[84vw] sm:w-[380px] md:w-[460px] snap-start rounded-2xl text-white p-5 sm:p-6 flex items-center justify-between shadow-md relative overflow-hidden"
+              className="
+                flex-shrink-0 snap-start rounded-none sm:rounded-2xl
+                w-full sm:w-[380px] md:w-[460px]
+                text-white p-5 sm:p-6
+                flex items-center justify-between
+                shadow-md relative overflow-hidden
+                min-h-[160px] sm:min-h-0
+              "
             >
               {/* Gradient background */}
               <div className={`absolute inset-0 bg-gradient-to-br ${b.color}`} />
@@ -187,7 +199,8 @@ export default function FeaturedHeroSlider({
               <div className="absolute -top-10 -right-10 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
               <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-black/10 rounded-full blur-xl pointer-events-none" />
 
-              <div className="relative z-10 pr-2 flex-1">
+              {/* On mobile, add inner padding since card has no container padding */}
+              <div className="relative z-10 pr-2 flex-1 px-4 sm:px-0">
                 <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full mb-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                   <p className="text-[10px] font-bold text-white uppercase tracking-wider">
@@ -221,7 +234,7 @@ export default function FeaturedHeroSlider({
                 </div>
               </div>
 
-              <span className="text-5xl sm:text-6xl drop-shadow-md select-none ml-2 flex-shrink-0">
+              <span className="text-5xl sm:text-6xl drop-shadow-md select-none ml-2 mr-4 sm:mr-0 flex-shrink-0">
                 {b.emoji}
               </span>
             </div>
