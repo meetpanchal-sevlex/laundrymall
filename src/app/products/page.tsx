@@ -129,10 +129,10 @@ export default async function ProductsPage({
           </div>
         </aside>
 
-        {/* Product Grid - Meesho Style (2 columns mobile, no gaps, borders) */}
+        {/* Product Grid - 3 columns on mobile, 3 on md, 4 on lg */}
         <div className="flex-1">
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 border-t border-l border-gray-100 bg-white md:rounded-lg overflow-hidden">
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 border-t border-l border-gray-100 bg-white md:rounded-lg overflow-hidden">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} compact />
               ))}
