@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, CheckCircle2, MessageCircle, Phone, Sparkles, Building2, Layers } from "lucide-react";
+import { X, CheckCircle2, MessageCircle, Phone, Sparkles, Building2, FileText, Loader2 } from "lucide-react";
 
 interface TurnkeyQuoteModalProps {
   isOpen: boolean;
@@ -12,34 +12,78 @@ interface TurnkeyQuoteModalProps {
 export default function TurnkeyQuoteModal({
   isOpen,
   onClose,
-  defaultPackage = "Turnkey Commercial Plant Setup",
 }: TurnkeyQuoteModalProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [businessName, setBusinessName] = useState("");
-  const [setupType, setSetupType] = useState(defaultPackage);
-  const [capacity, setCapacity] = useState("200 - 500 kg/day");
+  const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   if (!isOpen) return null;
 
-  const handleWhatsAppInquiry = () => {
+  // Save lead to /api/quote backend (Upstash Redis + persistent log)
+  const saveLead = async (source: "whatsapp" | "callback_request") => {
+    try {
+      await fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          businessName: businessName.trim() || undefined,
+          notes: notes.trim() || undefined,
+          source,
+        }),
+      });
+    } catch (err) {
+      console.error("Non-fatal: failed to persist lead:", err);
+    }
+  };
+
+  const handleWhatsAppInquiry = async () => {
+    if (!name.trim() || !phone.trim()) {
+      setErrorMessage("Please enter your name and phone number");
+      return;
+    }
+    setErrorMessage("");
+    setIsSubmitting(true);
+
+    // 1. Save lead to backend database
+    await saveLead("whatsapp");
+
+    // 2. Format WhatsApp message
+    const targetWhatsApp = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919574707385";
     const text = encodeURIComponent(
-      `Hello LaundryMall Team,\n\nI am interested in B2B Turnkey Setup Consultation:\n` +
-      `• Name: ${name || "B2B Partner"}\n` +
-      `• Business: ${businessName || "Commercial Laundry"}\n` +
-      `• Phone: ${phone || "N/A"}\n` +
-      `• Setup Type: ${setupType}\n` +
-      `• Estimated Capacity: ${capacity}\n\n` +
-      `Please connect me with a commercial plant layout engineer and share machinery packages with GST pricing.`
+      `Hello LaundryMall Team,\n\nI am interested in a Commercial Laundry / Machinery Quote:\n` +
+      `• Name: ${name.trim()}\n` +
+      `• Phone: ${phone.trim()}\n` +
+      (businessName.trim() ? `• Business / Organization: ${businessName.trim()}\n` : "") +
+      (notes.trim() ? `• Requirements: ${notes.trim()}\n` : "") +
+      `\nPlease share pricing, catalog, and connect me with a technical sales engineer.`
     );
-    // Open LaundryMall WhatsApp Business hotline
-    window.open(`https://wa.me/919876543210?text=${text}`, "_blank");
+
+    // 3. Open WhatsApp chat with LaundryMall business
+    window.open(`https://wa.me/${targetWhatsApp}?text=${text}`, "_blank");
+
+    setIsSubmitting(false);
     setIsSubmitted(true);
   };
 
-  const handleSubmitRequest = (e: React.FormEvent) => {
+  const handleSubmitRequest = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim() || !phone.trim()) {
+      setErrorMessage("Please enter your name and phone number");
+      return;
+    }
+    setErrorMessage("");
+    setIsSubmitting(true);
+
+    // Save lead to backend database
+    await saveLead("callback_request");
+
+    setIsSubmitting(false);
     setIsSubmitted(true);
   };
 
@@ -62,13 +106,13 @@ export default function TurnkeyQuoteModal({
 
           <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
             <Sparkles className="w-3.5 h-3.5" />
-            Turnkey Plant Setup & Consulting
+            Turnkey Plant Setup & Wholesale
           </div>
           <h2 className="text-xl md:text-2xl font-black tracking-tight">
             Request Commercial Laundry Quote
           </h2>
           <p className="text-xs md:text-sm text-white/85 mt-1 leading-relaxed">
-            Get complete machine sizing, floor layout planning & factory-direct wholesale pricing.
+            Get factory-direct wholesale pricing, machine sizing & setup consultation.
           </p>
         </div>
 
@@ -80,21 +124,30 @@ export default function TurnkeyQuoteModal({
                 <CheckCircle2 className="w-10 h-10" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Inquiry Received!</h3>
+                <h3 className="text-xl font-bold text-gray-900">Quote Request Saved!</h3>
                 <p className="text-sm text-gray-600 mt-1 max-w-sm mx-auto leading-relaxed">
-                  Our Senior Commercial Plant Engineer will contact you within 2 hours with project blueprints and wholesale machinery rates.
+                  Thank you, <span className="font-semibold text-gray-900">{name}</span>. Your request has been sent to the LaundryMall sales engineering team. We will call you at <span className="font-semibold text-gray-900">{phone}</span> shortly.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                  setIsSubmitted(false);
+                  onClose();
+                }}
                 className="bg-gray-900 text-white font-bold text-sm px-6 py-2.5 rounded-full hover:bg-black transition cursor-pointer"
               >
-                Close Window
+                Done
               </button>
             </div>
           ) : (
-            <form onSubmit={handleSubmitRequest} className="space-y-4">
+            <form onSubmit={handleSubmitRequest} className="space-y-3.5">
+              {errorMessage && (
+                <div className="bg-red-50 text-red-600 text-xs px-3.5 py-2 rounded-xl border border-red-100 font-semibold">
+                  {errorMessage}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 mb-1">
@@ -106,7 +159,7 @@ export default function TurnkeyQuoteModal({
                     placeholder="e.g. Rajesh Sharma"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-medium"
                   />
                 </div>
                 <div>
@@ -119,14 +172,14 @@ export default function TurnkeyQuoteModal({
                     placeholder="e.g. 9876543210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    className="w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-medium"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Business / Hotel / Hospital Name
+                  Business / Hotel / Hospital Name <span className="text-gray-400 font-normal">(Optional)</span>
                 </label>
                 <div className="relative">
                   <Building2 className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
@@ -135,46 +188,24 @@ export default function TurnkeyQuoteModal({
                     placeholder="e.g. Apex Hospitality Laundry"
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
-                    className="w-full text-sm border border-gray-200 rounded-xl pl-9 pr-3.5 py-2.5 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                    className="w-full text-sm border border-gray-200 rounded-xl pl-9 pr-3.5 py-2.5 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-medium"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Setup Project Type
-                  </label>
-                  <select
-                    value={setupType}
-                    onChange={(e) => setSetupType(e.target.value)}
-                    className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 bg-white focus:outline-none focus:border-blue-600"
-                  >
-                    <option value="Turnkey Commercial Plant Setup">Turnkey Commercial Plant</option>
-                    <option value="Boutique Laundromat Franchise">Boutique Laundromat</option>
-                    <option value="Hotel & Hospital On-Premise Laundry">Hotel / Hospital OPL</option>
-                    <option value="Dry Cleaning & Wet Cleaning Unit">Dry Cleaning Setup</option>
-                    <option value="Machinery Upgrade Only">Machinery Upgrade Only</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Daily Capacity Target
-                  </label>
-                  <div className="relative">
-                    <Layers className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
-                    <select
-                      value={capacity}
-                      onChange={(e) => setCapacity(e.target.value)}
-                      className="w-full text-sm border border-gray-200 rounded-xl pl-9 pr-3 py-2.5 bg-white focus:outline-none focus:border-blue-600"
-                    >
-                      <option value="50 - 150 kg/day">50 - 150 kg/day</option>
-                      <option value="200 - 500 kg/day">200 - 500 kg/day</option>
-                      <option value="600 - 1500 kg/day">600 - 1,500 kg/day</option>
-                      <option value="2000+ kg/day (Industrial)">2,000+ kg/day (Mega Plant)</option>
-                    </select>
-                  </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  Requirements / Notes <span className="text-gray-400 font-normal">(Optional)</span>
+                </label>
+                <div className="relative">
+                  <FileText className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    placeholder="e.g. Commercial Washers, Turnkey Plant, Chemicals"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full text-sm border border-gray-200 rounded-xl pl-9 pr-3.5 py-2.5 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 font-medium"
+                  />
                 </div>
               </div>
 
@@ -183,23 +214,33 @@ export default function TurnkeyQuoteModal({
                 <button
                   type="button"
                   onClick={handleWhatsAppInquiry}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition hover:scale-[1.01] active:scale-[0.99] cursor-pointer disabled:opacity-60"
                 >
-                  <MessageCircle className="w-5 h-5 fill-current" />
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <MessageCircle className="w-5 h-5 fill-current" />
+                  )}
                   Get Instant Quotation on WhatsApp
                 </button>
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer disabled:opacity-60 text-sm"
                 >
-                  <Phone className="w-4 h-4" />
+                  {isSubmitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Phone className="w-4 h-4" />
+                  )}
                   Request Call From Plant Engineer
                 </button>
               </div>
 
-              <p className="text-[11px] text-gray-400 text-center">
-                🔒 100% Privacy. GST input credit consultation included at zero cost.
+              <p className="text-[11px] text-gray-400 text-center pt-1">
+                🔒 100% Privacy. Lead details are securely sent to LaundryMall B2B team.
               </p>
             </form>
           )}
