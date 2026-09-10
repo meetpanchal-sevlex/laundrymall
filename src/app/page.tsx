@@ -6,6 +6,7 @@ import { Marquee } from "@/components/ui/Marquee";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import FeaturedHeroSlider from "@/components/FeaturedHeroSlider";
 import CategoryFlow from "@/components/CategoryFlow";
+import SearchAutocomplete from "@/components/SearchAutocomplete";
 
 const WHY_US = [
   { icon: "🚚", title: "Pan India Delivery", sub: "Fast shipping to all outlets" },
@@ -22,19 +23,15 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-[#FAFAFA] pb-20 md:pb-4">
       <div className="max-w-7xl mx-auto w-full">
-        {/* Mobile Search Bar */}
-        <div className="md:hidden bg-white px-4 py-3 border-b border-gray-100 shadow-sm">
-          <form action="/products" method="GET">
-            <div className="flex items-center bg-gray-100 rounded-full px-4 py-2.5 gap-3">
-              <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              <input
-                name="search"
-                type="text"
-                placeholder="Search for Machinery, Chemicals..."
-                className="bg-transparent flex-1 text-sm outline-none text-gray-700 placeholder:text-gray-400"
-              />
-            </div>
-          </form>
+        {/* Mobile Search Bar with Predictive Autocomplete */}
+        <div className="md:hidden bg-white px-4 py-3 border-b border-gray-100 shadow-xs">
+          <div className="flex items-center bg-gray-100 rounded-full px-4 py-1 gap-2">
+            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <SearchAutocomplete
+              isMobile
+              placeholder="Search Machinery, Chemicals, Setup..."
+            />
+          </div>
         </div>
 
         {/* Option 1: Touch-Driven Featured Hero Banner Slider */}

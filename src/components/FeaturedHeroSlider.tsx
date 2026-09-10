@@ -2,7 +2,8 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircle } from "lucide-react";
+import TurnkeyQuoteModal from "@/components/TurnkeyQuoteModal";
 
 export interface HeroBanner {
   title: string;
@@ -11,6 +12,7 @@ export interface HeroBanner {
   color: string;
   emoji: string;
   href: string;
+  isQuoteModal?: boolean;
 }
 
 export const DEFAULT_HERO_BANNERS: HeroBanner[] = [
@@ -61,6 +63,7 @@ export const DEFAULT_HERO_BANNERS: HeroBanner[] = [
     color: "from-rose-600 via-pink-700 to-red-900",
     emoji: "🏗️",
     href: "/products?category=Laundry+Setup",
+    isQuoteModal: true,
   },
 ];
 
@@ -73,6 +76,13 @@ export default function FeaturedHeroSlider({
   const [activeIndex, setActiveIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isQuoteOpen, setIsQuoteOpen] = useState(false);
+
+  // Mouse Dragging State (Senior Engineer Touch + Mouse Physics)
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragStartScroll, setDragStartScroll] = useState(0);
+  const [hasMoved, setHasMoved] = useState(false);
 
   const updateScrollState = () => {
     if (!scrollRef.current) return;
@@ -115,93 +125,152 @@ export default function FeaturedHeroSlider({
     scrollToSlide(Math.min(banners.length - 1, activeIndex + 1));
   };
 
+  // Mouse Drag Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setHasMoved(false);
+    setDragStartX(e.pageX - scrollRef.current.offsetLeft);
+    setDragStartScroll(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - dragStartX) * 1.5;
+    if (Math.abs(walk) > 6) {
+      setHasMoved(true);
+    }
+    scrollRef.current.scrollLeft = dragStartScroll - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
-    <section className="relative pt-3 md:pt-6 pb-2 group">
-      {/* Scrollable Container with Native Touch Snap (Option 1: moves only on touch/swipe) */}
-      <div
-        ref={scrollRef}
-        className="flex gap-3 sm:gap-4 px-4 overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar select-none"
-        style={{ WebkitOverflowScrolling: "touch" }}
-      >
-        {banners.map((b, i) => (
-          <Link
-            key={i}
-            href={b.href}
-            className="flex-shrink-0 w-[84vw] sm:w-[380px] md:w-[410px] snap-center rounded-2xl bg-gradient-to-r text-white p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer relative overflow-hidden"
-            style={{
-              backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))`,
-            }}
-          >
-            {/* Background decorative blur circles */}
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-black/10 rounded-full blur-xl pointer-events-none" />
+    <>
+      <TurnkeyQuoteModal
+        isOpen={isQuoteOpen}
+        onClose={() => setIsQuoteOpen(false)}
+        defaultPackage="Turnkey Commercial Plant Setup"
+      />
 
-            <div className={`absolute inset-0 bg-gradient-to-r ${b.color} -z-10`} />
+      <section className="relative pt-3 md:pt-6 pb-2 group">
+        {/* Scrollable Container with Native Touch Snap & Desktop Mouse Dragging */}
+        <div
+          ref={scrollRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          className={`flex gap-3 sm:gap-4 px-4 overflow-x-auto scroll-smooth hide-scrollbar select-none ${
+            isDragging ? "cursor-grabbing snap-none" : "cursor-grab snap-x snap-mandatory"
+          }`}
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          {banners.map((b, i) => (
+            <div
+              key={i}
+              className="flex-shrink-0 w-[84vw] sm:w-[380px] md:w-[410px] snap-center rounded-2xl bg-gradient-to-r text-white p-5 sm:p-6 flex items-center justify-between shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 relative overflow-hidden group/card"
+              style={{
+                backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))`,
+              }}
+            >
+              {/* Background decorative blur circles */}
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none" />
+              <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-black/10 rounded-full blur-xl pointer-events-none" />
 
-            <div className="relative z-10 pr-2">
-              <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                <p className="text-[10px] font-bold text-white uppercase tracking-wider">
-                  {b.tag}
+              <div className={`absolute inset-0 bg-gradient-to-r ${b.color} -z-10`} />
+
+              <div className="relative z-10 pr-2">
+                <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <p className="text-[10px] font-bold text-white uppercase tracking-wider">
+                    {b.tag}
+                  </p>
+                </div>
+                <h3 className="text-lg md:text-xl font-black leading-tight tracking-tight text-white">
+                  {b.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-white/85 mt-1 leading-snug line-clamp-2">
+                  {b.subtitle}
                 </p>
+
+                <div className="mt-4 flex items-center gap-2">
+                  <Link
+                    href={b.href}
+                    onClick={(e) => {
+                      if (hasMoved) e.preventDefault();
+                    }}
+                    className="bg-white text-gray-900 text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm transition-transform hover:scale-105 active:scale-95"
+                  >
+                    Explore <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
+                  </Link>
+
+                  {b.isQuoteModal && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!hasMoved) setIsQuoteOpen(true);
+                      }}
+                      className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1 border border-white/40 transition cursor-pointer"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" /> Quote
+                    </button>
+                  )}
+                </div>
               </div>
-              <h3 className="text-lg md:text-xl font-black leading-tight tracking-tight text-white">
-                {b.title}
-              </h3>
-              <p className="text-xs sm:text-sm text-white/85 mt-1 leading-snug line-clamp-2">
-                {b.subtitle}
-              </p>
-              <div className="mt-4 bg-white text-gray-900 text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm transition-transform hover:scale-105 active:scale-95">
-                Explore <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
-              </div>
+
+              <span className="text-5xl sm:text-6xl drop-shadow-md select-none transform transition-transform group-hover/card:scale-110 ml-2 flex-shrink-0">
+                {b.emoji}
+              </span>
             </div>
+          ))}
+        </div>
 
-            <span className="text-5xl sm:text-6xl drop-shadow-md select-none transform transition-transform group-hover:scale-110 ml-2 flex-shrink-0">
-              {b.emoji}
-            </span>
-          </Link>
-        ))}
-      </div>
-
-      {/* Desktop Chevron Navigation Buttons */}
-      {canScrollLeft && (
-        <button
-          type="button"
-          onClick={scrollPrev}
-          aria-label="Previous Slide"
-          className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-      )}
-
-      {canScrollRight && (
-        <button
-          type="button"
-          onClick={scrollNext}
-          aria-label="Next Slide"
-          className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* Touch Indicator Dots (Option 1) */}
-      <div className="flex justify-center items-center gap-1.5 mt-3">
-        {banners.map((_, idx) => (
+        {/* Desktop Chevron Navigation Buttons */}
+        {canScrollLeft && (
           <button
-            key={idx}
             type="button"
-            onClick={() => scrollToSlide(idx)}
-            aria-label={`Go to slide ${idx + 1}`}
-            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-              activeIndex === idx
-                ? "w-6 bg-blue-600"
-                : "w-1.5 bg-gray-300 hover:bg-gray-400"
-            }`}
-          />
-        ))}
-      </div>
-    </section>
+            onClick={scrollPrev}
+            aria-label="Previous Slide"
+            className="hidden md:flex absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
+
+        {canScrollRight && (
+          <button
+            type="button"
+            onClick={scrollNext}
+            aria-label="Next Slide"
+            className="hidden md:flex absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur-md shadow-md items-center justify-center text-gray-800 hover:bg-white hover:scale-110 transition-all z-20 cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Touch & Click Indicator Dots */}
+        <div className="flex justify-center items-center gap-1.5 mt-3">
+          {banners.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => scrollToSlide(idx)}
+              aria-label={`Go to slide ${idx + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                activeIndex === idx
+                  ? "w-6 bg-blue-600"
+                  : "w-1.5 bg-gray-300 hover:bg-gray-400"
+              }`}
+            />
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

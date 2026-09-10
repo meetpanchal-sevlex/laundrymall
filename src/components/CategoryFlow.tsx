@@ -81,12 +81,18 @@ export default function CategoryFlow() {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Mouse Dragging State
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragStartScroll, setDragStartScroll] = useState(0);
+  const [hasMoved, setHasMoved] = useState(false);
+
   // Gentle Slow Auto-Scroll Engine
   useEffect(() => {
     let animId: number;
 
     const tick = () => {
-      if (!isPaused && scrollRef.current) {
+      if (!isPaused && !isDragging && scrollRef.current) {
         const el = scrollRef.current;
         // Slow gentle drift: 0.45px per frame (~27px/s)
         el.scrollLeft += 0.45;
@@ -105,7 +111,7 @@ export default function CategoryFlow() {
 
     animId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animId);
-  }, [isPaused]);
+  }, [isPaused, isDragging]);
 
   // Pause on touch or hover, resume after user stops interacting
   const handleInteractionStart = () => {
@@ -119,6 +125,31 @@ export default function CategoryFlow() {
     resumeTimerRef.current = setTimeout(() => {
       setIsPaused(false);
     }, 2500);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    handleInteractionStart();
+    setIsDragging(true);
+    setHasMoved(false);
+    setDragStartX(e.pageX - scrollRef.current.offsetLeft);
+    setDragStartScroll(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - dragStartX) * 1.5;
+    if (Math.abs(walk) > 6) {
+      setHasMoved(true);
+    }
+    scrollRef.current.scrollLeft = dragStartScroll - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    handleInteractionEnd();
   };
 
   const scrollByAmount = (amount: number) => {
@@ -159,13 +190,21 @@ export default function CategoryFlow() {
             onMouseLeave={handleInteractionEnd}
             onTouchStart={handleInteractionStart}
             onTouchEnd={handleInteractionEnd}
-            className="flex gap-4 md:gap-5 overflow-x-auto hide-scrollbar scroll-smooth py-2 px-1"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            className={`flex gap-4 md:gap-5 overflow-x-auto hide-scrollbar scroll-smooth py-2 px-1 ${
+              isDragging ? "cursor-grabbing snap-none" : "cursor-grab"
+            }`}
             style={{ WebkitOverflowScrolling: "touch" }}
           >
             {displayCategories.map((cat, index) => (
               <Link
                 key={`${cat.name}-${index}`}
                 href={cat.href}
+                onClick={(e) => {
+                  if (hasMoved) e.preventDefault();
+                }}
                 className="flex-shrink-0 flex flex-col items-center group cursor-pointer w-[86px] sm:w-[100px] md:w-[115px] transition-transform duration-300 hover:-translate-y-1"
               >
                 <div className="relative">
