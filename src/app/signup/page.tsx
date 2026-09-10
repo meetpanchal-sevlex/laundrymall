@@ -6,7 +6,7 @@ import { Lock, Mail, User, ArrowRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signupAction } from "@/app/actions/auth";
 
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://backend-production-3a66.up.railway.app";
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in";
 
 import { Suspense } from 'react';
 

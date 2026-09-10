@@ -15,28 +15,38 @@ export default function AccountPage() {
 
   useEffect(() => {
     setMounted(true);
-    getCustomer().then((customer) => {
+    getCustomer().then(async (customer) => {
       if (customer) {
         login(customer);
+        setIsLoading(false);
       } else {
         logout();
+        await logoutAction();
         router.push("/login");
       }
-      setIsLoading(false);
-    }).catch(() => {
-      setIsLoading(false);
+    }).catch(async () => {
+      logout();
+      await logoutAction();
+      router.push("/login");
     });
   }, [login, logout, router]);
 
-  if (!mounted || isLoading) {
+  if (!mounted || (isLoading && !cachedUser)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-[70vh] flex items-center justify-center bg-gray-50">
         <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (!cachedUser) return null;
+  if (!cachedUser) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-gray-50 p-4">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-3" />
+        <p className="text-xs text-gray-500 font-medium">Redirecting to sign in...</p>
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     logout();

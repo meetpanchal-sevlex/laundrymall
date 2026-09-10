@@ -432,7 +432,7 @@ function LoginForm() {
                 /* Step 1: Sign Up / Sign In phone screen (Clean Minimalist Layout) */
                 <div>
                   <h1 className="text-lg font-bold text-[#333333] mb-6">
-                    Sign Up to view your profile
+                    Sign In or Sign Up to view your profile
                   </h1>
 
                   <form onSubmit={handleSendOtp}>

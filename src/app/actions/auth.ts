@@ -6,7 +6,7 @@ import { z } from "zod";
 import { medusaClient } from "@/lib/medusa";
 import crypto from "crypto";
 
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://backend-production-3a66.up.railway.app";
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in";
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
 const MSG91_AUTH_KEY = process.env.MSG91_AUTH_KEY || "566554AFhqTDveEa6aa123eaP1";
 

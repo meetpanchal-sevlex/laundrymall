@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://backend-production-3a66.up.railway.app";
+    const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "https://api.laundrymall.in";
     const res = await fetch(`${MEDUSA_URL}/auth/customer/google/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`, {
       method: "POST",
       headers: {
