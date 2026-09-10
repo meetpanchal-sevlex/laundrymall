@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getCustomer, logoutAction, updateCustomerProfileAction } from "@/app/actions/auth";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 /** Parse the display name — strip Medusa's "Customer XXXX" generic name */
 function getDisplayName(user: { first_name?: string; last_name?: string; phone?: string }) {
@@ -39,6 +40,7 @@ export default function AccountPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const wishlistItems = useWishlistStore((state) => state.items);
 
   // Edit profile state
   const [isEditing, setIsEditing] = useState(false);
@@ -205,10 +207,13 @@ export default function AccountPage() {
             <p className="text-white font-black text-lg leading-none">0</p>
             <p className="text-blue-200 text-[10px] font-semibold mt-0.5">Orders</p>
           </div>
-          <div className="flex-1 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-2.5 text-center border border-white/20">
-            <p className="text-white font-black text-lg leading-none">0</p>
+          <Link
+            href="/account/wishlist"
+            className="flex-1 bg-white/15 hover:bg-white/25 transition backdrop-blur-sm rounded-xl px-3 py-2.5 text-center border border-white/20 block cursor-pointer"
+          >
+            <p className="text-white font-black text-lg leading-none">{wishlistItems.length}</p>
             <p className="text-blue-200 text-[10px] font-semibold mt-0.5">Wishlist</p>
-          </div>
+          </Link>
           <div className="flex-1 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-2.5 text-center border border-white/20">
             <ShieldCheck className="w-5 h-5 text-emerald-300 mx-auto" />
             <p className="text-blue-200 text-[10px] font-semibold mt-0.5">Verified</p>

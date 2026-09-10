@@ -2,6 +2,7 @@
 
 import { useCartStore } from "@/store/cartStore";
 import { useCart } from "@/hooks/useCart";
+import { useWishlistStore } from "@/store/wishlistStore";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Heart, X, ShoppingBag, ChevronRight } from "lucide-react";
@@ -150,10 +151,19 @@ export default function CartDrawer() {
                         {/* Controls Row */}
                         <div className="flex items-center justify-between mt-auto pt-3">
                           <button 
-                            className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
+                            type="button"
+                            className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 hover:text-rose-600 transition-colors cursor-pointer"
                             onClick={() => {
-                               alert("Item saved to Wishlist (Feature coming soon)");
-                               // removeItem(item.id); // Uncomment when wishlist store is ready
+                              useWishlistStore.getState().addItem({
+                                id: item.id || item.variantId || item.lineItemId,
+                                name: item.name,
+                                category: item.category || "General",
+                                price: item.price,
+                                originalPrice: item.originalPrice,
+                                image: item.image,
+                                description: "",
+                              });
+                              removeItem(item.lineItemId);
                             }}
                           >
                             <Heart className="w-3.5 h-3.5" /> 

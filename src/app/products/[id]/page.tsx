@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import ProductBottomBar from "@/components/ProductBottomBar";
 import { getCachedFrontendProduct, getCachedFrontendProducts } from "@/lib/medusa-cache";
 import ImageSlider from "@/components/ImageSlider";
+import ProductActions from "@/components/ProductActions";
 
 export const revalidate = 60; // Cache for 60 seconds (ISR)
 
@@ -83,16 +84,7 @@ export default async function ProductDetailPage({
                 <h1 className="text-gray-500 md:text-gray-900 font-medium md:font-black text-[15px] md:text-2xl leading-snug flex-1">
                   {product.name}
                 </h1>
-                <div className="flex items-center gap-3 md:gap-5 text-gray-400">
-                  <div className="flex flex-col items-center gap-1 hover:text-red-500 transition cursor-pointer group">
-                    <Heart className="w-5 h-5 md:w-6 md:h-6 group-hover:fill-red-50" />
-                    <span className="text-[10px] md:text-xs font-medium">Wishlist</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 hover:text-blue-600 transition cursor-pointer group">
-                    <Share2 className="w-5 h-5 md:w-6 md:h-6 group-hover:fill-blue-50" />
-                    <span className="text-[10px] md:text-xs font-medium">Share</span>
-                  </div>
-                </div>
+                <ProductActions product={product} />
               </div>
 
               <div className="flex items-baseline gap-2 mb-2 md:mb-4">
