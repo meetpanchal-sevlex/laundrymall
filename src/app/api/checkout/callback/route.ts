@@ -15,7 +15,11 @@ export async function POST(req: NextRequest) {
       // Attempt to force complete the cart on the Medusa backend
       // Even if this fails (e.g. webhook already did it), we want to redirect to success
       try {
-        await completeCartAction();
+        await completeCartAction({
+          orderId: razorpay_order_id ? String(razorpay_order_id) : undefined,
+          paymentId: razorpay_payment_id ? String(razorpay_payment_id) : undefined,
+          signature: razorpay_signature ? String(razorpay_signature) : undefined,
+        });
       } catch (err: any) {
         console.warn("Cart completion in callback returned an error (might be completed by webhook):", err.message);
       }

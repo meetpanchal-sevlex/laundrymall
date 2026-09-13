@@ -4,14 +4,14 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     // 1. Verify this request actually came from Medusa (Basic Auth or Secret Header)
-    const secret = request.headers.get('x-medusa-signature');
+    const secret = request.headers.get('x-medusa-signature') || request.headers.get('x-revalidate-secret');
+    const expectedSecret = process.env.MEDUSA_WEBHOOK_SECRET || process.env.REVALIDATE_SECRET;
     
-    // In production, you would compare 'secret' against your environment variable
-    // if (secret !== process.env.MEDUSA_WEBHOOK_SECRET) {
-    //   return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    // }
+    if (expectedSecret && secret !== expectedSecret) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
 
-    const payload = await request.json();
+    const payload = await request.json().catch(() => ({}));
     
     // 2. Revalidate the entire product catalog and homepage instantly
     revalidatePath('/');

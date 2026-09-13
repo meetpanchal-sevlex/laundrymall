@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { unstable_noStore as noStore } from "next/cache";
+import crypto from "crypto";
 import { medusaClient } from "@/lib/medusa";
 import { getCachedRegions } from "@/lib/medusa-cache";
 
@@ -236,7 +237,28 @@ export async function prepareCODCheckoutAction(shippingAddress: any, email: stri
   }
 }
 
-export async function completeCartAction() {
+export async function completeCartAction(paymentVerification?: {
+  orderId?: string;
+  paymentId?: string;
+  signature?: string;
+}) {
+  // Cryptographically verify Razorpay signature if provided
+  if (paymentVerification?.signature && paymentVerification?.orderId && paymentVerification?.paymentId) {
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (secret) {
+      const expected = crypto
+        .createHmac("sha256", secret)
+        .update(`${paymentVerification.orderId}|${paymentVerification.paymentId}`)
+        .digest("hex");
+
+      if (expected !== paymentVerification.signature) {
+        console.error("🚨 Razorpay signature mismatch! Potential fraudulent checkout attempt.");
+        return { error: "Invalid payment verification signature. Transaction rejected." };
+      }
+      console.log("✅ Razorpay payment signature verified successfully for order:", paymentVerification.orderId);
+    }
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get("_medusa_jwt")?.value;
   const headers = getHeaders(token);

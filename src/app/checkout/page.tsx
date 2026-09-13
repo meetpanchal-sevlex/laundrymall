@@ -196,7 +196,11 @@ export default function CheckoutPage() {
         handler: async function (response: any) {
           setIsProcessing(true);
           try {
-            const result = await completeCartAction();
+            const result = await completeCartAction({
+              orderId: response?.razorpay_order_id,
+              paymentId: response?.razorpay_payment_id,
+              signature: response?.razorpay_signature,
+            });
             if (result.error) {
               setIsProcessing(false);
               alert("Payment was captured, but order creation failed: " + result.error);

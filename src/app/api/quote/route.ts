@@ -91,8 +91,25 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    // Protect GET endpoint from unauthorized customer data harvesting
+    const url = new URL(req.url);
+    const authHeader = req.headers.get("authorization");
+    const queryKey = url.searchParams.get("key");
+    const adminKey = process.env.ADMIN_SECRET_KEY || "laundrymall_admin_secure";
+
+    const isAuthorized = 
+      (authHeader && authHeader === `Bearer ${adminKey}`) ||
+      (queryKey && queryKey === adminKey);
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: "Unauthorized. Admin access token required to view customer leads." },
+        { status: 401 }
+      );
+    }
+
     let leads: any[] = [];
 
     // 1. Try Redis
