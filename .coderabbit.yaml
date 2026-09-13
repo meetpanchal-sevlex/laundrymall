@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+tone_instructions: "Be concise, analytical, and focus on senior-level code quality, security vulnerabilities, performance bottlenecks, and Next.js 16 best practices."
+early_access: false
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+      - "master"
+  path_filters:
+    - "!node_modules/**"
+    - "!.next/**"
+    - "!playwright-report/**"
+    - "!test-results/**"
+    - "!package-lock.json"
+    - "!public/**"
+    - "!scratch/**"
+  path_instructions:
+    - path: "src/app/**"
+      instructions: |
+        - Follow Next.js 16 App Router best practices.
+        - Keep components as React Server Components by default; only use 'use client' when browser state, hooks, or event handlers are required.
+        - Ensure proper error boundaries and notFound() fallbacks.
+        - Validate that dynamic routes implement generateMetadata() with canonical URLs.
+    - path: "src/app/api/**"
+      instructions: |
+        - Enforce strict input validation on all POST/PUT routes.
+        - Verify HMAC SHA-256 cryptographic signature validation on Razorpay webhooks.
+        - Ensure edge rate limiting guards are respected.
+        - Never expose private server environment variables to response bodies.
+    - path: "src/lib/**"
+      instructions: |
+        - Validate proper error handling and fallback mechanisms in the Medusa cache layer (unstable_cache).
+        - Ensure API clients handle network timeouts gracefully.
+    - path: "src/store/**"
+      instructions: |
+        - Ensure Zustand stores using localStorage persistence handle SSR hydration properly to prevent layout shift or React mismatch errors.
+
+chat:
+  auto_reply: true
