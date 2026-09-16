@@ -73,8 +73,8 @@ const CATEGORIES = [
 
 export default function CategoryFlow() {
   return (
-    <section className="bg-white py-4 border-y border-gray-100">
-      <div className="px-4">
+    <section className="bg-white pt-3 pb-2 border-b border-gray-100">
+      <div className="px-3">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">

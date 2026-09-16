@@ -131,11 +131,11 @@ export default async function ProductDetailPage({
           {/* Left Column - Images */}
           <div className="md:w-1/2 flex-shrink-0">
             {/* Product Image Section */}
-            <div className="bg-white pb-2 relative md:sticky md:top-24 md:pb-0 md:rounded-xl md:border md:border-gray-100 md:overflow-hidden">
+            <div className="bg-white relative md:sticky md:top-24 md:rounded-xl md:border md:border-gray-100 md:overflow-hidden">
               <ImageSlider images={sliderImages} alt={product.name} />
 
-              {/* Meesho-style Trust Badges Banner */}
-              <div className="flex items-center justify-between px-4 py-2.5 bg-blue-50 border-y border-blue-100 text-[10px] md:text-xs font-bold text-gray-700">
+              {/* Trust Badges Banner */}
+              <div className="flex items-center justify-between px-4 py-2 bg-blue-50 border-t border-blue-100 text-[10px] md:text-xs font-bold text-gray-700">
                 <div className="flex items-center gap-1 text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
                   <ShieldCheck className="w-3.5 h-3.5 md:w-4 md:h-4" /> Mall
                 </div>
@@ -144,16 +144,6 @@ export default async function ProductDetailPage({
                 </div>
                 <div className="flex items-center gap-1">
                   <Store className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-500" /> Direct From Company
-                </div>
-              </div>
-            </div>
-
-            {/* Similar Products Placeholder - Meesho Style (Mobile Only or Under Image) */}
-            <div className="bg-white mt-2 p-4 md:mt-6 md:p-0 md:border-none md:bg-transparent">
-              <h3 className="text-gray-500 font-bold text-sm mb-3">Similar Products</h3>
-              <div className="flex gap-3">
-                <div className="w-16 h-16 md:w-20 md:h-20 border-2 border-blue-600 rounded-lg overflow-hidden p-1 bg-white relative hover:scale-105 transition-transform cursor-pointer shadow-sm">
-                  <Image src={product.image} alt="Similar" fill className="object-contain" />
                 </div>
               </div>
             </div>

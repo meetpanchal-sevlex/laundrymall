@@ -24,10 +24,10 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-[#F4F6FA] pb-20 md:pb-4">
       <div className="max-w-7xl mx-auto w-full">
 
-        {/* Mobile Search Bar */}
-        <div className="md:hidden bg-white px-4 py-2.5 border-b border-gray-100 shadow-sm">
-          <div className="flex items-center bg-gray-100 rounded-full px-4 py-1.5 gap-2">
-            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        {/* Mobile Search Bar — slim pill */}
+        <div className="md:hidden bg-white px-3 py-1.5 border-b border-gray-100">
+          <div className="flex items-center bg-gray-100/80 rounded-full px-3 py-1 gap-1.5">
+            <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
             <SearchAutocomplete
               isMobile
               placeholder="Search Machinery, Chemicals, Setup..."
@@ -38,18 +38,18 @@ export default async function Home() {
         {/* Featured Hero Slider */}
         <FeaturedHeroSlider />
 
-        {/* Trust Marquee */}
-        <div className="my-3 mx-3 rounded-2xl border border-gray-200/60 bg-white shadow-sm overflow-hidden">
-          <Marquee pauseOnHover className="[--duration:26s] py-2.5 text-xs sm:text-sm font-semibold text-gray-700">
-            <span className="flex items-center gap-2 mx-5 text-gray-700"><Truck className="w-4 h-4 text-blue-600" /> Pan-India Commercial Freight</span>
+        {/* Trust Marquee — tight strip */}
+        <div className="mt-1.5 mx-2 rounded-xl border border-gray-200/60 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+          <Marquee pauseOnHover className="[--duration:26s] py-2 text-xs font-semibold text-gray-700">
+            <span className="flex items-center gap-2 mx-5 text-gray-700"><Truck className="w-3.5 h-3.5 text-blue-600" /> Pan-India Commercial Freight</span>
             <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-2 mx-5 text-gray-700"><FileText className="w-4 h-4 text-blue-600" /> GST Input Tax Credit Invoices</span>
+            <span className="flex items-center gap-2 mx-5 text-gray-700"><FileText className="w-3.5 h-3.5 text-blue-600" /> GST Input Tax Credit Invoices</span>
             <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-2 mx-5 text-gray-700"><ShieldCheck className="w-4 h-4 text-blue-600" /> Heavy-Duty Industrial Machinery</span>
+            <span className="flex items-center gap-2 mx-5 text-gray-700"><ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> Heavy-Duty Industrial Machinery</span>
             <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-2 mx-5 text-gray-700"><BadgePercent className="w-4 h-4 text-blue-600" /> Wholesale B2B Tier Pricing</span>
+            <span className="flex items-center gap-2 mx-5 text-gray-700"><BadgePercent className="w-3.5 h-3.5 text-blue-600" /> Wholesale B2B Tier Pricing</span>
             <span className="text-gray-300">•</span>
-            <span className="flex items-center gap-2 mx-5 text-gray-700"><Truck className="w-4 h-4 text-blue-600" /> Direct Manufacturer Dispatch</span>
+            <span className="flex items-center gap-2 mx-5 text-gray-700"><Truck className="w-3.5 h-3.5 text-blue-600" /> Direct Manufacturer Dispatch</span>
             <span className="text-gray-300">•</span>
           </Marquee>
         </div>

@@ -179,7 +179,7 @@ export default function FeaturedHeroSlider({
 
       <section
         ref={sectionRef}
-        className="relative pt-3 md:pt-6 pb-2"
+        className="relative pt-2 md:pt-6 pb-0"
         onMouseEnter={handlePause}
         onMouseLeave={handleResume}
         onTouchStart={handlePause}
@@ -277,27 +277,6 @@ export default function FeaturedHeroSlider({
           <ChevronRight className="w-5 h-5" />
         </button>
 
-        {/* Pagination Dots — hover/touch on these pauses the slider */}
-        <div className="flex justify-center items-center gap-1.5 mt-3">
-          {banners.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => {
-                setActiveIndex(idx);
-                scrollToSlide(idx);
-              }}
-              onMouseEnter={handlePause}
-              onMouseLeave={handleResume}
-              aria-label={`Go to slide ${idx + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                activeIndex === idx
-                  ? "w-6 bg-blue-600"
-                  : "w-1.5 bg-gray-300 hover:bg-gray-400"
-              }`}
-            />
-          ))}
-        </div>
       </section>
     </>
   );
