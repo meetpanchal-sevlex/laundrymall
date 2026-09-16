@@ -87,7 +87,7 @@ export default function SearchAutocomplete({
           placeholder={placeholder}
           className={`w-full ${
             isMobile
-              ? "bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400"
+              ? "bg-transparent text-xs outline-none text-gray-800 placeholder:text-gray-400 font-medium py-0.5"
               : "border-2 border-gray-200 rounded-full py-2 px-5 pl-11 focus:outline-none focus:border-blue-500 transition shadow-xs text-sm"
           }`}
         />

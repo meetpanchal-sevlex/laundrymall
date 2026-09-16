@@ -58,14 +58,14 @@ export default function Navbar() {
       <nav className="bg-white/85 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-xs transition-all">
         {/* Main Navbar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex justify-between items-center h-14 sm:h-20">
+            <div className="flex items-center gap-2.5 sm:gap-4">
               <button
                 className="sm:hidden text-gray-500 hover:text-blue-600 transition p-1 cursor-pointer"
                 onClick={() => setMobileDrawerOpen(true)}
                 aria-label="Open navigation menu"
               >
-                <Menu className="w-6 h-6" />
+                <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
               <div className="flex items-center">
                 <Link href="/" className="flex items-center gap-2 group">
@@ -74,10 +74,10 @@ export default function Navbar() {
                   <img
                     src="/logo-icon.png"
                     alt="LaundryMall"
-                    className="h-7 w-auto sm:h-8 object-contain flex-shrink-0"
+                    className="h-6 w-auto sm:h-8 object-contain flex-shrink-0"
                   />
                   {/* Earlier wordmark */}
-                  <span className="text-2xl sm:text-3xl font-black tracking-tighter text-blue-600 group-hover:text-blue-700 transition-colors">
+                  <span className="text-xl sm:text-3xl font-black tracking-tighter text-blue-600 group-hover:text-blue-700 transition-colors">
                     Laundry<span className="text-gray-900">Mall</span>
                   </span>
                 </Link>
