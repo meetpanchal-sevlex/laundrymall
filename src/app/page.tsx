@@ -24,8 +24,8 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-[#F4F6FA] pb-20 md:pb-4">
       <div className="max-w-7xl mx-auto w-full">
 
-        {/* Mobile Search Bar — slim pill, no background so hero starts immediately */}
-        <div className="md:hidden px-3 pt-2 pb-1.5 bg-white border-b border-gray-100">
+        {/* Mobile Search Bar — slim pill */}
+        <div className="md:hidden px-3 pt-2 pb-2 bg-white">
           <div className="flex items-center bg-gray-100/80 rounded-full px-3 py-1 gap-1.5">
             <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
             <SearchAutocomplete
@@ -38,8 +38,8 @@ export default async function Home() {
         {/* Featured Hero Slider */}
         <FeaturedHeroSlider />
 
-        {/* Trust Marquee — tight strip */}
-        <div className="mt-1.5 mx-2 rounded-xl border border-gray-200/60 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)] overflow-hidden">
+        {/* Trust Marquee — 100% full width, no curves, no side whitespace */}
+        <div className="w-full bg-white border-y border-gray-100 overflow-hidden">
           <Marquee pauseOnHover className="[--duration:26s] py-2 text-xs font-semibold text-gray-700">
             <span className="flex items-center gap-2 mx-5 text-gray-700"><Truck className="w-3.5 h-3.5 text-blue-600" /> Pan-India Commercial Freight</span>
             <span className="text-gray-300">•</span>

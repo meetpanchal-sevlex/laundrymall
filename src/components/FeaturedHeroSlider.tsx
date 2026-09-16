@@ -185,13 +185,11 @@ export default function FeaturedHeroSlider({
         onTouchStart={handlePause}
         onTouchEnd={handleResume}
       >
-        {/* Mobile: rounded-2xl wrapper with side margins for curved card look */}
-        <div className="mx-3 rounded-2xl overflow-hidden sm:mx-0 sm:rounded-none sm:overflow-visible">
-          <div
-            ref={scrollRef}
-            className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar select-none sm:px-4 sm:gap-3 md:gap-4"
-            style={{ WebkitOverflowScrolling: "touch" }}
-          >
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar select-none sm:px-4 sm:gap-3 md:gap-4"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
             {banners.map((b, i) => (
               <div
                 key={i}
@@ -245,7 +243,6 @@ export default function FeaturedHeroSlider({
               </div>
             ))}
           </div>
-        </div>
 
         {/* Left Chevron — desktop only */}
         <button
