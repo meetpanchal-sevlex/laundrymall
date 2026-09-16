@@ -21,7 +21,7 @@ export default async function Home() {
   const newArrivals = products.slice(6, 15);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F4F6FA] pb-20 md:pb-4">
+    <div className="flex flex-col bg-[#F4F6FA] pb-16 md:pb-4">
       <div className="max-w-7xl mx-auto w-full">
 
         {/* Mobile Search Bar — compact & effective */}
@@ -138,7 +138,7 @@ export default async function Home() {
         </section>
 
         {/* ─── WHY LAUNDRYMALL ─────────────────────────────────────────── */}
-        <section className="mt-4 md:mt-8 md:mb-12 bg-white md:bg-transparent px-4 py-6 md:py-0">
+        <section className="mt-4 mb-2 md:mt-8 md:mb-12 px-3 md:px-0">
           <div className="flex items-center gap-2 mb-4 md:mb-6">
             <div className="w-1 h-5 rounded-full bg-gradient-to-b from-blue-500 to-indigo-600" />
             <h2 className="text-base md:text-2xl font-black text-gray-900 tracking-tight">
