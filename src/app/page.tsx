@@ -58,7 +58,7 @@ export default async function Home() {
         <CategoryFlow />
 
         {/* ─── BEST SELLERS ───────────────────────────────────────────── */}
-        <section className="mt-3 md:mt-8 bg-white md:mx-0 md:rounded-2xl md:shadow-sm overflow-hidden">
+        <section className="mt-0 md:mt-8 bg-white md:mx-0 md:rounded-2xl md:shadow-sm overflow-hidden border-b border-gray-100">
           {/* Section Header — eye-catching gradient accent */}
           <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
             <div className="flex items-center gap-2.5">
@@ -101,7 +101,7 @@ export default async function Home() {
         </section>
 
         {/* ─── NEW ARRIVALS ────────────────────────────────────────────── */}
-        <section className="mt-3 md:mt-6 bg-white md:mx-0 md:rounded-2xl md:shadow-sm overflow-hidden">
+        <section className="mt-0 md:mt-6 bg-white md:mx-0 md:rounded-2xl md:shadow-sm overflow-hidden border-b border-gray-100">
           <div className="flex items-center justify-between px-4 md:px-6 pt-5 pb-4 border-b border-gray-100">
             <div className="flex items-center gap-2.5">
               <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm shadow-purple-200">
