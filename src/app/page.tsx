@@ -24,8 +24,8 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen bg-[#F4F6FA] pb-20 md:pb-4">
       <div className="max-w-7xl mx-auto w-full">
 
-        {/* Mobile Search Bar — slim pill */}
-        <div className="md:hidden bg-white px-3 py-1.5 border-b border-gray-100">
+        {/* Mobile Search Bar — slim pill, no background so hero starts immediately */}
+        <div className="md:hidden px-3 pt-2 pb-1.5 bg-white border-b border-gray-100">
           <div className="flex items-center bg-gray-100/80 rounded-full px-3 py-1 gap-1.5">
             <Search className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
             <SearchAutocomplete

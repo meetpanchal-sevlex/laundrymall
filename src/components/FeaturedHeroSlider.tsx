@@ -179,85 +179,75 @@ export default function FeaturedHeroSlider({
 
       <section
         ref={sectionRef}
-        className="relative pt-2 md:pt-6 pb-0"
+        className="relative pt-0 md:pt-6 pb-0"
         onMouseEnter={handlePause}
         onMouseLeave={handleResume}
         onTouchStart={handlePause}
         onTouchEnd={handleResume}
       >
-        {/* 
-          Slider container:
-          - Mobile: no padding, no gap → each card is exactly full-width → perfect snap alignment
-          - Desktop (sm+): side padding + gap to show partial next card (peek effect)
-        */}
-        <div
-          ref={scrollRef}
-          className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar select-none
-                     sm:px-4 sm:gap-3 md:gap-4"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
-          {banners.map((b, i) => (
-            <div
-              key={i}
-              className="
-                flex-shrink-0 snap-start rounded-none sm:rounded-2xl
-                w-full sm:w-[380px] md:w-[460px]
-                text-white p-5 sm:p-6
-                flex items-center justify-between
-                shadow-md relative overflow-hidden
-                min-h-[160px] sm:min-h-0
-              "
-            >
-              {/* Gradient background */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${b.color}`} />
+        {/* Mobile: rounded-2xl wrapper with side margins for curved card look */}
+        <div className="mx-3 rounded-2xl overflow-hidden sm:mx-0 sm:rounded-none sm:overflow-visible">
+          <div
+            ref={scrollRef}
+            className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar select-none sm:px-4 sm:gap-3 md:gap-4"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            {banners.map((b, i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 snap-start rounded-none sm:rounded-2xl w-full sm:w-[380px] md:w-[460px] text-white p-5 sm:p-6 flex items-center justify-between shadow-md relative overflow-hidden min-h-[160px] sm:min-h-0"
+              >
+                {/* Gradient background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${b.color}`} />
 
-              {/* Decorative circles */}
-              <div className="absolute -top-10 -right-10 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
-              <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-black/10 rounded-full blur-xl pointer-events-none" />
+                {/* Decorative circles */}
+                <div className="absolute -top-10 -right-10 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
+                <div className="absolute -bottom-10 -left-10 w-28 h-28 bg-black/10 rounded-full blur-xl pointer-events-none" />
 
-              {/* On mobile, add inner padding since card has no container padding */}
-              <div className="relative z-10 pr-2 flex-1 px-4 sm:px-0">
-                <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full mb-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                  <p className="text-[10px] font-bold text-white uppercase tracking-wider">
-                    {b.tag}
+                {/* Card content */}
+                <div className="relative z-10 pr-2 flex-1 px-4 sm:px-0">
+                  <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-0.5 rounded-full mb-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    <p className="text-[10px] font-bold text-white uppercase tracking-wider">
+                      {b.tag}
+                    </p>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-black leading-tight tracking-tight text-white">
+                    {b.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-white/85 mt-1 leading-snug line-clamp-2">
+                    {b.subtitle}
                   </p>
-                </div>
-                <h3 className="text-lg md:text-xl font-black leading-tight tracking-tight text-white">
-                  {b.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-white/85 mt-1 leading-snug line-clamp-2">
-                  {b.subtitle}
-                </p>
 
-                <div className="mt-4 flex items-center gap-2 flex-wrap">
-                  <Link
-                    href={b.href}
-                    className="bg-white text-gray-900 text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm transition-transform hover:scale-105 active:scale-95"
-                  >
-                    Explore <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
-                  </Link>
-
-                  {b.isQuoteModal && (
-                    <button
-                      type="button"
-                      onClick={() => setIsQuoteOpen(true)}
-                      className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1 border border-white/40 transition cursor-pointer"
+                  <div className="mt-4 flex items-center gap-2 flex-wrap">
+                    <Link
+                      href={b.href}
+                      className="bg-white text-gray-900 text-xs font-bold px-4 py-1.5 rounded-full inline-flex items-center gap-1 shadow-sm transition-transform hover:scale-105 active:scale-95"
                     >
-                      <MessageCircle className="w-3.5 h-3.5" /> Quote
-                    </button>
-                  )}
-                </div>
-              </div>
+                      Explore <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
+                    </Link>
 
-              <span className="text-5xl sm:text-6xl drop-shadow-md select-none ml-2 mr-4 sm:mr-0 flex-shrink-0">
-                {b.emoji}
-              </span>
-            </div>
-          ))}
+                    {b.isQuoteModal && (
+                      <button
+                        type="button"
+                        onClick={() => setIsQuoteOpen(true)}
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1 border border-white/40 transition cursor-pointer"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" /> Quote
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <span className="text-5xl sm:text-6xl drop-shadow-md select-none ml-2 mr-4 sm:mr-0 flex-shrink-0">
+                  {b.emoji}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Left Chevron */}
+        {/* Left Chevron — desktop only */}
         <button
           type="button"
           onClick={scrollPrev}
@@ -267,7 +257,7 @@ export default function FeaturedHeroSlider({
           <ChevronLeft className="w-5 h-5" />
         </button>
 
-        {/* Right Chevron */}
+        {/* Right Chevron — desktop only */}
         <button
           type="button"
           onClick={scrollNext}
