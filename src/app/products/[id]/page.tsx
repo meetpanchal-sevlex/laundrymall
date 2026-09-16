@@ -117,7 +117,7 @@ export default async function ProductDetailPage({
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen pb-20 md:pb-8">
+    <div className="bg-gray-50 pb-16 md:pb-8">
       {/* Schema.org Product Structured Data */}
       <script
         type="application/ld+json"
@@ -152,7 +152,7 @@ export default async function ProductDetailPage({
           {/* Right Column - Details */}
           <div className="md:w-1/2 md:pt-2">
             {/* Title & Price Section */}
-            <div className="bg-white mt-2 p-4 pt-5 md:mt-0 md:p-0">
+            <div className="bg-white mt-0 border-b border-gray-100 p-4 pt-5 md:mt-0 md:p-0 md:border-b-0">
               <div className="flex justify-between items-start gap-4 mb-3 md:mb-5">
                 <h1 className="text-gray-500 md:text-gray-900 font-medium md:font-black text-[15px] md:text-2xl leading-snug flex-1">
                   {product.name}
@@ -185,7 +185,7 @@ export default async function ProductDetailPage({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pb-4 md:pb-6 border-b border-gray-100">
+              <div className="flex items-center gap-2 pb-0 md:pb-6 md:border-b border-gray-100">
                 <div className="bg-green-600 text-white flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm font-bold shadow-sm">
                   4.3 <Star className="w-3 h-3 md:w-4 md:h-4 fill-current" />
                 </div>
@@ -194,14 +194,14 @@ export default async function ProductDetailPage({
             </div>
 
             {/* Select Size Section */}
-            <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100 hidden md:block">
+            <div className="bg-white mt-0 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100 hidden md:block">
               <h2 className="text-gray-900 font-bold text-sm md:text-base mb-4">Select Size</h2>
               <button className="inline-block border-2 border-blue-600 text-blue-700 font-bold text-sm px-5 py-2.5 rounded-full bg-blue-50/50 hover:bg-blue-100 transition shadow-sm">
                 Free Size
               </button>
             </div>
             {/* Mobile Only version */}
-            <div className="bg-white mt-2 p-4 md:hidden">
+            <div className="bg-white mt-0 border-b border-gray-100 p-4 md:hidden">
               <h2 className="text-gray-900 font-bold text-sm mb-4">Select Size</h2>
               <div className="inline-block border-2 border-blue-600 text-blue-700 font-bold text-sm px-4 py-2 rounded-full bg-blue-50/50">
                 Free Size
@@ -211,7 +211,7 @@ export default async function ProductDetailPage({
 
 
             {/* Product Highlights Section */}
-            <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100">
+            <div className="bg-white mt-0 p-4 md:mt-0 md:px-0 md:py-6 border-b border-gray-100">
               <div className="flex justify-between items-center mb-4 md:mb-6">
                 <h2 className="text-gray-900 font-bold text-sm md:text-base">Product Highlights</h2>
                 <button className="text-blue-700 hover:text-blue-800 font-black text-xs md:text-sm tracking-widest transition">COPY</button>
@@ -233,7 +233,7 @@ export default async function ProductDetailPage({
             </div>
 
             {/* Additional Details Section */}
-            <div className="bg-white mt-2 p-4 md:mt-0 md:px-0 md:py-6">
+            <div className="bg-white mt-0 p-4 md:mt-0 md:px-0 md:py-6">
               <div className="flex justify-between items-center mb-4 md:mb-6">
                 <h2 className="text-gray-900 font-bold text-sm md:text-base">Additional Details</h2>
                 <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-400 -rotate-90 md:hidden" />
