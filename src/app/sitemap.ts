@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { getCachedFrontendProducts } from "@/lib/medusa-cache";
 
+export const revalidate = 86400; // Cache dynamic sitemap for 24 hours
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://laundrymall.in";
 

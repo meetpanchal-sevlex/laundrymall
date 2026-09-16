@@ -8,7 +8,7 @@ import { getCachedFrontendProduct, getCachedFrontendProducts } from "@/lib/medus
 import ImageSlider from "@/components/ImageSlider";
 import ProductActions from "@/components/ProductActions";
 
-export const revalidate = 60; // Cache for 60 seconds (ISR)
+export const revalidate = 86400; // Cache for 24 hours (prevents Vercel ISR write limit exhaustion)
 
 export async function generateStaticParams() {
   try {

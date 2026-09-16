@@ -74,7 +74,7 @@ export const getCachedFrontendProducts = unstable_cache(
     }
   },
   ['medusa-frontend-products-v2'],
-  { revalidate: 60, tags: ['products'] }
+  { revalidate: 86400, tags: ['products'] }
 );
 
 export const getCachedFrontendProduct = unstable_cache(
@@ -98,5 +98,5 @@ export const getCachedFrontendProduct = unstable_cache(
     }
   },
   ['medusa-frontend-product-v2'],
-  { revalidate: 60, tags: ['product'] }
+  { revalidate: 86400, tags: ['product'] }
 );
