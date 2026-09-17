@@ -2,71 +2,73 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, LayoutGrid, FlaskConical, Package, Tags, Factory, Laptop, Building2 } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import {
+  IconAllProducts,
+  IconChemicals,
+  IconPackaging,
+  IconAccessories,
+  IconMachinery,
+  IconTechnology,
+  IconLaundrySetup,
+} from "./icons/CategoryIcons";
 
 const CATEGORIES = [
   {
     name: "All Products",
     subtitle: "Complete B2B Catalog",
     href: "/products",
-    icon: <LayoutGrid className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-blue-600" strokeWidth={1.5} />,
-    bg: "bg-blue-50/80",
-    text: "text-blue-700",
-    ring: "ring-blue-100 hover:ring-blue-300",
+    icon: <IconAllProducts />,
+    bg: "bg-gradient-to-br from-blue-50 to-blue-100/60",
+    ring: "ring-blue-200/60 hover:ring-blue-400",
   },
   {
     name: "Chemicals",
     subtitle: "Detergents & Softeners",
     href: "/products?category=Detergent+Chemicals",
-    icon: <FlaskConical className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-emerald-600" strokeWidth={1.5} />,
-    bg: "bg-emerald-50/80",
-    text: "text-emerald-700",
-    ring: "ring-emerald-100 hover:ring-emerald-300",
+    icon: <IconChemicals />,
+    bg: "bg-gradient-to-br from-emerald-50 to-emerald-100/60",
+    ring: "ring-emerald-200/60 hover:ring-emerald-400",
   },
   {
     name: "Packaging",
     subtitle: "Rolls & Garment Covers",
     href: "/products?category=Packaging+Materials",
-    icon: <Package className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-purple-600" strokeWidth={1.5} />,
-    bg: "bg-purple-50/80",
-    text: "text-purple-700",
-    ring: "ring-purple-100 hover:ring-purple-300",
+    icon: <IconPackaging />,
+    bg: "bg-gradient-to-br from-purple-50 to-purple-100/60",
+    ring: "ring-purple-200/60 hover:ring-purple-400",
   },
   {
     name: "Accessories",
     subtitle: "Tags, Pins & Hangers",
     href: "/products?category=Accessories",
-    icon: <Tags className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-amber-600" strokeWidth={1.5} />,
-    bg: "bg-amber-50/80",
-    text: "text-amber-700",
-    ring: "ring-amber-100 hover:ring-amber-300",
+    icon: <IconAccessories />,
+    bg: "bg-gradient-to-br from-amber-50 to-amber-100/60",
+    ring: "ring-amber-200/60 hover:ring-amber-400",
   },
   {
     name: "Machinery",
     subtitle: "Commercial Washers & Dryers",
     href: "/products?category=Machinery",
-    icon: <Factory className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-sky-600" strokeWidth={1.5} />,
-    bg: "bg-sky-50/80",
-    text: "text-sky-700",
-    ring: "ring-sky-100 hover:ring-sky-300",
+    icon: <IconMachinery />,
+    bg: "bg-gradient-to-br from-sky-50 to-sky-100/60",
+    ring: "ring-sky-200/60 hover:ring-sky-400",
   },
   {
     name: "Technology",
     subtitle: "POS Billing & RFID",
     href: "/products?category=Technology",
-    icon: <Laptop className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-indigo-600" strokeWidth={1.5} />,
-    bg: "bg-indigo-50/80",
-    text: "text-indigo-700",
-    ring: "ring-indigo-100 hover:ring-indigo-300",
+    icon: <IconTechnology />,
+    bg: "bg-gradient-to-br from-indigo-50 to-indigo-100/60",
+    ring: "ring-indigo-200/60 hover:ring-indigo-400",
   },
   {
     name: "Laundry Setup",
     subtitle: "Turnkey Plants & Consulting",
     href: "/products?category=Laundry+Setup",
-    icon: <Building2 className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 text-rose-600" strokeWidth={1.5} />,
-    bg: "bg-rose-50/80",
-    text: "text-rose-700",
-    ring: "ring-rose-100 hover:ring-rose-400",
+    icon: <IconLaundrySetup />,
+    bg: "bg-gradient-to-br from-rose-50 to-rose-100/60",
+    ring: "ring-rose-200/60 hover:ring-rose-400",
     isNew: true,
   },
 ];
@@ -91,7 +93,7 @@ export default function CategoryFlow() {
           </Link>
         </div>
 
-        {/* Static scrollable row — no auto-movement */}
+        {/* Static scrollable row */}
         <div
           className="flex gap-4 overflow-x-auto hide-scrollbar pt-1 pb-2"
           style={{ WebkitOverflowScrolling: "touch" }}
@@ -104,7 +106,7 @@ export default function CategoryFlow() {
             >
               <div className="relative mt-1">
                 <div
-                  className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl ${cat.bg} flex items-center justify-center text-2xl sm:text-3xl md:text-4xl ring-2 ${cat.ring} transition-all duration-200 group-hover:scale-105 group-hover:shadow-md`}
+                  className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl ${cat.bg} flex items-center justify-center p-3 sm:p-3.5 md:p-4 ring-2 ${cat.ring} transition-all duration-200 group-hover:scale-105 group-hover:shadow-lg group-hover:shadow-gray-200/60`}
                 >
                   {cat.icon}
                 </div>
