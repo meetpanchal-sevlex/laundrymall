@@ -4,83 +4,95 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import {
+  IconPopular, IconChemicals, IconPackaging, IconAccessories,
+  IconMachinery, IconTechnology, IconLaundrySetup,
+  // Sub-category icons
+  IconTrophy, IconSparkle, IconSaleTag, IconStarRating,
+  IconBottle, IconFlower, IconBubbles, IconLeaf,
+  IconShoppingBag, IconHanger, IconLabel, IconCubeBox,
+  IconCart, IconShieldCover, IconSteam,
+  IconWashingDrum, IconDryer, IconIron, IconRuler,
+  IconMonitor, IconBarcode, IconDisk, IconCamera,
+  IconBlueprint, IconPackageStack, IconBriefcase,
+} from "./icons/CategoryIcons";
 
 const CATEGORIES = [
   {
     name: "Popular",
-    icon: "⭐",
+    icon: <IconPopular />,
     href: "/products",
     subcategories: [
-      { name: "Best Sellers", icon: "🏆", href: "/products?sort=popular" },
-      { name: "New Arrivals", icon: "✨", href: "/products?sort=new" },
-      { name: "On Sale", icon: "🏷️", href: "/products?sale=true" },
-      { name: "Top Rated", icon: "⭐", href: "/products?sort=rating" },
+      { name: "Best Sellers", icon: <IconTrophy />, href: "/products?sort=popular" },
+      { name: "New Arrivals", icon: <IconSparkle />, href: "/products?sort=new" },
+      { name: "On Sale", icon: <IconSaleTag />, href: "/products?sale=true" },
+      { name: "Top Rated", icon: <IconStarRating />, href: "/products?sort=rating" },
     ],
   },
   {
     name: "Chemicals",
-    icon: "🧪",
+    icon: <IconChemicals />,
     href: "/products?category=Detergent+Chemicals",
     subcategories: [
-      { name: "Detergents", icon: "🧴", href: "/products?category=Chemicals&q=detergent" },
-      { name: "Softeners", icon: "🌸", href: "/products?category=Chemicals&q=softener" },
-      { name: "Stain Removers", icon: "🫧", href: "/products?category=Chemicals&q=stain" },
-      { name: "Eco Range", icon: "🌱", href: "/products?category=Chemicals&q=eco" },
+      { name: "Detergents", icon: <IconBottle />, href: "/products?category=Chemicals&q=detergent" },
+      { name: "Softeners", icon: <IconFlower />, href: "/products?category=Chemicals&q=softener" },
+      { name: "Stain Removers", icon: <IconBubbles />, href: "/products?category=Chemicals&q=stain" },
+      { name: "Eco Range", icon: <IconLeaf />, href: "/products?category=Chemicals&q=eco" },
     ],
   },
   {
     name: "Packaging",
-    icon: "📦",
+    icon: <IconPackaging />,
     href: "/products?category=Packaging+Materials",
     subcategories: [
-      { name: "Poly Bags", icon: "🛍️", href: "/products?category=Packaging&q=poly" },
-      { name: "Hangers", icon: "🪝", href: "/products?category=Packaging&q=hanger" },
-      { name: "Tags & Labels", icon: "🏷️", href: "/products?category=Packaging&q=tag" },
-      { name: "Boxes", icon: "📫", href: "/products?category=Packaging&q=box" },
+      { name: "Poly Bags", icon: <IconShoppingBag />, href: "/products?category=Packaging&q=poly" },
+      { name: "Hangers", icon: <IconHanger />, href: "/products?category=Packaging&q=hanger" },
+      { name: "Tags & Labels", icon: <IconLabel />, href: "/products?category=Packaging&q=tag" },
+      { name: "Boxes", icon: <IconCubeBox />, href: "/products?category=Packaging&q=box" },
     ],
   },
   {
     name: "Accessories",
-    icon: "🔧",
+    icon: <IconAccessories />,
     href: "/products?category=Accessories",
     subcategories: [
-      { name: "Hangers", icon: "🪝", href: "/products?category=Accessories&q=hanger" },
-      { name: "Trolleys", icon: "🛒", href: "/products?category=Accessories&q=trolley" },
-      { name: "Covers", icon: "🫙", href: "/products?category=Accessories&q=cover" },
-      { name: "Steamers", icon: "♨️", href: "/products?category=Accessories&q=steamer" },
+      { name: "Hangers", icon: <IconHanger />, href: "/products?category=Accessories&q=hanger" },
+      { name: "Trolleys", icon: <IconCart />, href: "/products?category=Accessories&q=trolley" },
+      { name: "Covers", icon: <IconShieldCover />, href: "/products?category=Accessories&q=cover" },
+      { name: "Steamers", icon: <IconSteam />, href: "/products?category=Accessories&q=steamer" },
     ],
   },
   {
     name: "Machinery",
-    icon: "⚙️",
+    icon: <IconMachinery />,
     href: "/products?category=Machinery",
     subcategories: [
-      { name: "Washing Machines", icon: "🫧", href: "/products?category=Machinery&q=washing" },
-      { name: "Dryers", icon: "🌀", href: "/products?category=Machinery&q=dryer" },
-      { name: "Ironing", icon: "♨️", href: "/products?category=Machinery&q=iron" },
-      { name: "Folders", icon: "📐", href: "/products?category=Machinery&q=folder" },
+      { name: "Washing Machines", icon: <IconWashingDrum />, href: "/products?category=Machinery&q=washing" },
+      { name: "Dryers", icon: <IconDryer />, href: "/products?category=Machinery&q=dryer" },
+      { name: "Ironing", icon: <IconIron />, href: "/products?category=Machinery&q=iron" },
+      { name: "Folders", icon: <IconRuler />, href: "/products?category=Machinery&q=folder" },
     ],
   },
   {
     name: "Technology",
-    icon: "💻",
+    icon: <IconTechnology />,
     href: "/products?category=Technology",
     subcategories: [
-      { name: "POS Systems", icon: "🖥️", href: "/products?category=Technology&q=pos" },
-      { name: "Barcode", icon: "📊", href: "/products?category=Technology&q=barcode" },
-      { name: "Software", icon: "💾", href: "/products?category=Technology&q=software" },
-      { name: "Cameras", icon: "📷", href: "/products?category=Technology&q=camera" },
+      { name: "POS Systems", icon: <IconMonitor />, href: "/products?category=Technology&q=pos" },
+      { name: "Barcode", icon: <IconBarcode />, href: "/products?category=Technology&q=barcode" },
+      { name: "Software", icon: <IconDisk />, href: "/products?category=Technology&q=software" },
+      { name: "Cameras", icon: <IconCamera />, href: "/products?category=Technology&q=camera" },
     ],
   },
   {
     name: "Laundry Setup",
-    icon: "🏗️",
+    icon: <IconLaundrySetup />,
     href: "/products?category=Laundry+Setup",
     subcategories: [
-      { name: "Turnkey Plant Setup", icon: "🏗️", href: "/products?category=Laundry+Setup&q=plant" },
-      { name: "Commercial Packages", icon: "📦", href: "/products?category=Laundry+Setup&q=package" },
-      { name: "Franchise Consulting", icon: "💼", href: "/products?category=Laundry+Setup&q=consulting" },
-      { name: "Machine Layout Design", icon: "📐", href: "/products?category=Laundry+Setup&q=layout" },
+      { name: "Turnkey Plant Setup", icon: <IconBlueprint />, href: "/products?category=Laundry+Setup&q=plant" },
+      { name: "Commercial Packages", icon: <IconPackageStack />, href: "/products?category=Laundry+Setup&q=package" },
+      { name: "Franchise Consulting", icon: <IconBriefcase />, href: "/products?category=Laundry+Setup&q=consulting" },
+      { name: "Machine Layout Design", icon: <IconRuler />, href: "/products?category=Laundry+Setup&q=layout" },
     ],
   },
 ];
@@ -186,12 +198,12 @@ export default function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onC
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                {/* Active left border indicator (Meesho uses purple, we use blue) */}
+                {/* Active left border indicator */}
                 {activeCategory === i && (
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-600 rounded-r-md"></div>
                 )}
                 
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl ${
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center p-2.5 ${
                   activeCategory === i ? "bg-blue-50" : "bg-white border border-gray-200"
                 }`}>
                   {cat.icon}
@@ -226,8 +238,8 @@ export default function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onC
                   onClick={onClose}
                   className="flex items-center justify-between p-3 mb-3 rounded-xl bg-blue-50/50 hover:bg-blue-50 transition border border-blue-100"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{cat.icon}</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7">{cat.icon}</div>
                     <span className="text-blue-700 font-bold text-sm">All {cat.name}</span>
                   </div>
                 </Link>
@@ -241,7 +253,7 @@ export default function MobileDrawer({ isOpen, onClose }: { isOpen: boolean; onC
                       onClick={onClose}
                       className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100 hover:bg-white hover:border-blue-200 hover:shadow-sm transition-all text-center"
                     >
-                      <span className="text-3xl">{sub.icon}</span>
+                      <div className="w-10 h-10">{sub.icon}</div>
                       <span className="text-xs font-semibold text-gray-700 leading-tight">{sub.name}</span>
                     </Link>
                   ))}
