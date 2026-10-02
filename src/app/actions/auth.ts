@@ -276,11 +276,15 @@ export async function verifyMsg91PhoneLoginAction(accessToken: string, clientPho
       return { error: "Could not retrieve verified phone number from authentication service." };
     }
 
-    // 3. Deterministic Medusa 2.0 Identity Mapping
+    // 3. Deterministic Medusa 2.0 Identity Mapping (Secured via strict pepper enforcement)
     const syntheticEmail = `${cleanPhone}@phone.laundrymall.in`;
-    const secretSalt = process.env.MEDUSA_ADMIN_API_KEY || MSG91_AUTH_KEY || "laundrymall-secret-2026";
+    const pepper = process.env.PHONE_AUTH_PEPPER || process.env.MEDUSA_ADMIN_API_KEY;
+    if (!pepper || pepper.length < 32) {
+      console.error("SECURITY ALERT: A strong pepper (32+ chars) is required for Phone OTP authentication.");
+      return { error: "Authentication service misconfigured. Please contact support." };
+    }
     const deterministicPassword =
-      crypto.createHmac("sha256", secretSalt).update(cleanPhone).digest("hex").slice(0, 24) + "Aa1!";
+      crypto.createHmac("sha256", pepper).update(cleanPhone).digest("hex").slice(0, 24) + "Aa1!";
 
     let token: string | null = null;
     let isNewCustomer = false;

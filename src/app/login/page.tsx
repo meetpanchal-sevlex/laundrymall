@@ -44,6 +44,7 @@ function LoginForm() {
   const [resendTimer, setResendTimer] = useState(45);
   const [error, setError] = useState<string | null>(null);
   const [infoMsg, setInfoMsg] = useState<string | null>(null);
+  const [isMsg91Ready, setIsMsg91Ready] = useState(false);
 
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
@@ -82,6 +83,7 @@ function LoginForm() {
         initMsg91Widget();
       }
       if (typeof window !== "undefined" && window.sendOtp) {
+        setIsMsg91Ready(true);
         clearInterval(timer);
       }
     }, 200);
@@ -108,24 +110,11 @@ function LoginForm() {
 
   const getSendOtp = async (): Promise<typeof window.sendOtp> => {
     if (typeof window === "undefined") return undefined;
-    if (window.sendOtp) return window.sendOtp;
-
-    initMsg91Widget();
-    for (let i = 0; i < 25; i++) {
-      if (window.sendOtp) return window.sendOtp;
-      await new Promise((resolve) => setTimeout(resolve, 150));
-    }
     return window.sendOtp;
   };
 
   const getVerifyOtp = async (): Promise<typeof window.verifyOtp> => {
     if (typeof window === "undefined") return undefined;
-    if (window.verifyOtp) return window.verifyOtp;
-
-    for (let i = 0; i < 25; i++) {
-      if (window.verifyOtp) return window.verifyOtp;
-      await new Promise((resolve) => setTimeout(resolve, 150));
-    }
     return window.verifyOtp;
   };
 
@@ -465,10 +454,10 @@ function LoginForm() {
 
                     <button
                       type="submit"
-                      disabled={isLoading || phone.length !== 10}
+                      disabled={isLoading || !isMsg91Ready || phone.length !== 10}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-lg text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm cursor-pointer"
                     >
-                      {isLoading ? "Sending..." : "Continue"}
+                      {isLoading ? "Sending..." : !isMsg91Ready ? "Connecting..." : "Continue"}
                     </button>
                   </form>
                 </div>
